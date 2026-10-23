@@ -1,0 +1,9 @@
+.git
+.gitignore
+.gemini
+.system_generated
+scratch/
+docker/mysql-data/
+*.log
+*.tmp
+*.env

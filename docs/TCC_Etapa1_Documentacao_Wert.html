@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>TCC — Etapa 1: Documentação Mini SaaS | Projeto Wert</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+  }
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    color: #1f2937;
+    background-color: #ffffff;
+    line-height: 1.5;
+    font-size: 10.5pt;
+    margin: 0;
+    padding: 0;
+  }
+  .header-cover {
+    border-bottom: 3px solid #D4AF6C;
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+  }
+  .badge-tag {
+    display: inline-block;
+    background: #111827;
+    color: #D4AF6C;
+    font-weight: 700;
+    font-size: 8.5pt;
+    padding: 3px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 20pt;
+    color: #111827;
+    margin: 4px 0 6px 0;
+    font-weight: 800;
+  }
+  .subtitle {
+    font-size: 11pt;
+    color: #4b5563;
+    margin: 0;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-top: 14px;
+    font-size: 9pt;
+  }
+  .meta-item strong {
+    display: block;
+    color: #111827;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .meta-item span {
+    color: #374151;
+  }
+  h2 {
+    font-size: 12.5pt;
+    color: #111827;
+    border-left: 4px solid #D4AF6C;
+    padding-left: 8px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 10.5pt;
+    color: #1f2937;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  p {
+    margin: 0 0 8px 0;
+    text-align: justify;
+  }
+  ul, ol {
+    margin: 0 0 10px 0;
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 14px 0;
+    font-size: 9pt;
+  }
+  th, td {
+    border: 1px solid #e5e7eb;
+    padding: 7px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background-color: #111827;
+    color: #ffffff;
+    font-weight: 600;
+  }
+  tr:nth-child(even) td {
+    background-color: #f9fafb;
+  }
+  .highlight-box {
+    background-color: #fdfbf7;
+    border: 1px solid #e8dbbe;
+    border-left: 4px solid #D4AF6C;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    font-size: 9.5pt;
+  }
+  .checklist {
+    list-style: none;
+    padding-left: 0;
+  }
+  .checklist li {
+    padding-left: 24px;
+    position: relative;
+    margin-bottom: 5px;
+  }
+  .checklist li::before {
+    content: "☑";
+    position: absolute;
+    left: 0;
+    color: #059669;
+    font-weight: bold;
+    font-size: 11pt;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 7.5pt;
+    font-weight: bold;
+  }
+  .badge-mvp {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+  .badge-extra {
+    background-color: #ede9fe;
+    color: #5b21b6;
+  }
+  .footer {
+    margin-top: 20px;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 8px;
+    font-size: 8pt;
+    color: #6b7280;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<div class="header-cover">
+  <span class="badge-tag">TCC — Trilhas 5 • Desenvolvimento de um Mini SaaS</span>
+  <h1>WERT FINANCY — GESTÃO FINANCEIRA PESSOAL</h1>
+  <p class="subtitle">Documento de Especificação de Requisitos, Arquitetura e Planejamento (Etapa 1)</p>
+  
+  <div class="meta-grid">
+    <div class="meta-item">
+      <strong>Período de Avaliação</strong>
+      <span>05/10 a 12/11/2026</span>
+    </div>
+    <div class="meta-item">
+      <strong>Entrega & Apresentação</strong>
+      <span>12/11/2026</span>
+    </div>
+    <div class="meta-item">
+      <strong>Formato</strong>
+      <span>Grupo de 4 Pessoas</span>
+    </div>
+    <div class="meta-item">
+      <strong>Link de Produção</strong>
+      <span>wertfinancy.ct.ws</span>
+    </div>
+  </div>
+</div>
+
+<h2>1. IDENTIFICAÇÃO DO PROJETO</h2>
+<p><strong>Nome do Sistema:</strong> Wert (ou <em>Wert Financy</em>)</p>
+<p><strong>Por que escolhemos este nome:</strong> <em>"Wert"</em> é a palavra em alemão para <strong>"Valor"</strong>. Escolhemos esse nome porque a proposta central da plataforma vai além de apenas somar números ou listar boletos: buscamos ajudar o usuário a enxergar o real valor do seu dinheiro, do seu trabalho e das suas escolhas diárias. É um nome curto, direto, sofisticado e fácil de lembrar.</p>
+
+<h3>Integrantes do Grupo e Funções</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width: 25%;">Integrante</th>
+      <th style="width: 30%;">Função Principal</th>
+      <th>Responsabilidades Específicas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Integrante 1</strong></td>
+      <td>Líder de Back-end & Banco de Dados</td>
+      <td>Modelagem do banco MySQL, conexões PDO, lógica de cadastro, autenticação e regras de limites de orçamento.</td>
+    </tr>
+    <tr>
+      <td><strong>Integrante 2</strong></td>
+      <td>Líder de Front-end & PWA</td>
+      <td>Construção das interfaces responsivas, estilos CSS (Dark Luxury), integração com manifest.json e Service Worker.</td>
+    </tr>
+    <tr>
+      <td><strong>Integrante 3</strong></td>
+      <td>DevOps, Infraestrutura & Segurança</td>
+      <td>Deploy no servidor InfinityFree, isolamento de usuários (multi-tenant), tokens Anti-CSRF e testes de penetração/segurança.</td>
+    </tr>
+    <tr>
+      <td><strong>Integrante 4</strong></td>
+      <td>QA, UX Design & Documentação</td>
+      <td>Mapeamento da jornada do usuário, homologação de testes mobile, elaboração do documento de TCC e slides de apresentação.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. O PROBLEMA (SEÇÃO CENTRAL)</h2>
+
+<div class="highlight-box">
+  <strong>Diagnóstico Real:</strong> A desorganização financeira pessoal raramente decorre de falta de matemática; decorre da fricção dos métodos tradicionais e da falta de visibilidade em tempo real na palma da mão.
+</div>
+
+<p><strong>Qual problema o sistema resolve?</strong> O descontrole financeiro cotidiano e a perda de dinheiro por falta de acompanhamento. Muitas pessoas chegam ao final do mês com a sensação angustiante de que o dinheiro "sumiu", sem saber com precisão quanto gastaram com supérfluos, refeições fora de casa ou assinaturas esquecidas. Esse problema gera ansiedade e impede qualquer planejamento de futuro.</p>
+
+<p><strong>Para quem? (Público-alvo específico):</strong> Jovens adultos, estudantes universitários e profissionais autônomos (faixa etária de 18 a 35 anos) que estão assumindo suas primeiras contas fixas ou possuem fontes de renda pontuais, necessitando de uma forma rápida e desburocratizada de registrar seus gastos pelo celular.</p>
+
+<p><strong>Como essas pessoas resolvem isso hoje?</strong></p>
+<ul>
+  <li><strong>Cadernos de papel:</strong> Ficam em casa, são fáceis de esquecer e não calculam saldos ou médias automaticamente.</li>
+  <li><strong>Planilhas do Excel / Google Sheets:</strong> São complexas de mexer na tela pequena do smartphone, travam e exigem fórmulas que desestimulam a constância após poucos dias.</li>
+  <li><strong>Grupos de WhatsApp consigo mesmo:</strong> As mensagens se perdem no histórico e não geram relatórios consolidados.</li>
+  <li><strong>Apps bancários:</strong> Cada banco só mostra os dados da sua própria conta, sem juntar dinheiro em espécie, carteiras físicas ou outras contas.</li>
+</ul>
+
+<p><strong>Por que o Wert ajuda de verdade?</strong> O Wert foi desenhado para eliminar a fricção: o usuário adiciona o sistema na tela inicial do celular como um aplicativo nativo (PWA), abre em menos de 1 segundo e faz um lançamento com 3 toques. O sistema adota limites visuais inteligentes de orçamento por categoria (alertas em verde, amarelo e vermelho) para que a pessoa saiba na hora se pode gastar ou se já atingiu o teto daquele mês.</p>
+
+<div class="page-break"></div>
+
+<h2>3. FUNCIONALIDADES DO SISTEMA</h2>
+
+<h3>3.1. MVP (Mínimo Produto Viável — Obrigatório para 11/12)</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width: 10%;">Item</th>
+      <th style="width: 30%;">Funcionalidade</th>
+      <th>Descrição da Entrega</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="badge badge-mvp">MVP 1</span></td>
+      <td><strong>Autenticação & Isolamento Multi-tenant</strong></td>
+      <td>Cadastro de usuário com nome, e-mail e senha protegida por hash Bcrypt. Cada usuário logado acessa rigorosamente apenas os seus próprios dados.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-mvp">MVP 2</span></td>
+      <td><strong>Painel Consolidado (Dashboard)</strong></td>
+      <td>Exibição dinâmica do saldo total em carteira, total de receitas do mês, total de despesas e widget de progresso dos orçamentos mensais.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-mvp">MVP 3</span></td>
+      <td><strong>Gestão Completa de Lançamentos (CRUD)</strong></td>
+      <td>Adicionar, listar, editar e excluir despesas e receitas, definindo valor, categoria, conta de débito e data de competência.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-mvp">MVP 4</span></td>
+      <td><strong>Categorias com Teto de Orçamento</strong></td>
+      <td>Definição de limite financeiro mensal por categoria com barras progressivas de consumo (mínimo de 1 e teto de 8 despesas / 3 receitas).</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-mvp">MVP 5</span></td>
+      <td><strong>Suporte Nativo a PWA e Mobile-First</strong></td>
+      <td>Instalabilidade direta no celular via <em>Add to Home Screen</em> com service worker, ícones dedicados e navegação inferior ergonômica.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>3.2. Funcionalidades Extras (Para Fases Posteriores)</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width: 10%;">Item</th>
+      <th style="width: 30%;">Funcionalidade Extra</th>
+      <th>Descrição da Expansão</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="badge badge-extra">Extra 1</span></td>
+      <td><strong>Gráficos Analíticos Dinâmicos</strong></td>
+      <td>Gráficos interativos via Chart.js demonstrando a distribuição percentual de despesas por categoria e fluxo de caixa de 12 meses.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-extra">Extra 2</span></td>
+      <td><strong>Metas de Economia</strong></td>
+      <td>Criação de objetivos com data-limite, barra de progresso acumulado e valor alvo.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-extra">Extra 3</span></td>
+      <td><strong>Cartões de Crédito & Parcelamentos</strong></td>
+      <td>Simulação de compras parceladas, faturas com dia de fechamento e débito em conta.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-extra">Extra 4</span></td>
+      <td><strong>Assistente Financeiro IA</strong></td>
+      <td>Módulo inteligente com Google Gemini para diagnóstico de gastos e dicas de economia.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-extra">Extra 5</span></td>
+      <td><strong>Importação de Extrato (CSV/OFX) & Backup</strong></td>
+      <td>Upload de arquivos bancários e exportação completa dos registros em formato JSON.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>4. ESPECIFICAÇÃO DAS TELAS DO SISTEMA (MÍNIMO DE 4 TELAS)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 25%;">Tela & Arquivo</th>
+      <th style="width: 45%;">O que tem nela (Componentes)</th>
+      <th style="width: 30%;">Para onde ela leva (Fluxo)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Tela 1: Login</strong><br><code>paginalogar.php</code></td>
+      <td>Logotipo Wert, campos de e-mail e senha, botão de autenticação "Entrar no Wert", mensagens de erro amigáveis e token CSRF oculto.</td>
+      <td>Redireciona para o <strong>Dashboard</strong> ao autenticar com sucesso; link para <strong>Criar Conta</strong> ou <strong>Recuperar Senha</strong>.</td>
+    </tr>
+    <tr>
+      <td><strong>Tela 2: Cadastro</strong><br><code>cadastrar.php</code></td>
+      <td>Formulário com nome completo, e-mail, senha (mínimo 6 caracteres) e confirmação de senha. Ao salvar, cria automaticamente a carteira e categorias essenciais.</td>
+      <td>Autentica a sessão instantaneamente e redireciona direto para o <strong>Dashboard</strong>; link alternativo para voltar ao Login.</td>
+    </tr>
+    <tr>
+      <td><strong>Tela 3: Dashboard Principal</strong><br><code>index.php</code></td>
+      <td>Cards com saldo atual, total de receitas e despesas do mês, widget com as categorias mais gastas, barra de orçamentos e lista dos últimos lançamentos.</td>
+      <td>Botão de ação rápida para <strong>Novo Lançamento</strong>; menu inferior para <strong>Extrato</strong>, <strong>Categorias</strong>, <strong>Contas</strong> e <strong>Perfil</strong>.</td>
+    </tr>
+    <tr>
+      <td><strong>Tela 4: Formulário de Lançamento</strong><br><code>adicionar_gasto.php</code></td>
+      <td>Seletor de tipo (Despesa / Receita), campo de valor com máscara monetária, descrição, seletor de data, dropdown de categoria e conta bancária.</td>
+      <td>Botão <em>Salvar</em> processa os dados com validações e retorna ao <strong>Dashboard</strong> com saldo recalculado; botão <em>Cancelar</em> volta sem salvar.</td>
+    </tr>
+    <tr>
+      <td><strong>Tela 5: Categorias & Limites</strong><br><code>categorias.php</code></td>
+      <td>Listagem das categorias com barras de progresso de consumo mensal, botão para criar nova categoria e campo opcional de teto de gasto.</td>
+      <td>Permite editar limites, excluir categorias (respeitando o mínimo de 1) ou navegar de volta ao <strong>Dashboard</strong>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>5. TECNOLOGIAS, ARQUITETURA E HOSPEDAGEM</h2>
+
+<p>A arquitetura foi planejada segundo o princípio de <strong>eficiência e confiabilidade</strong>: utilizar código limpo e nativo, dispensando dependências pesadas que deixariam o aplicativo lento no celular.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 25%;">Camada</th>
+      <th style="width: 30%;">Tecnologia Adotada</th>
+      <th>Justificativa Técnica</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Front-end</strong></td>
+      <td>HTML5 Semântico, CSS3 Modern Heritage & Vanilla JavaScript</td>
+      <td>Carregamento ultrarrápido em redes móveis (3G/4G), consumo mínimo de memória no celular, design dark elegante com contrastes em ouro (#D4AF6C) e verde esmeralda.</td>
+    </tr>
+    <tr>
+      <td><strong>Back-end</strong></td>
+      <td>PHP 8.x Nativo</td>
+      <td>Linguagem madura, processamento veloz de requisições, gerenciamento de sessões nativo e suporte robusto em qualquer servidor web sem custos de runtime.</td>
+    </tr>
+    <tr>
+      <td><strong>Banco de Dados</strong></td>
+      <td>MySQL 8 (Engine InnoDB)</td>
+      <td>Suporte total a transações ACID (essencial para saldos e estornos), integridade referencial com chaves estrangeiras (`ON DELETE CASCADE`) e Prepared Statements contra SQL Injection.</td>
+    </tr>
+    <tr>
+      <td><strong>PWA (App Instalável)</strong></td>
+      <td>Web App Manifest & Service Worker</td>
+      <td>Permite que o usuário instale o Wert como um aplicativo nativo no Android, iOS ou Windows, com tela cheia (standalone) e ícones personalizados (192px e 512px).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Especificações do PWA (Progressive Web App)</h3>
+<ul>
+  <li><strong>Nome da Aplicação:</strong> Wert Financy</li>
+  <li><strong>Nome Curto (Short Name):</strong> Wert</li>
+  <li><strong>Cor de Fundo (Background Color):</strong> <code>#121214</code> (Dark Luxury)</li>
+  <li><strong>Cor de Destaque do Tema (Theme Color):</strong> <code>#D4AF6C</code> (Ouro Champanhe)</li>
+  <li><strong>Modo de Exibição (Display):</strong> <code>standalone</code> (oculta a barra de URL do navegador)</li>
+  <li><strong>Ícones Registrados:</strong> <code>img/icon-192.svg</code> (192x192) e <code>img/icon-512.svg</code> (512x512)</li>
+</ul>
+
+<h3>Hospedagem e Ambiente Online (100% Gratuito)</h3>
+<ul>
+  <li><strong>Hospedagem Web & PHP:</strong> InfinityFree (Cluster Apache / OpenResty compatível com PHP 8).</li>
+  <li><strong>Banco de Dados Remoto:</strong> MySQL Server dedicado no InfinityFree (Host: <code>sql306.infinityfree.com:3306</code>).</li>
+  <li><strong>Link Oficial de Acesso Público:</strong> <a href="http://wertfinancy.ct.ws/" target="_blank"><strong>http://wertfinancy.ct.ws/</strong></a></li>
+</ul>
+
+<h2>6. CRONOGRAMA DE DESENVOLVIMENTO (ETAPA 2)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 20%;">Período</th>
+      <th style="width: 45%;">Atividades e Entregas Planejadas</th>
+      <th style="width: 35%;">Responsáveis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>12/11 a 18/11</strong></td>
+      <td>Configuração do ambiente online, migração do schema MySQL, tela de Login/Cadastro com hash Bcrypt, deploy no InfinityFree e manifesto do PWA.</td>
+      <td>Integrante 1 (Back-end)<br>Integrante 3 (DevOps)</td>
+    </tr>
+    <tr>
+      <td><strong>19/11 a 02/12</strong></td>
+      <td>Construção da funcionalidade principal: CRUD completo de transações, integração com categorias, cálculo dinâmico de saldo no Dashboard e regras de limites.</td>
+      <td>Integrante 1 (Back-end)<br>Integrante 2 (Front-end)</td>
+    </tr>
+    <tr>
+      <td><strong>03/12 a 08/12</strong></td>
+      <td>Ajustes de responsividade mobile, validação de tokens CSRF, suíte de testes de integração (Fases 1 e 2) e simulação de uso no smartphone.</td>
+      <td>Integrante 2 (Front-end)<br>Integrante 4 (QA & UX)</td>
+    </tr>
+    <tr>
+      <td><strong>09/12 a 11/12</strong></td>
+      <td>Congelamento de código, validação de compatibilidade no link de produção público, fechamento do Diário de Bordo e entrega oficial do link.</td>
+      <td>Todos os 4 Integrantes</td>
+    </tr>
+    <tr>
+      <td><strong>12/12 a 14/12</strong></td>
+      <td>Elaboração dos slides da apresentação final, gravação do roteiro de demonstração em tempo real e ensaio coletivo dos discursos.</td>
+      <td>Todos os 4 Integrantes</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>7. CHECKLIST DE CONFORMIDADE — ETAPA 1</h2>
+<ul class="checklist">
+  <li>Nome do sistema e justificativa conceitual documentados (Wert = Valor).</li>
+  <li>Integrantes e funções de cada um claramente mapeados na equipe de 4 desenvolvedores.</li>
+  <li>Problema bem contextualizado, com público-alvo delimitado (jovens de 18 a 35 anos) e alternativas atuais analisadas.</li>
+  <li>Lista objetiva de requisitos contendo 5 itens no MVP e 5 itens nas funcionalidades extras.</li>
+  <li>Mínimo de 4 telas especificadas com componentes, propósito e fluxos de navegação definidos.</li>
+  <li>Tecnologias justificadas (PHP 8 nativo, MySQL InnoDB, CSS Dark e Vanilla JS).</li>
+  <li>Hospedagem pública e gratuita definida com link operacional (<code>http://wertfinancy.ct.ws/</code>).</li>
+  <li>Parâmetros do PWA documentados (nome curto, ícones 192/512px, tema ouro/escuro e standalone).</li>
+  <li>Cronograma de trabalho da Etapa 2 dividido detalhadamente entre as 5 semanas de execução.</li>
+  <li>Texto integralmente revisado e formatado nos padrões técnicos acadêmicos para apresentação em 12/11.</li>
+</ul>
+
+<div class="footer">
+  <span>TCC — Trilhas 5 • Projeto Wert Financy (Mini SaaS)</span>
+  <span>Documento Oficial de Engenharia de Software — Outubro/2026</span>
+</div>
+
+</body>
+</html>

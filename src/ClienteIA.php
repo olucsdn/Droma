@@ -1,0 +1,306 @@
+<?php
+/**
+ * Cliente de Integração com o Google Gemini e Assistente Financeiro Wert
+ */
+final class ClienteIA {
+    private const DEFAULT_MODEL = 'gemini-3.6-flash';
+    public const DAILY_LIMIT = 3;
+
+    public function analisar(array $dados): string {
+        $lastError = 'Nenhum provedor de IA configurado.';
+
+        // 1. Provedor Principal: Google Gemini (com fallback entre modelos)
+        $geminiKey = $this->chave();
+        if ($geminiKey !== '') {
+            try {
+                return $this->analisarGemini($dados, $geminiKey);
+            } catch (Throwable $e) {
+                $lastError = $e->getMessage();
+            }
+        }
+
+        // 2. Provedor Secundário: Hugging Face Router
+        $hfToken = $this->tokenHF();
+        if ($hfToken !== '') {
+            try {
+                $hfRes = $this->analisarHuggingFace($dados, $hfToken);
+                if ($hfRes !== null) {
+                    return $hfRes;
+                }
+            } catch (Throwable $e) {
+                $lastError = $e->getMessage();
+            }
+        }
+
+        throw new RuntimeException($lastError);
+    }
+
+    /**
+     * Executa análise via Google Gemini com tolerância a falhas
+     */
+    private function analisarGemini(array $dados, string $key): string {
+        $preferredModel = $this->obterModelo();
+        $modelCandidates = array_unique(array_filter([
+            $preferredModel,
+            'gemini-3.6-flash',
+            'gemini-3.5-flash',
+            'gemini-3.7-flash',
+            'gemini-3.5-flash-lite'
+        ]));
+
+        $payload = [
+            'systemInstruction' => ['parts' => [['text' =>
+                'Você é o assistente financeiro do Wert. Responda em português do Brasil de forma acolhedora, objetiva e sem qualquer julgamento moral. '
+                . 'Analise os números fornecidos e dê exatamente 3 sugestões práticas e realistas para ajudar o usuário a economizar ou planejar melhor. '
+                . 'Use somente os números enviados; não invente dados e não recomende investimentos específicos ou arriscados.'
+            ]]],
+            'contents' => [[
+                'role'  => 'user',
+                'parts' => [['text' => 'Dados financeiros consolidados: ' . json_encode($dados, JSON_UNESCAPED_UNICODE)]],
+            ]],
+            'generationConfig' => [
+                'maxOutputTokens' => 3000,
+                'temperature' => 0.4,
+                'thinkingConfig' => ['thinkingBudget' => 512]
+            ],
+        ];
+        $body = json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+        $lastError = 'O assistente está indisponível no momento.';
+        foreach ($modelCandidates as $model) {
+            $url = 'https://generativelanguage.googleapis.com/v1beta/models/' . urlencode($model) . ':generateContent';
+
+            $c = curl_init($url);
+            curl_setopt_array($c, [
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => $body,
+                CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'x-goog-api-key: ' . $key],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CONNECTTIMEOUT => 5,
+                CURLOPT_TIMEOUT        => 20,
+            ]);
+            $raw  = curl_exec($c);
+            $code = (int) curl_getinfo($c, CURLINFO_HTTP_CODE);
+
+            if ($raw === false) {
+                continue;
+            }
+            if ($code === 429) {
+                throw new RuntimeException('O limite de requisições do provedor de IA foi atingido. Tente novamente mais tarde.');
+            }
+            if ($code === 200) {
+                $decoded = json_decode($raw, true);
+                $parts = $decoded['candidates'][0]['content']['parts'] ?? [];
+                $textParts = [];
+                foreach ($parts as $p) {
+                    if (isset($p['text']) && is_string($p['text'])) {
+                        $textParts[] = $p['text'];
+                    }
+                }
+                $text = implode("\n", $textParts);
+                if (trim($text) !== '') {
+                    return mb_substr(trim($text), 0, 5000);
+                }
+            }
+            $lastError = "O assistente Gemini retornou status HTTP $code para o modelo $model.";
+        }
+
+        throw new RuntimeException($lastError);
+    }
+
+    /**
+     * Executa análise via Hugging Face Router (OpenAI-compatible)
+     */
+    private function analisarHuggingFace(array $dados, string $token): ?string {
+        $url = 'https://router.huggingface.co/v1/chat/completions';
+        $payload = [
+            'model' => 'meta-llama/Llama-3.1-8B-Instruct',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => 'Você é o assistente financeiro do Wert. Responda em português do Brasil de forma acolhedora, objetiva e sem qualquer julgamento moral. '
+                        . 'Analise os números fornecidos e dê exatamente 3 sugestões práticas e realistas para ajudar o usuário a economizar ou planejar melhor. '
+                        . 'Use somente os números enviados; não invente dados e não recomende investimentos específicos ou arriscados.'
+                ],
+                [
+                    'role' => 'user',
+                    'content' => 'Dados financeiros consolidados: ' . json_encode($dados, JSON_UNESCAPED_UNICODE)
+                ]
+            ],
+            'max_tokens' => 1200,
+            'temperature' => 0.4
+        ];
+
+        $c = curl_init($url);
+        curl_setopt_array($c, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
+                "Authorization: Bearer $token",
+                'Content-Type: application/json'
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_TIMEOUT        => 20,
+        ]);
+        $raw  = curl_exec($c);
+        $code = (int) curl_getinfo($c, CURLINFO_HTTP_CODE);
+
+        if ($code === 200 && is_string($raw)) {
+            $data = json_decode($raw, true);
+            $content = $data['choices'][0]['message']['content'] ?? '';
+            if (is_string($content) && trim($content) !== '') {
+                return mb_substr(trim($content), 0, 5000);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Verifica e retorna o consumo diário do usuário
+     */
+    public function getDailyUsage(PDO $pdo, int $userId): array {
+        $today = date('Y-m-d');
+        $stmt = $pdo->prepare("SELECT requests FROM ai_daily_usage WHERE user_id = ? AND usage_date = ?");
+        $stmt->execute([$userId, $today]);
+        $requests = (int) ($stmt->fetchColumn() ?: 0);
+        return [
+            'requests' => $requests,
+            'limit' => self::DAILY_LIMIT,
+            'remaining' => max(0, self::DAILY_LIMIT - $requests),
+            'allowed' => ($requests < self::DAILY_LIMIT)
+        ];
+    }
+
+    /**
+     * Incrementa o contador de requisições diárias
+     */
+    public function recordUsage(PDO $pdo, int $userId): void {
+        $today = date('Y-m-d');
+        $stmt = $pdo->prepare("
+            INSERT INTO ai_daily_usage (user_id, usage_date, requests)
+            VALUES (?, ?, 1)
+            ON DUPLICATE KEY UPDATE requests = requests + 1
+        ");
+        $stmt->execute([$userId, $today]);
+    }
+
+    /**
+     * Gera análises e recomendações heurísticas locais quando a IA estiver offline ou limite atingido
+     */
+    public function gerarAnaliseLocal(array $dados): string {
+        $receitas = (float) ($dados['receitas'] ?? 0);
+        $despesas = (float) ($dados['despesas'] ?? 0);
+        $saldo = $receitas - $despesas;
+        $taxaPoupanca = $receitas > 0 ? round(($saldo / $receitas) * 100, 1) : 0;
+
+        $linhas = [];
+        $linhas[] = "💡 **Diagnóstico Financeiro Automatizado (Wert Analytics)**\n";
+
+        if ($saldo > 0) {
+            $linhas[] = "• **Superávit Operacional:** Parabéns! Você fechou o período com saldo positivo de R$ " . number_format($saldo, 2, ',', '.') . " (taxa de poupança de {$taxaPoupanca}% das suas receitas).";
+            if ($taxaPoupanca >= 20) {
+                $linhas[] = "• **Excelente Disciplina:** Manter uma taxa de poupança acima de 20% é o padrão ideal para construir reservas de emergência e atingir suas metas de médio prazo.";
+            } else {
+                $linhas[] = "• **Oportunidade de Otimização:** Experimente destinar gradualmente ao menos 15% a 20% das receitas para seus objetivos financeiros cadastrados na aba Metas.";
+            }
+        } elseif ($saldo < 0) {
+            $linhas[] = "• **Alerta de Déficit:** As despesas superaram as receitas em R$ " . number_format(abs($saldo), 2, ',', '.') . " no período. Recomenda-se revisar gastos imediatos.";
+            $linhas[] = "• **Ajuste de Custos:** Verifique categorias não essenciais ou compras parceladas no cartão para conter a pressão sobre o fluxo de caixa.";
+        } else {
+            $linhas[] = "• **Equilíbrio Financeiro:** Suas receitas e despesas estão exatamente empatadas. O foco para os próximos meses deve ser criar uma margem de segurança.";
+        }
+
+        // Análise de maiores gastos
+        if (!empty($dados['maiores_despesas']) && is_array($dados['maiores_despesas'])) {
+            $top = $dados['maiores_despesas'][0];
+            $catNome = $top['categoria'] ?? 'Outros';
+            $catTotal = (float) ($top['total'] ?? 0);
+            $percCat = $despesas > 0 ? round(($catTotal / $despesas) * 100, 1) : 0;
+            $linhas[] = "• **Maior Concentração:** A categoria **{$catNome}** representou {$percCat}% (R$ " . number_format($catTotal, 2, ',', '.') . ") do seu total de despesas. Acompanhar essa área trará o maior impacto na sua economia.";
+        }
+
+        return implode("\n\n", $linhas);
+    }
+
+    private function obterModelo(): string {
+        $envModel = getenv('GEMINI_MODEL') ?: ($_ENV['GEMINI_MODEL'] ?? '');
+        if ($envModel !== '') {
+            return trim($envModel);
+        }
+
+        $candidatos = [
+            'C:/laragon/segredos/wert.env',
+            'C:/xampp/segredos/wert.env',
+            dirname(__DIR__, 2) . '/segredos/wert.env',
+            dirname(__DIR__) . '/.env'
+        ];
+
+        foreach ($candidatos as $f) {
+            if (is_readable($f)) {
+                foreach (file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) {
+                    $l = trim($l);
+                    if (str_starts_with($l, 'GEMINI_MODEL=')) {
+                        return trim(substr($l, 13), " \t\"'");
+                    }
+                }
+            }
+        }
+
+        return self::DEFAULT_MODEL;
+    }
+
+    private function chave(): string {
+        $envKey = getenv('GEMINI_API_KEY') ?: ($_ENV['GEMINI_API_KEY'] ?? '');
+        if ($envKey !== '') {
+            return trim($envKey);
+        }
+
+        $candidatos = [
+            'C:/laragon/segredos/wert.env',
+            'C:/xampp/segredos/wert.env',
+            dirname(__DIR__, 2) . '/segredos/wert.env',
+            dirname(__DIR__) . '/.env'
+        ];
+
+        foreach ($candidatos as $f) {
+            if (is_readable($f)) {
+                foreach (file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) {
+                    $l = trim($l);
+                    if (str_starts_with($l, 'GEMINI_API_KEY=')) {
+                        return trim(substr($l, 15), " \t\"'");
+                    }
+                }
+            }
+        }
+
+        return '';
+    }
+
+    private function tokenHF(): string {
+        $envKey = getenv('HF_TOKEN') ?: ($_ENV['HF_TOKEN'] ?? '');
+        if ($envKey !== '') {
+            return trim($envKey);
+        }
+
+        $candidatos = [
+            'C:/laragon/segredos/wert.env',
+            'C:/xampp/segredos/wert.env',
+            dirname(__DIR__, 2) . '/segredos/wert.env',
+            dirname(__DIR__) . '/.env'
+        ];
+
+        foreach ($candidatos as $f) {
+            if (is_readable($f)) {
+                foreach (file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) {
+                    $l = trim($l);
+                    if (str_starts_with($l, 'HF_TOKEN=')) {
+                        return trim(substr($l, 9), " \t\"'");
+                    }
+                }
+            }
+        }
+
+        return '';
+    }
+}

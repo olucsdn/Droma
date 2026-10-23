@@ -1,0 +1,42 @@
+# ==============================================================================
+# Configurações de Segurança e Proteção de Arquivos — Wert Financy
+# ==============================================================================
+
+# Desativa a listagem pública de diretórios
+Options -Indexes
+
+# Protege arquivos de configuração, banco de dados, documentações e logs
+<FilesMatch "^\.|\.(env|sql|log|md|ini|yml|yaml|lock)$|Dockerfile|docker-compose">
+    Require all denied
+</FilesMatch>
+
+# Permite acesso ao manifest.json para suporte ao PWA
+<Files "manifest.json">
+    Require all granted
+</Files>
+
+# Protege pastas sensíveis contra acesso HTTP direto
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Bloqueia acesso direto a diretórios internos de infraestrutura e testes
+    RewriteRule ^(database|docker|docs|scratch|tests|config)/ - [F,L,NC]
+</IfModule>
+
+# Cabeçalhos HTTP de Segurança
+<IfModule mod_headers.c>
+    # Impede que o sistema seja embutido em iframes de outros sites (Clickjacking)
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Previne que navegadores façam detecção automática de MIME (MIME sniffing)
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Proteção adicional contra XSS refletido
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Não vaza caminhos internos completos em requisições de saída
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Restringe APIs desnecessárias do navegador
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
