@@ -23,6 +23,10 @@ RUN a2enmod rewrite headers
 # Aplica configuração otimizada de PHP
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/wert-custom.ini
 
+# Script de entrada para porta dinâmica (Render, Nuvem e Docker Local)
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && chmod +x /usr/local/bin/entrypoint.sh
+
 # Define o DocumentRoot
 WORKDIR /var/www/html
 
@@ -32,7 +36,7 @@ COPY . /var/www/html/
 # Configura permissões para o usuário do Apache
 RUN chown -R www-data:www-data /var/www/html
 
-EXPOSE 80
+EXPOSE 80 10000
 
-# Inicia o Apache em foreground
-CMD ["apache2-foreground"]
+# Inicia o servidor com adaptação automática de porta
+CMD ["/usr/local/bin/entrypoint.sh"]
