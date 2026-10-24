@@ -69,12 +69,18 @@
         }
 
         // 3. Atualiza acessibilidade e títulos dos botões na tela
-        var toggleButtons = document.querySelectorAll('.btn-theme-toggle');
+        var toggleButtons = document.querySelectorAll('.sidebar-theme-btn, #btnThemeToggleMobile, .btn-theme-toggle');
         toggleButtons.forEach(function(btn) {
             btn.setAttribute('data-current-theme', theme);
-            btn.setAttribute('title', theme === 'light' ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro');
-            btn.setAttribute('aria-label', theme === 'light' ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro');
+            var title = (theme === 'light') ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro';
+            btn.setAttribute('title', title);
+            btn.setAttribute('aria-label', title);
         });
+
+        var sidebarText = document.querySelector('.sidebar-theme-text');
+        if (sidebarText) {
+            sidebarText.textContent = (theme === 'light') ? 'Modo Escuro' : 'Modo Claro';
+        }
     };
 
     window.toggleDromaTheme = function() {

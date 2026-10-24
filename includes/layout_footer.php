@@ -6,18 +6,23 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span>Início</span>
         </a>
-        <a href="calendar" class="bottom-nav-item <?= ($paginaAtiva ?? '') === 'calendario' ? 'ativo' : '' ?>" title="Ir para o Calendário">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
-            <span>Calendário</span>
-        </a>
-        <button type="button" class="bottom-nav-add-btn" id="btnQuickAdd" aria-label="Criar novo lançamento ou transferência" title="Novo Lançamento">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-        </button>
         <a href="statement" class="bottom-nav-item <?= ($paginaAtiva ?? '') === 'extrato' ? 'ativo' : '' ?>" title="Ir para o Extrato">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
             <span>Extrato</span>
         </a>
-        <button type="button" class="bottom-nav-item <?= in_array(($paginaAtiva ?? ''), ['metas', 'investimentos', 'contas', 'cartoes', 'categorias', 'recorrencias', 'relatorios', 'assistente', 'perfil', 'backup'], true) ? 'ativo' : '' ?>" id="btnMaisMenu" aria-label="Abrir mais módulos" title="Mais módulos">
+        <button type="button" class="bottom-nav-add-btn" id="btnQuickAdd" aria-label="Criar novo lançamento ou transferência" title="Novo Lançamento">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+        <button type="button" class="bottom-nav-item" id="btnThemeToggleMobile" onclick="window.toggleDromaTheme()" title="Alternar Modo Claro / Escuro" aria-label="Alternar Modo Claro / Escuro">
+            <span class="theme-icon-dark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41.996.996 0 0 0 0 1.41l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+            </span>
+            <span class="theme-icon-light" aria-hidden="true" style="display:none;">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12.3 2a10 10 0 0 0-1.9 20 10 10 0 0 0 9.6-6.4 1 1 0 0 0-1.2-1.3 8 8 0 1 1-7.8-11.1 1 1 0 0 0-1.3-1.2h2.6z"/></svg>
+            </span>
+            <span class="bottom-nav-theme-label">Tema</span>
+        </button>
+        <button type="button" class="bottom-nav-item <?= in_array(($paginaAtiva ?? ''), ['calendario', 'metas', 'investimentos', 'contas', 'cartoes', 'categorias', 'recorrencias', 'relatorios', 'assistente', 'perfil', 'backup'], true) ? 'ativo' : '' ?>" id="btnMaisMenu" aria-label="Abrir mais módulos" title="Mais módulos">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
             <span>Mais</span>
         </button>
@@ -32,6 +37,12 @@
         </div>
 
         <div class="sheet-grid">
+            <a href="calendar" class="sheet-grid-item">
+                <div class="sheet-icon-bubble">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+                </div>
+                <span>Calendário</span>
+            </a>
             <a href="goals" class="sheet-grid-item">
                 <div class="sheet-icon-bubble">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>

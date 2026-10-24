@@ -67,51 +67,54 @@
 }
 
 /* 8. Suporte a Modo Claro */
-:root[data-theme="light"],
-@media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) {
-        --color-bg: #F8FAFC;
-        --color-sidebar: #FFFFFF;
-        --color-surface: #FFFFFF;
-        --color-surface-secondary: #F1F5F9;
-        --color-surface-hover: #E2E8F0;
-        --color-border: #E2E8F0;
-        --color-divider: #E2E8F0;
+:root[data-theme="light"] {
+    --color-bg: #F8FAFC;
+    --color-sidebar: #FFFFFF;
+    --color-surface: #FFFFFF;
+    --color-surface-secondary: #F1F5F9;
+    --color-surface-hover: #E2E8F0;
+    --color-border: #E2E8F0;
+    --color-divider: #E2E8F0;
 
-        --color-primary: #B45309;
-        --color-primary-hover: #92400E;
-        --color-on-primary: #FFFFFF;
-        --color-secondary: #2563EB;
-        --color-secondary-hover: #1D4ED8;
-        --color-on-secondary: #FFFFFF;
+    --color-primary: #B45309;
+    --color-primary-hover: #92400E;
+    --color-on-primary: #FFFFFF;
+    --color-secondary: #2563EB;
+    --color-secondary-hover: #1D4ED8;
+    --color-on-secondary: #FFFFFF;
 
-        --color-gold: #B45309;
-        --color-gold-light: #FDE68A;
-        --color-gold-dark: #78350F;
-        --color-gold-highlight: #D97706;
-        --color-gold-bronze: #92400E;
-        --gold-gradient: linear-gradient(135deg, #FDE68A 0%, #D97706 60%, #B45309 100%);
-        --gold-gradient-hover: linear-gradient(135deg, #FEF3C7 0%, #F59E0B 60%, #92400E 100%);
-        --color-on-gold: #FFFFFF;
+    --color-gold: #B45309;
+    --color-gold-light: #FDE68A;
+    --color-gold-dark: #78350F;
+    --color-gold-highlight: #D97706;
+    --color-gold-bronze: #92400E;
+    --gold-gradient: linear-gradient(135deg, #FDE68A 0%, #D97706 60%, #B45309 100%);
+    --gold-gradient-hover: linear-gradient(135deg, #FEF3C7 0%, #F59E0B 60%, #92400E 100%);
+    --color-on-gold: #FFFFFF;
 
-        --color-success: #059669;
-        --color-emerald: #059669;
-        --color-emerald-dark: #047857;
-        --emerald-gradient: linear-gradient(135deg, #059669 0%, #047857 100%);
-        --color-danger: #DC2626;
-        --color-warning: #D97706;
-        --color-info: #2563EB;
-        --color-blue: #2563EB;
-        --color-accent: #2563EB;
+    --color-success: #059669;
+    --color-emerald: #059669;
+    --color-emerald-dark: #047857;
+    --emerald-gradient: linear-gradient(135deg, #059669 0%, #047857 100%);
+    --color-danger: #DC2626;
+    --color-warning: #D97706;
+    --color-info: #2563EB;
+    --color-blue: #2563EB;
+    --color-accent: #2563EB;
 
-        --color-text: #0F172A;
-        --color-text-secondary: #475569;
-        --color-text-muted: #94A3B8;
+    --color-text: #0F172A;
+    --color-text-secondary: #475569;
+    --color-text-muted: #94A3B8;
 
-        --shadow-card: 0 4px 18px rgba(15, 23, 42, 0.08);
-        --shadow-gold-subtle: 0 2px 8px rgba(180, 83, 9, 0.15);
-        --shadow-gold-hover: 0 4px 14px rgba(180, 83, 9, 0.25);
-    }
+    --shadow-card: 0 4px 18px rgba(15, 23, 42, 0.08);
+    --shadow-gold-subtle: 0 2px 8px rgba(180, 83, 9, 0.15);
+    --shadow-gold-hover: 0 4px 14px rgba(180, 83, 9, 0.25);
+
+    --fundo: #F8FAFC;
+    --card: #FFFFFF;
+    --borda: #E2E8F0;
+    --texto: #0F172A;
+    --texto-secundario: #475569;
 }
 
 /* Botão de Alternância de Tema */

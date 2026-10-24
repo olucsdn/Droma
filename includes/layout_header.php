@@ -156,16 +156,27 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
         </nav>
 
         <div class="sidebar-footer">
-            <a href="profile" class="sidebar-user-link" title="Meu Perfil">
-                <div class="avatar-mini"><?= $userInitial ?></div>
-                <div class="sidebar-user-info sidebar-footer-text">
-                    <span class="name"><?= $userName ?></span>
-                    <span class="meta">Meu Perfil</span>
-                </div>
-            </a>
-            <a href="logout" class="sidebar-logout-btn sidebar-footer-text" title="Sair do sistema" aria-label="Sair">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-            </a>
+            <button type="button" class="sidebar-theme-btn" id="btnThemeToggleSidebar" onclick="window.toggleDromaTheme()" title="Alternar Modo Claro / Escuro" aria-label="Alternar Modo Claro / Escuro">
+                <span class="theme-icon-dark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41.996.996 0 0 0 0 1.41l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+                </span>
+                <span class="theme-icon-light" aria-hidden="true" style="display:none;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.3 2a10 10 0 0 0-1.9 20 10 10 0 0 0 9.6-6.4 1 1 0 0 0-1.2-1.3 8 8 0 1 1-7.8-11.1 1 1 0 0 0-1.3-1.2h2.6z"/></svg>
+                </span>
+                <span class="sidebar-theme-text sidebar-footer-text">Modo Claro</span>
+            </button>
+            <div class="sidebar-footer-row">
+                <a href="profile" class="sidebar-user-link" title="Meu Perfil">
+                    <div class="avatar-mini"><?= $userInitial ?></div>
+                    <div class="sidebar-user-info sidebar-footer-text">
+                        <span class="name"><?= $userName ?></span>
+                        <span class="meta">Meu Perfil</span>
+                    </div>
+                </a>
+                <a href="logout" class="sidebar-logout-btn sidebar-footer-text" title="Sair do sistema" aria-label="Sair">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                </a>
+            </div>
         </div>
     </aside>
 
@@ -196,15 +207,6 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
             </div>
 
             <div class="topbar-right">
-                <!-- Botão de Alternância de Tema (Sol / Lua) -->
-                <button type="button" class="btn-theme-toggle" id="btnThemeToggle" title="Alternar Modo Claro / Escuro" aria-label="Alternar Modo Claro / Escuro" onclick="window.toggleDromaTheme()">
-                    <span class="theme-icon-dark" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
-                    </span>
-                    <span class="theme-icon-light" aria-hidden="true" style="display:none;">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12.3 2a10 10 0 0 0-1.9 20 10 10 0 0 0 9.6-6.4 1 1 0 0 0-1.2-1.3 8 8 0 1 1-7.8-11.1 1 1 0 0 0-1.3-1.2h2.6z"/></svg>
-                    </span>
-                </button>
 
                 <!-- Botão Destacado Novo lançamento (Desktop) -->
                 <a class="btn-novo-lancamento" href="add_expense">
@@ -230,10 +232,6 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
                             <span>Backup & Dados</span>
                         </a>
-                        <button type="button" class="dropdown-link" onclick="window.toggleDromaTheme()" style="width: 100%; border: none; background: none; text-align: left; cursor: pointer;" role="menuitem">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
-                            <span>Modo Claro / Escuro</span>
-                        </button>
                         <div class="dropdown-divider"></div>
                         <a href="logout" class="dropdown-link sair-link" role="menuitem">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
