@@ -2,12 +2,13 @@
 require_once 'config/database.php';
 require_once 'src/Security.php';
 require_once 'src/ApiAuth.php';
+require_once 'src/Mailer.php';
 
 $userId = Security::requireAuth();
 $erro = '';
 $sucesso = $_GET['sucesso'] ?? '';
 
-$stmt = $pdo->prepare('SELECT id, name, email, password, api_token FROM users WHERE id = ?');
+$stmt = $pdo->prepare('SELECT id, name, email, password, api_token, email_verified_at FROM users WHERE id = ?');
 $stmt->execute([$userId]);
 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -38,6 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (PDOException $e) {
             error_log('Erro ao gerar API token: ' . $e->getMessage());
             $erro = 'Erro ao gerar nova chave de API.';
+        }
+    } elseif ($acao === 'reenviar_verificacao') {
+        try {
+            $novoToken = bin2hex(random_bytes(32));
+            $stmtToken = $pdo->prepare('UPDATE users SET verification_token = ? WHERE id = ?');
+            $stmtToken->execute([$novoToken, $userId]);
+
+            Mailer::sendEmailVerification($usuario['email'], $usuario['name'], $novoToken);
+            header('Location: profile?sucesso=' . urlencode('E-mail de confirmação reenviado com sucesso! Verifique sua caixa de entrada e spam.'));
+            exit;
+        } catch (Throwable $e) {
+            error_log('Erro ao reenviar e-mail: ' . $e->getMessage());
+            $erro = 'Não foi possível reenviar o e-mail no momento. Tente novamente mais tarde.';
         }
     } else {
         $nome = trim($_POST['nome'] ?? '');
@@ -71,17 +85,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($erro === '') {
-                    if ($senhaAlterada) {
-                        $update = $pdo->prepare('UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?');
-                        $update->execute([$nome, $email, password_hash($novaSenha, PASSWORD_DEFAULT), $userId]);
+                    if ($emailAlterado) {
+                        $novoToken = bin2hex(random_bytes(32));
+                        if ($senhaAlterada) {
+                            $update = $pdo->prepare('UPDATE users SET name = ?, email = ?, password = ?, email_verified_at = NULL, verification_token = ? WHERE id = ?');
+                            $update->execute([$nome, $email, password_hash($novaSenha, PASSWORD_DEFAULT), $novoToken, $userId]);
+                        } else {
+                            $update = $pdo->prepare('UPDATE users SET name = ?, email = ?, email_verified_at = NULL, verification_token = ? WHERE id = ?');
+                            $update->execute([$nome, $email, $novoToken, $userId]);
+                        }
+                        try {
+                            Mailer::sendEmailVerification($email, $nome, $novoToken);
+                        } catch (Throwable $e) {
+                            error_log("[Mailer Error] " . $e->getMessage());
+                        }
                     } else {
-                        $update = $pdo->prepare('UPDATE users SET name = ?, email = ? WHERE id = ?');
-                        $update->execute([$nome, $email, $userId]);
+                        if ($senhaAlterada) {
+                            $update = $pdo->prepare('UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?');
+                            $update->execute([$nome, $email, password_hash($novaSenha, PASSWORD_DEFAULT), $userId]);
+                        } else {
+                            $update = $pdo->prepare('UPDATE users SET name = ?, email = ? WHERE id = ?');
+                            $update->execute([$nome, $email, $userId]);
+                        }
                     }
 
                     $_SESSION['user_name'] = $nome;
                     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-                    header('Location: profile?sucesso=' . urlencode('Dados atualizados com sucesso!'));
+                    $msgSucesso = $emailAlterado
+                        ? 'Dados atualizados! Enviamos um link para você confirmar seu novo e-mail.'
+                        : 'Dados atualizados com sucesso!';
+                    header('Location: profile?sucesso=' . urlencode($msgSucesso));
                     exit;
                 }
             } catch (PDOException $e) {
@@ -141,6 +174,16 @@ require_once "includes/layout_header.php";
                 <label for="email">E-mail de acesso
                     <input id="email" type="email" name="email" maxlength="255" value="<?= htmlspecialchars($email) ?>" required data-email-original="<?= htmlspecialchars($usuario['email']) ?>">
                 </label>
+                <?php if (!empty($usuario['email_verified_at'])): ?>
+                    <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--color-emerald); margin-top:-6px; margin-bottom:12px; font-weight:600;">
+                        <span>✓</span> E-mail verificado em <?= date('d/m/Y \à\s H:i', strtotime($usuario['email_verified_at'])) ?>
+                    </div>
+                <?php else: ?>
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--color-warning); margin-top:-6px; margin-bottom:12px; background:rgba(245,158,11,0.08); padding:8px 12px; border-radius:var(--radius-sm); border:1px solid rgba(245,158,11,0.25);">
+                        <span>⚠️ E-mail pendente de verificação</span>
+                        <button type="submit" form="form-reenviar-verificacao" style="background:none; border:none; color:var(--color-gold); font-size:12px; font-weight:700; text-decoration:underline; cursor:pointer; padding:0;">Reenviar confirmação</button>
+                    </div>
+                <?php endif; ?>
             </section>
 
             <section class="perfil-secao perfil-secao-seguranca" aria-labelledby="confirmacao-seguranca">
@@ -182,6 +225,11 @@ require_once "includes/layout_header.php";
             </section>
 
             <button type="submit">Salvar alterações</button>
+        </form>
+
+        <form id="form-reenviar-verificacao" method="POST" action="profile" style="display:none;">
+            <?= Security::csrfField() ?>
+            <input type="hidden" name="acao" value="reenviar_verificacao">
         </form>
 
         <section class="perfil-secao" style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--color-border);" aria-labelledby="api-integracao">

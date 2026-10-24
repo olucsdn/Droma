@@ -1,6 +1,7 @@
 <?php
 require_once "src/Security.php";
 require_once "config/database.php";
+require_once "src/Mailer.php";
 
 Security::initSession();
 
@@ -45,8 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $hash = password_hash($senha, PASSWORD_DEFAULT);
                     $apiToken = bin2hex(random_bytes(32));
-                    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, api_token, role) VALUES (?, ?, ?, ?, 'user')");
-                    $stmt->execute([$nome, $email, $hash, $apiToken]);
+                    $verificationToken = bin2hex(random_bytes(32));
+                    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, api_token, role, verification_token) VALUES (?, ?, ?, ?, 'user', ?)");
+                    $stmt->execute([$nome, $email, $hash, $apiToken, $verificationToken]);
                     $userId = (int) $pdo->lastInsertId();
 
                     // Cria uma conta inicial padrão
@@ -72,6 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     $pdo->commit();
+
+                    // Dispara o e-mail transacional de confirmação de conta
+                    try {
+                        Mailer::sendEmailVerification($email, $nome, $verificationToken);
+                    } catch (Throwable $mailEx) {
+                        error_log("[Register Mailer Error] " . $mailEx->getMessage());
+                    }
 
                     // Autentica o usuário automaticamente
                     session_regenerate_id(true);
