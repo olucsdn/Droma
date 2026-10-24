@@ -56,8 +56,24 @@ $options = [
 
 // Conexão criptografada obrigatória para clusters em nuvem (ex: TiDB Cloud, Aiven, AWS RDS)
 $enableSsl = getenv('DB_SSL') === 'true' || (!$isLocal && getenv('DB_SSL') !== 'false');
-if ($enableSsl && defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
-    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+if ($enableSsl) {
+    // Procura o certificado CA oficial (bundle do Let's Encrypt / ISRG Root X1 ou do sistema)
+    $caPaths = [
+        __DIR__ . '/ca.pem',                  // Certificado Let's Encrypt / TiDB Cloud
+        '/etc/ssl/certs/ca-certificates.crt', // Debian / Ubuntu / Nosso Dockerfile
+        '/etc/pki/tls/certs/ca-bundle.crt',   // RedHat / CentOS
+        '/etc/ssl/cert.pem',                  // Alpine / macOS
+    ];
+    foreach ($caPaths as $path) {
+        if (file_exists($path)) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $path;
+            break;
+        }
+    }
+
+    if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+    }
 }
 
 $dsn = "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
