@@ -1,21 +1,33 @@
 <?php
-$dromaTheme = $_COOKIE['droma_theme'] ?? 'dark';
-if ($dromaTheme !== 'light' && $dromaTheme !== 'dark') {
+$currentPage = basename($_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '');
+$isAuthFixedDark = !empty($dromaFixedDark) || in_array($currentPage, ['login.php', 'register.php', 'recover.php', 'reset_password.php']);
+
+if ($isAuthFixedDark) {
     $dromaTheme = 'dark';
+} else {
+    $dromaTheme = $_COOKIE['droma_theme'] ?? 'dark';
+    if ($dromaTheme !== 'light' && $dromaTheme !== 'dark') {
+        $dromaTheme = 'dark';
+    }
 }
-$activeFavicon = ($dromaTheme === 'light') ? 'img/favicon-darkmode.png' : 'img/favicon-default.png';
+$activeFavicon = 'img/favicon-darkmode.png';
 ?>
     <!-- Script Anti-FOUC (Prevenção de Flash de Cor ao Carregar) -->
     <script>
     (function() {
         try {
+            <?php if ($isAuthFixedDark): ?>
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.documentElement.setAttribute('data-theme-fixed', 'dark');
+            <?php else: ?>
             var saved = localStorage.getItem('droma_theme') || (document.cookie.match(/(?:^|;\s*)droma_theme=([^;]+)/) || [])[1] || 'dark';
             document.documentElement.setAttribute('data-theme', saved);
+            <?php endif; ?>
         } catch (e) {}
     })();
     </script>
 
-    <!-- Favicons Adaptativos & Dinâmicos Droma -->
+    <!-- Favicons Adaptativos & Dinâmicos Droma (Sempre Ícone Escuro) -->
     <link id="droma-favicon" rel="icon" type="image/png" href="<?= $activeFavicon ?>">
     <link id="droma-favicon-ico" rel="icon" type="image/x-icon" href="favicon.ico">
     <link id="droma-apple-touch" rel="apple-touch-icon" sizes="180x180" href="<?= $activeFavicon ?>">

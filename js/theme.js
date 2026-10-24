@@ -4,6 +4,20 @@
 (function() {
     'use strict';
 
+    // Se a página possuir modo escuro fixo (ex: login, cadastro, recuperação), trava em escuro
+    if (document.documentElement.getAttribute('data-theme-fixed') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        var staticFav = document.getElementById('droma-favicon') || document.querySelector("link[rel*='icon']");
+        if (staticFav) staticFav.href = 'img/favicon-darkmode.png';
+        var staticApple = document.getElementById('droma-apple-touch') || document.querySelector("link[rel='apple-touch-icon']");
+        if (staticApple) staticApple.href = 'img/favicon-darkmode.png';
+        var staticMeta = document.getElementById('droma-meta-theme-color') || document.querySelector("meta[name='theme-color']");
+        if (staticMeta) staticMeta.content = '#070A0E';
+        window.applyDromaTheme = function() {};
+        window.toggleDromaTheme = function() {};
+        return;
+    }
+
     function getCookie(name) {
         var match = document.cookie.match(new RegExp('(^|;\\s*)' + name + '=([^;]+)'));
         return match ? decodeURIComponent(match[2]) : null;
@@ -43,8 +57,8 @@
             setCookie('droma_theme', theme, 365);
         }
 
-        // 1. Atualiza Favicon e Apple Touch Icon em tempo real na aba do navegador
-        var iconPath = (theme === 'light') ? 'img/favicon-darkmode.png' : 'img/favicon-default.png';
+        // 1. Atualiza Favicon e Apple Touch Icon (Sempre ícone escuro)
+        var iconPath = 'img/favicon-darkmode.png';
 
         var fav = document.getElementById('droma-favicon');
         if (fav) {

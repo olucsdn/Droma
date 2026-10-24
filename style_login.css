@@ -66,91 +66,66 @@
     --vermelho: var(--color-danger);
 }
 
-/* 8. Suporte a Modo Claro */
+/* 8. Modo Escuro Fixo para Telas de Acesso (Login, Cadastro, Recuperar Senha) */
+:root,
+:root[data-theme="dark"],
 :root[data-theme="light"] {
-    --color-bg: #F8FAFC;
-    --color-sidebar: #FFFFFF;
-    --color-surface: #FFFFFF;
-    --color-surface-secondary: #F1F5F9;
-    --color-surface-hover: #E2E8F0;
-    --color-border: #E2E8F0;
-    --color-divider: #E2E8F0;
+    --color-bg: #0A0E17;
+    --color-sidebar: #0F1420;
+    --color-surface: #121826;
+    --color-surface-secondary: #1A2234;
+    --color-surface-hover: #222C42;
+    --color-border: #1F2A3F;
+    --color-divider: #182133;
 
-    --color-primary: #B45309;
-    --color-primary-hover: #92400E;
-    --color-on-primary: #FFFFFF;
-    --color-secondary: #2563EB;
-    --color-secondary-hover: #1D4ED8;
+    --color-primary: #D4AF6C;
+    --color-primary-hover: #E4C58B;
+    --color-on-primary: #0A0E17;
+    --color-secondary: #3B82F6;
+    --color-secondary-hover: #60A5FA;
     --color-on-secondary: #FFFFFF;
 
-    --color-gold: #B45309;
-    --color-gold-light: #FDE68A;
-    --color-gold-dark: #78350F;
-    --color-gold-highlight: #D97706;
-    --color-gold-bronze: #92400E;
-    --gold-gradient: linear-gradient(135deg, #FDE68A 0%, #D97706 60%, #B45309 100%);
-    --gold-gradient-hover: linear-gradient(135deg, #FEF3C7 0%, #F59E0B 60%, #92400E 100%);
-    --color-on-gold: #FFFFFF;
+    --color-gold: #D4AF6C;
+    --color-gold-light: #F7E5B8;
+    --color-gold-dark: #A17632;
+    --color-gold-highlight: #E8C988;
+    --color-gold-bronze: #8C6225;
+    --gold-gradient: linear-gradient(135deg, #F7E5B8 0%, #D4AF6C 50%, #A17632 100%);
+    --gold-gradient-hover: linear-gradient(135deg, #FFF1CD 0%, #E4C58B 50%, #B8863D 100%);
+    --color-on-gold: #0A0E17;
 
-    --color-success: #059669;
-    --color-emerald: #059669;
+    --color-success: #10B981;
+    --color-emerald: #10B981;
     --color-emerald-dark: #047857;
-    --emerald-gradient: linear-gradient(135deg, #059669 0%, #047857 100%);
-    --color-danger: #DC2626;
-    --color-warning: #D97706;
-    --color-info: #2563EB;
-    --color-blue: #2563EB;
-    --color-accent: #2563EB;
+    --emerald-gradient: linear-gradient(135deg, #10B981 0%, #047857 100%);
+    --color-danger: #EF4444;
+    --color-warning: #F59E0B;
+    --color-info: #3B82F6;
+    --color-blue: #3B82F6;
+    --color-accent: #3B82F6;
 
-    --color-text: #0F172A;
-    --color-text-secondary: #475569;
-    --color-text-muted: #94A3B8;
+    --color-text: #F8FAFC;
+    --color-text-secondary: #94A3B8;
+    --color-text-muted: #64748B;
 
-    --shadow-card: 0 4px 18px rgba(15, 23, 42, 0.08);
-    --shadow-gold-subtle: 0 2px 8px rgba(180, 83, 9, 0.15);
-    --shadow-gold-hover: 0 4px 14px rgba(180, 83, 9, 0.25);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-pill: 9999px;
+    --shadow-card: 0 14px 40px rgba(0, 0, 0, 0.55);
+    --shadow-gold-subtle: 0 2px 10px rgba(212, 175, 108, 0.22);
+    --shadow-gold-hover: 0 4px 18px rgba(212, 175, 108, 0.35);
 
-    --fundo: #F8FAFC;
-    --card: #FFFFFF;
-    --borda: #E2E8F0;
-    --texto: #0F172A;
-    --texto-secundario: #475569;
-}
-
-/* Botão de Alternância de Tema */
-.btn-theme-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    color: var(--color-gold);
-    cursor: pointer;
-    padding: 0;
-    transition: all 0.2s ease;
-}
-.btn-theme-toggle:hover {
-    background: var(--color-surface-hover);
-    border-color: var(--color-gold);
-    transform: scale(1.05);
-}
-.btn-theme-toggle svg {
-    display: block;
-}
-:root[data-theme="light"] .theme-icon-dark {
-    display: none !important;
-}
-:root[data-theme="light"] .theme-icon-light {
-    display: inline-flex !important;
-}
-:root:not([data-theme="light"]) .theme-icon-dark {
-    display: inline-flex !important;
-}
-:root:not([data-theme="light"]) .theme-icon-light {
-    display: none !important;
+    --fundo: var(--color-bg);
+    --card: var(--color-surface);
+    --borda: var(--color-border);
+    --texto: var(--color-text);
+    --texto-secundario: var(--color-text-secondary);
+    --dourado: var(--color-gold);
+    --dourado-claro: var(--color-gold-highlight);
+    --verde: var(--color-emerald);
+    --vermelho: var(--color-danger);
 }
 
 * {
@@ -182,7 +157,7 @@ body {
 .brand-icon {
     width: 44px;
     height: 44px;
-    background-image: url('img/favicon-default.png');
+    background-image: url('img/favicon-darkmode.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -196,13 +171,7 @@ body {
     box-shadow: var(--shadow-gold-subtle);
     border: 1px solid rgba(249, 228, 167, 0.4);
     letter-spacing: -0.5px;
-    transition: background-image 0.25s ease, border-color 0.25s ease;
-}
-
-:root[data-theme="light"] .brand-icon {
-    background-image: url('img/favicon-darkmode.png');
-    border-color: rgba(180, 83, 9, 0.25);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: border-color 0.25s ease;
 }
 
 .brand-text {

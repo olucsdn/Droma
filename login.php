@@ -71,11 +71,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark" data-theme-fixed="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <?php require_once "includes/head_favicons.php"; ?>
+    <?php 
+    $dromaFixedDark = true;
+    require_once "includes/head_favicons.php"; 
+    ?>
     <link rel="stylesheet" href="style_login.css?v=<?= filemtime('style_login.css') ?>">
     <title>Droma - Login</title>
 </head>
