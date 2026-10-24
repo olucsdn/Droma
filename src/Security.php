@@ -1,6 +1,6 @@
 <?php
 /**
- * Classe de Segurança e Helpers Globais — Projeto Wert
+ * Classe de Segurança e Helpers Globais — Projeto Droma
  * Metodologia SDD — Fase 1 (Estabilização e Segurança)
  */
 final class Security {

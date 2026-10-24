@@ -246,7 +246,7 @@ $totalDisponivelGeral = max(0, $totalLimiteGeral - $totalUtilizadoGeral);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Wert - Cartões de Crédito</title>
+    <title>Droma - Cartões de Crédito</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">
     <style>
@@ -360,7 +360,7 @@ require_once "includes/layout_header.php";
                             <div>
                                 <div style="display:flex; justify-content:space-between; align-items:center;">
                                     <div class="cartao-credito-chip"></div>
-                                    <span style="font-size:12px; font-weight:700; color:<?= $corDestaque ?>; text-transform:uppercase;">Wert Card</span>
+                                    <span style="font-size:12px; font-weight:700; color:<?= $corDestaque ?>; text-transform:uppercase;">Droma Card</span>
                                 </div>
 
                                 <strong style="font-size:18px; color:var(--color-text); display:block; margin-bottom:12px;">

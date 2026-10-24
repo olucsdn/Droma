@@ -1,6 +1,6 @@
 <?php
 /**
- * Mecanismo de Autenticação Segura para a API REST do Wert
+ * Mecanismo de Autenticação Segura para a API REST do Droma
  */
 declare(strict_types=1);
 

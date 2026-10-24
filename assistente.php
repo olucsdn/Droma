@@ -102,14 +102,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Recarrega contagem atualizada
             $usage = $ai->getDailyUsage($pdo, $userId);
         } catch (Throwable $e) {
-            $mensagemAlerta = "Nota: Não foi possível obter resposta em tempo real do serviço externo (" . $e->getMessage() . "). O Wert gerou um diagnóstico analítico local com base nos seus registros.";
+            $mensagemAlerta = "Nota: Não foi possível obter resposta em tempo real do serviço externo (" . $e->getMessage() . "). O Droma gerou um diagnóstico analítico local com base nos seus registros.";
             $analiseGerada = $ai->gerarAnaliseLocal($dadosAgregados);
             $tipoAnalise = 'local';
         }
     } else {
         $proxima = $usage['proxima_liberacao'] ?? 'no próximo ciclo';
         $ciclo   = $usage['ciclo_nome'] ?? 'atual';
-        $mensagemAlerta = "Você já utilizou sua consulta de IA para este período ({$ciclo}). Sua próxima consultoria com IA será liberada em {$proxima}! Abaixo está o diagnóstico inteligente gerado pelo motor analítico local do Wert.";
+        $mensagemAlerta = "Você já utilizou sua consulta de IA para este período ({$ciclo}). Sua próxima consultoria com IA será liberada em {$proxima}! Abaixo está o diagnóstico inteligente gerado pelo motor analítico local do Droma.";
         $analiseGerada = $ai->gerarAnaliseLocal($dadosAgregados);
         $tipoAnalise = 'local';
     }
@@ -156,7 +156,7 @@ function markdownToHtml(string $markdown): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Wert - Assistente Financeiro IA</title>
+    <title>Droma - Assistente Financeiro IA</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <style>
         .ia-header {
@@ -403,7 +403,7 @@ require_once "includes/layout_header.php";
     <?php if ($analiseGerada !== null): ?>
         <div class="resposta-box">
             <span class="badge-tipo <?= $tipoAnalise === 'ai' ? 'ai' : 'local' ?>">
-                <?= $tipoAnalise === 'ai' ? 'Gemini 3.5 IA' : 'Wert Engine Local' ?>
+                <?= $tipoAnalise === 'ai' ? 'Gemini 3.5 IA' : 'Droma Engine Local' ?>
             </span>
 
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
@@ -412,7 +412,7 @@ require_once "includes/layout_header.php";
                 </div>
                 <div>
                     <h3 style="margin:0; font-size:18px; color:var(--color-gold-light);">
-                        Parecer do Assistente Wert
+                        Parecer do Assistente Droma
                     </h3>
                     <span style="font-size:12px; color:var(--color-text-secondary);">
                         Gerado em <?= date('d/m/Y \à\s H:i') ?> para <?= htmlspecialchars($dadosAgregados['periodo']) ?>

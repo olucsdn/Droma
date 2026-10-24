@@ -1,8 +1,8 @@
 /**
- * Wert — Service Worker v1.0
+ * Droma — Service Worker v1.0
  * Fornece cache de assets essenciais para experiência mobile PWA instantânea.
  */
-const CACHE_NAME = 'wert-cache-v1';
+const CACHE_NAME = 'droma-cache-v1';
 const ASSETS_TO_CACHE = [
   'style_index.css',
   'style_form.css',

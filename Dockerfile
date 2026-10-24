@@ -1,9 +1,9 @@
-# Dockerfile para o Projeto Wert (WertFinancy)
+# Dockerfile para o Projeto Droma (DromaFinancy)
 # Base: PHP 8.4 com servidor Apache oficial
 FROM php:8.4-apache
 
-LABEL maintainer="Wert Financy Team"
-LABEL description="Container de Produção para o Sistema Wert"
+LABEL maintainer="Droma Financy Team"
+LABEL description="Container de Produção para o Sistema Droma"
 
 # Instala bibliotecas do sistema e extensões nativas do PHP
 RUN apt-get update && apt-get install -y --no-install-recommends \

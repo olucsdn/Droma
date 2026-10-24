@@ -59,7 +59,7 @@ $dataDefault = (!empty($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_G
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Novo lançamento - Wert</title>
+    <title>Novo lançamento - Droma</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">
 </head>

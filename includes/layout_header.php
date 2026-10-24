@@ -1,6 +1,6 @@
 <?php
 if (!isset($paginaAtiva)) $paginaAtiva = '';
-if (!isset($tituloPagina)) $tituloPagina = 'Wert Financy';
+if (!isset($tituloPagina)) $tituloPagina = 'Droma Financy';
 
 $userName = htmlspecialchars($_SESSION['user_name'] ?? 'Usuário');
 $userEmail = htmlspecialchars($_SESSION['user_email'] ?? '');
@@ -12,24 +12,24 @@ $diaSemanaNum = (int)date('w');
 $mesNum = (int)date('n');
 $dataHojeFormatada = $diasSemana[$diaSemanaNum] . ', ' . date('j') . ' de ' . $meses[$mesNum];
 $dataHojeCurta = date('d/m/Y');
-$isSidebarCollapsed = (!empty($_COOKIE['wert_sidebar_collapsed']) && $_COOKIE['wert_sidebar_collapsed'] === 'true');
+$isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['droma_sidebar_collapsed'] === 'true' : (!empty($_COOKIE['wert_sidebar_collapsed']) && $_COOKIE['wert_sidebar_collapsed'] === 'true'));
 ?>
 <div class="app-layout <?= $isSidebarCollapsed ? 'sidebar-collapsed' : '' ?>" id="appLayout">
     <script>
         (function() {
             try {
-                var saved = localStorage.getItem('wert_sidebar_collapsed');
+                var saved = localStorage.getItem('droma_sidebar_collapsed') || localStorage.getItem('wert_sidebar_collapsed');
                 var layout = document.getElementById('appLayout');
                 if (saved === 'true' && window.innerWidth > 768) {
                     if (layout && !layout.classList.contains('sidebar-collapsed')) {
                         layout.classList.add('sidebar-collapsed');
                     }
-                    document.cookie = "wert_sidebar_collapsed=true; path=/; max-age=31536000; SameSite=Lax";
+                    document.cookie = "droma_sidebar_collapsed=true; path=/; max-age=31536000; SameSite=Lax";
                 } else if (saved === 'false') {
                     if (layout && layout.classList.contains('sidebar-collapsed')) {
                         layout.classList.remove('sidebar-collapsed');
                     }
-                    document.cookie = "wert_sidebar_collapsed=false; path=/; max-age=31536000; SameSite=Lax";
+                    document.cookie = "droma_sidebar_collapsed=false; path=/; max-age=31536000; SameSite=Lax";
                 }
             } catch(e) {}
         })();
@@ -37,9 +37,9 @@ $isSidebarCollapsed = (!empty($_COOKIE['wert_sidebar_collapsed']) && $_COOKIE['w
     <!-- Barra Lateral Fixa (Desktop) -->
     <aside class="app-sidebar" id="appSidebar" aria-label="Navegação lateral">
         <div class="sidebar-header">
-            <a href="index.php" class="sidebar-brand" title="Wert Financy">
-                <div class="brand-icon">W</div>
-                <div class="brand-text">Wert<span>.</span></div>
+            <a href="index.php" class="sidebar-brand" title="Droma Financy">
+                <div class="brand-icon">D</div>
+                <div class="brand-text">Droma<span>.</span></div>
             </a>
             <button type="button" class="sidebar-collapse-btn" id="btnToggleSidebar" title="Recolher / Expandir barra lateral" aria-label="Recolher barra lateral">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
@@ -178,9 +178,9 @@ $isSidebarCollapsed = (!empty($_COOKIE['wert_sidebar_collapsed']) && $_COOKIE['w
         <header class="app-topbar">
             <div class="topbar-left">
                 <!-- Mobile Brand -->
-                <a href="index.php" class="topbar-mobile-brand" title="Wert Financy">
-                    <div class="brand-icon">W</div>
-                    <div class="brand-text">Wert<span>.</span></div>
+                <a href="index.php" class="topbar-mobile-brand" title="Droma Financy">
+                    <div class="brand-icon">D</div>
+                    <div class="brand-text">Droma<span>.</span></div>
                 </a>
 
                 <!-- Botão de alternar barra lateral (Desktop) -->

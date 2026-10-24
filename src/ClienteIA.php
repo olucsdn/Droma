@@ -1,6 +1,6 @@
 <?php
 /**
- * Cliente de Integração com o Google Gemini e Assistente Financeiro Wert
+ * Cliente de Integração com o Google Gemini e Assistente Financeiro Droma
  */
 final class ClienteIA {
     private const DEFAULT_MODEL = 'gemini-3.6-flash';
@@ -51,7 +51,7 @@ final class ClienteIA {
 
         $payload = [
             'systemInstruction' => ['parts' => [['text' =>
-                'Você é o assistente financeiro do Wert. Responda em português do Brasil de forma acolhedora, objetiva e sem qualquer julgamento moral. '
+                'Você é o assistente financeiro do Droma. Responda em português do Brasil de forma acolhedora, objetiva e sem qualquer julgamento moral. '
                 . 'Analise os números fornecidos e dê exatamente 3 sugestões práticas e realistas para ajudar o usuário a economizar ou planejar melhor. '
                 . 'Use somente os números enviados; não invente dados e não recomende investimentos específicos ou arriscados.'
             ]]],
@@ -119,7 +119,7 @@ final class ClienteIA {
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'Você é o assistente financeiro do Wert. Responda em português do Brasil de forma acolhedora, objetiva e sem qualquer julgamento moral. '
+                    'content' => 'Você é o assistente financeiro do Droma. Responda em português do Brasil de forma acolhedora, objetiva e sem qualquer julgamento moral. '
                         . 'Analise os números fornecidos e dê exatamente 3 sugestões práticas e realistas para ajudar o usuário a economizar ou planejar melhor. '
                         . 'Use somente os números enviados; não invente dados e não recomende investimentos específicos ou arriscados.'
                 ],
@@ -229,7 +229,7 @@ final class ClienteIA {
         $taxaPoupanca = $receitas > 0 ? round(($saldo / $receitas) * 100, 1) : 0;
 
         $linhas = [];
-        $linhas[] = "💡 **Diagnóstico Financeiro Automatizado (Wert Analytics)**\n";
+        $linhas[] = "💡 **Diagnóstico Financeiro Automatizado (Droma Analytics)**\n";
 
         if ($saldo > 0) {
             $linhas[] = "• **Superávit Operacional:** Parabéns! Você fechou o período com saldo positivo de R$ " . number_format($saldo, 2, ',', '.') . " (taxa de poupança de {$taxaPoupanca}% das suas receitas).";
@@ -264,8 +264,11 @@ final class ClienteIA {
         }
 
         $candidatos = [
+            'C:/laragon/segredos/droma.env',
             'C:/laragon/segredos/wert.env',
+            'C:/xampp/segredos/droma.env',
             'C:/xampp/segredos/wert.env',
+            dirname(__DIR__, 2) . '/segredos/droma.env',
             dirname(__DIR__, 2) . '/segredos/wert.env',
             dirname(__DIR__) . '/.env'
         ];
@@ -291,8 +294,11 @@ final class ClienteIA {
         }
 
         $candidatos = [
+            'C:/laragon/segredos/droma.env',
             'C:/laragon/segredos/wert.env',
+            'C:/xampp/segredos/droma.env',
             'C:/xampp/segredos/wert.env',
+            dirname(__DIR__, 2) . '/segredos/droma.env',
             dirname(__DIR__, 2) . '/segredos/wert.env',
             dirname(__DIR__) . '/.env'
         ];
@@ -318,8 +324,11 @@ final class ClienteIA {
         }
 
         $candidatos = [
+            'C:/laragon/segredos/droma.env',
             'C:/laragon/segredos/wert.env',
+            'C:/xampp/segredos/droma.env',
             'C:/xampp/segredos/wert.env',
+            dirname(__DIR__, 2) . '/segredos/droma.env',
             dirname(__DIR__, 2) . '/segredos/wert.env',
             dirname(__DIR__) . '/.env'
         ];

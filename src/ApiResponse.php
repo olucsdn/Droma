@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper de Respostas JSON Padronizadas para a API REST do Wert
+ * Helper de Respostas JSON Padronizadas para a API REST do Droma
  */
 declare(strict_types=1);
 

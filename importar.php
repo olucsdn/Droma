@@ -1,6 +1,6 @@
 <?php
 /**
- * Módulo de Importação de Extratos Bancários (CSV e OFX) — Wert
+ * Módulo de Importação de Extratos Bancários (CSV e OFX) — Droma
  */
 declare(strict_types=1);
 
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Wert - Importação de Extratos</title>
+    <title>Droma - Importação de Extratos</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">
     <style>

@@ -157,7 +157,7 @@ $saldoFiltrado = $totais['entradas'] - $totais['saidas'];
 
 // Exportação CSV
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    $nomeArquivo = 'extrato-wert-' . date('Y-m-d-His') . '.csv';
+    $nomeArquivo = 'extrato-droma-' . date('Y-m-d-His') . '.csv';
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $nomeArquivo . '"');
     
@@ -191,7 +191,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Wert - Extrato e Relatórios</title>
+    <title>Droma - Extrato e Relatórios</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">
 </head>

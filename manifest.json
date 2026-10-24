@@ -1,6 +1,6 @@
 {
-  "name": "Wert — Gestão Financeira Pessoal",
-  "short_name": "Wert",
+  "name": "Droma — Gestão Financeira Pessoal",
+  "short_name": "Droma",
   "start_url": "index.php",
   "scope": "./",
   "display": "standalone",

@@ -1,6 +1,6 @@
-# Wert (WertFinancy) — Sistema de Gestão Financeira Pessoal
+# Droma (DromaFinancy) — Sistema de Gestão Financeira Pessoal
 
-> **Wert** é uma plataforma moderna, segura e intuitiva para controle financeiro pessoal, desenvolvida rigorosamente sob a metodologia **Spec-Driven Development (SDD)**. O sistema oferece acompanhamento em tempo real de saldos, fluxo de caixa, cartões de crédito com parcelamentos, metas de economia, relatórios analíticos, consultoria via Inteligência Artificial (Google Gemini) e uma API RESTful completa.
+> **Droma** é uma plataforma moderna, segura e intuitiva para controle financeiro pessoal, desenvolvida rigorosamente sob a metodologia **Spec-Driven Development (SDD)**. O sistema oferece acompanhamento em tempo real de saldos, fluxo de caixa, cartões de crédito com parcelamentos, metas de economia, relatórios analíticos, consultoria via Inteligência Artificial (Google Gemini) e uma API RESTful completa.
 
 ---
 
@@ -101,14 +101,14 @@ php tests/test_suite_phase7.php
      GEMINI_MODEL=gemini-3.5-flash-lite
      ```
 4. **Acesso:**
-   - Acesse via navegador: `http://localhost/Wert` ou `http://wert.test`
+   - Acesse via navegador: `http://localhost/Droma` ou `http://droma.test`
    - Realize o cadastro inicial na tela `cadastrar.php` ou acesse `login.php`.
 
 ---
 
 ### Opção B: Containers com Docker & Docker Compose (Zero Configuração Manual)
 
-Caso queira executar o Wert de forma isolada, portável e reprodutível sem precisar instalar PHP ou MySQL na máquina hospedeira:
+Caso queira executar o Droma de forma isolada, portável e reprodutível sem precisar instalar PHP ou MySQL na máquina hospedeira:
 
 1. **Subir os containers:**
    ```bash

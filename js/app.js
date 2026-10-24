@@ -1,5 +1,5 @@
 /**
- * Wert Financy — App Layout & Interaction Scripts
+ * Droma Financy — App Layout & Interaction Scripts
  */
 document.addEventListener('DOMContentLoaded', () => {
     const layout = document.getElementById('appLayout');
@@ -30,7 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            localStorage.setItem('droma_sidebar_collapsed', willBeCollapsed ? 'true' : 'false');
             localStorage.setItem('wert_sidebar_collapsed', willBeCollapsed ? 'true' : 'false');
+            document.cookie = "droma_sidebar_collapsed=" + (willBeCollapsed ? 'true' : 'false') + "; path=/; max-age=31536000; SameSite=Lax";
             document.cookie = "wert_sidebar_collapsed=" + (willBeCollapsed ? 'true' : 'false') + "; path=/; max-age=31536000; SameSite=Lax";
         } catch (err) {}
 

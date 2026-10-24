@@ -1,6 +1,6 @@
 <?php
 /**
- * Configuração de Conexão com o Banco de Dados — Projeto Wert
+ * Configuração de Conexão com o Banco de Dados — Projeto Droma
  * Suporte a ambientes de Produção em Nuvem e Desenvolvimento Seguro (SSL/TLS)
  */
 

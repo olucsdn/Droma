@@ -17,13 +17,13 @@ $sucesso = $_GET['sucesso'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style_login.css?v=<?= filemtime('style_login.css') ?>">
-    <title>Wert - Login</title>
+    <title>Droma - Login</title>
 </head>
 <body>
 
 <div class="brand-header">
-    <div class="brand-icon">W</div>
-    <div class="brand-text">Wert<span>.</span></div>
+    <div class="brand-icon">D</div>
+    <div class="brand-text">Droma<span>.</span></div>
 </div>
 
 <div>
@@ -47,7 +47,7 @@ $sucesso = $_GET['sucesso'] ?? '';
             <?= Security::csrfField() ?>
             <input type="email" name="email" placeholder="Seu e-mail" required autofocus>
             <input type="password" name="senha" placeholder="Sua senha" required>
-            <button type="submit">Entrar no Wert</button>
+            <button type="submit">Entrar no Droma</button>
         </form>
     </div>
 

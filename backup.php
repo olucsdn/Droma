@@ -1,6 +1,6 @@
 <?php
 /**
- * Módulo de Backup & Restauração de Dados Pessoais — Wert
+ * Módulo de Backup & Restauração de Dados Pessoais — Droma
  */
 declare(strict_types=1);
 
@@ -52,7 +52,7 @@ if (isset($_GET['download']) && $_GET['download'] === 'json') {
     $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $backupData = [
-        'app'         => 'WertFinancy',
+        'app'         => 'DromaFinancy',
         'schema_version' => '1.1',
         'exported_at' => date('Y-m-d H:i:s'),
         'user_id'     => $userId,
@@ -76,7 +76,7 @@ if (isset($_GET['download']) && $_GET['download'] === 'json') {
         ]
     ];
 
-    $filename = 'wert-backup-' . date('Y-m-d-His') . '.json';
+    $filename = 'droma-backup-' . date('Y-m-d-His') . '.json';
     header('Content-Type: application/json; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     echo json_encode($backupData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -97,13 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
         $origName = mb_strtolower($_FILES['arquivo_backup']['name'] ?? '');
         $ext = pathinfo($origName, PATHINFO_EXTENSION);
         if ($ext !== 'json') {
-            $erro = 'O arquivo de backup deve ser estritamente no formato .json gerado pelo Wert.';
+            $erro = 'O arquivo de backup deve ser estritamente no formato .json gerado pelo Droma.';
         } else {
             $jsonStr = file_get_contents($_FILES['arquivo_backup']['tmp_name']);
             $payload = json_decode((string)$jsonStr, true);
 
-            if (!is_array($payload) || ($payload['app'] ?? '') !== 'WertFinancy' || !isset($payload['data'])) {
-                $erro = 'O arquivo selecionado não é um backup válido gerado pelo Wert.';
+            if (!is_array($payload) || !in_array($payload['app'] ?? '', ['DromaFinancy', 'WertFinancy'], true) || !isset($payload['data'])) {
+                $erro = 'O arquivo selecionado não é um backup válido gerado pelo Droma.';
             } else {
             $data = $payload['data'];
             $mapAccounts = [];
@@ -324,7 +324,7 @@ $totaisAtuais['metas'] = (int)$pdo->query("SELECT COUNT(*) FROM goals WHERE user
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Wert - Backup e Restauração</title>
+    <title>Droma - Backup e Restauração</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">
     <style>
@@ -449,7 +449,7 @@ require_once "includes/layout_header.php";
                     </h2>
                 </div>
                 <p style="color: var(--color-text-secondary); font-size: 13px; line-height:1.6; margin-bottom:16px;">
-                    Envie um arquivo <code>.json</code> gerado pelo Wert para recuperar seus lançamentos e cadastros com integridade relacional.
+                    Envie um arquivo <code>.json</code> gerado pelo Droma para recuperar seus lançamentos e cadastros com integridade relacional.
                 </p>
 
                 <form method="POST" action="backup.php" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:14px;">

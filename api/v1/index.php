@@ -1,6 +1,6 @@
 <?php
 /**
- * Wert API v1.0 — Console Interativo & Documentação
+ * Droma API v1.0 — Console Interativo & Documentação
  */
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src/Security.php';
@@ -20,7 +20,7 @@ if ($userId) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Wert - API RESTful v1.0</title>
+    <title>Droma - API RESTful v1.0</title>
     <link rel="stylesheet" href="../../style_index.css">
     <style>
         .api-container {
@@ -93,8 +93,8 @@ if ($userId) {
 
 <header class="topo">
     <div class="brand-wrapper">
-        <div class="brand-icon">W</div>
-        <div class="brand-text">Wert<span>.API</span></div>
+        <div class="brand-icon">D</div>
+        <div class="brand-text">Droma<span>.API</span></div>
         <span style="font-size:12px; background:rgba(212,175,108,0.15); color:var(--color-gold); padding:2px 8px; border-radius:4px; font-weight:700; margin-left:12px;">v1.0 RESTful</span>
     </div>
     <div class="acoes-topo">
@@ -109,7 +109,7 @@ if ($userId) {
     <div class="api-card">
         <h1 style="font-size:24px; color:var(--color-text); margin-bottom:8px;">Console & Documentação da API</h1>
         <p style="color:var(--color-text-secondary); font-size:14px; line-height:1.6;">
-            A API RESTful do Wert disponibiliza todos os recursos financeiros com respostas JSON padronizadas, proteção estrita contra IDOR e autenticação por Bearer Token.
+            A API RESTful do Droma disponibiliza todos os recursos financeiros com respostas JSON padronizadas, proteção estrita contra IDOR e autenticação por Bearer Token.
         </p>
 
         <div class="token-box">

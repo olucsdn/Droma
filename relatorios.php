@@ -154,14 +154,14 @@ $comprasCartoes = $stmtCartoes->fetchAll(PDO::FETCH_ASSOC);
 
 // Exportação CSV do Relatório
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    $nomeArquivo = 'relatorio-wert-' . $anoSelecionado . ($mesSelecionado > 0 ? "-mes{$mesSelecionado}" : '') . '.csv';
+    $nomeArquivo = 'relatorio-droma-' . $anoSelecionado . ($mesSelecionado > 0 ? "-mes{$mesSelecionado}" : '') . '.csv';
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $nomeArquivo . '"');
     
     $saida = fopen('php://output', 'w');
     fprintf($saida, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
 
-    fputcsv($saida, ['=== RELATORIO FINANCEIRO WERT ==='], ';', '"', "\\");
+    fputcsv($saida, ['=== RELATORIO FINANCEIRO DROMA ==='], ';', '"', "\\");
     fputcsv($saida, ['Ano', $anoSelecionado, 'Mes', $mesSelecionado > 0 ? $nomesMeses[$mesSelecionado] : 'Ano Completo'], ';', '"', "\\");
     fputcsv($saida, ['Receitas Totais', number_format($totalRecPeriodo, 2, ',', '.')], ';', '"', "\\");
     fputcsv($saida, ['Despesas Totais', number_format($totalDespPeriodo, 2, ',', '.')], ';', '"', "\\");
@@ -205,7 +205,7 @@ $tituloPeriodo = $mesSelecionado > 0 ? "{$nomesMeses[$mesSelecionado]} de {$anoS
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Wert - Relatórios Analíticos</title>
+    <title>Droma - Relatórios Analíticos</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <style>
         .relatorios-header {

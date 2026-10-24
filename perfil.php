@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Meu perfil - Wert</title>
+    <title>Meu perfil - Droma</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">
 </head>
@@ -190,7 +190,7 @@ require_once "includes/layout_header.php";
                 <span style="font-size:12px; background:rgba(212,175,108,0.15); color:var(--color-gold); padding:2px 8px; border-radius:4px; font-weight:700;">v1.0</span>
             </h2>
             <p style="color:var(--color-text-secondary); font-size:13px; margin: 6px 0 16px 0;">
-                Use sua chave de API para conectar o Wert com seus próprios scripts, integrações externas ou atalhos mobile via cabeçalho <code>Authorization: Bearer &lt;token&gt;</code>.
+                Use sua chave de API para conectar o Droma com seus próprios scripts, integrações externas ou atalhos mobile via cabeçalho <code>Authorization: Bearer &lt;token&gt;</code>.
             </p>
 
             <?php if (!empty($apiToken)): ?>

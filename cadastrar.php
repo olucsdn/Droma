@@ -99,13 +99,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style_login.css?v=<?= filemtime('style_login.css') ?>">
-    <title>Wert - Criar Conta</title>
+    <title>Droma - Criar Conta</title>
 </head>
 <body>
 
 <div class="brand-header">
-    <div class="brand-icon">W</div>
-    <div class="brand-text">Wert<span>.</span></div>
+    <div class="brand-icon">D</div>
+    <div class="brand-text">Droma<span>.</span></div>
 </div>
 
 <div>

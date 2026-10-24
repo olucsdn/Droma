@@ -1,6 +1,6 @@
 <?php
 /**
- * Parser Inteligente de Extratos Bancários (OFX e CSV) — Wert
+ * Parser Inteligente de Extratos Bancários (OFX e CSV) — Droma
  */
 declare(strict_types=1);
 
