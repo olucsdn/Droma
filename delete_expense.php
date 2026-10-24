@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -6,7 +6,7 @@ $userId = Security::requireAuth();
 
 // Exclusão permitida estritamente via método POST para prevenir ataques via GET/CSRF
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: index.php");
+    header("Location: ./");
     exit;
 }
 
@@ -34,9 +34,10 @@ if ($origem === 'calendario') {
     }
     header("Location: " . $redirect);
 } elseif ($origem === 'extrato') {
-    header("Location: statement.php?sucesso=" . urlencode("Lançamento excluído com sucesso!"));
+    header("Location: statement?sucesso=" . urlencode("Lançamento excluído com sucesso!"));
 } else {
-    header("Location: index.php?sucesso=" . urlencode("Lançamento excluído com sucesso!"));
+    header("Location: ./?sucesso=" . urlencode("Lançamento excluído com sucesso!"));
 }
 exit;
+
 

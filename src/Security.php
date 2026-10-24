@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Classe de Segurança e Helpers Globais — Projeto Droma
  * Metodologia SDD — Fase 1 (Estabilização e Segurança)
@@ -39,7 +39,7 @@ final class Security {
         self::initSession();
 
         if (empty($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: login');
             exit;
         }
 
@@ -187,4 +187,5 @@ final class Security {
         return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
     }
 }
+
 

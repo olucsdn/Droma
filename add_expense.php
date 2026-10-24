@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -72,7 +72,7 @@ require_once "includes/layout_header.php";
 ?>
 
 <main class="painel">
-<form class="form-lancamento" action="save_expense.php" method="POST">
+<form class="form-lancamento" action="save_expense" method="POST">
     <?= Security::csrfField() ?>
     <?php if (!empty($_GET['origem'])): ?>
         <input type="hidden" name="origem" value="<?= htmlspecialchars($_GET['origem']) ?>">
@@ -262,4 +262,5 @@ atualizarMeioPagamento();
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

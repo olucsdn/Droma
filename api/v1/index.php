@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Droma API v1.0 — Console Interativo & Documentação
  */

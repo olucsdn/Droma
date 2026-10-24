@@ -1,9 +1,9 @@
-﻿<?php
+<?php
 require_once "src/Security.php";
 Security::initSession();
 
 if (!empty($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: ./");
     exit;
 }
 
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <div class="login">
-        <form action="recover.php" method="POST">
+        <form action="recover" method="POST">
             <?= Security::csrfField() ?>
             <input type="email" name="email" placeholder="Digite seu e-mail cadastrado" required autofocus>
             <button type="submit">Enviar instruções</button>
@@ -59,9 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="outro">
-        <button type="button" onclick="window.location.href='login.php'">Voltar ao Login</button>
-        <button type="button" onclick="window.location.href='register.php'">Criar Conta</button>
+        <button type="button" onclick="window.location.href='login'">Voltar ao Login</button>
+        <button type="button" onclick="window.location.href='register'">Criar Conta</button>
     </div>
 </div>
 </body>
 </html>
+

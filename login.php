@@ -6,7 +6,7 @@ Security::initSession();
 
 // Se o usuário já estiver logado, redireciona diretamente ao dashboard
 if (!empty($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: ./");
     exit;
 }
 
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_name'] = $user['name'];
                     $_SESSION['user_role'] = $user['role'] ?? 'user';
 
-                    header("Location: index.php");
+                    header("Location: ./");
                     exit;
                 }
             } catch (PDOException $e) {
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <div class="login">
-        <form action="login.php" method="POST">
+        <form action="login" method="POST">
             <?= Security::csrfField() ?>
             <input type="email" name="email" placeholder="Seu e-mail" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required autofocus>
             <input type="password" name="senha" placeholder="Sua senha" required>
@@ -111,10 +111,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="outro">
-        <button type="button" onclick="window.location.href='register.php'">Criar conta</button>
-        <button type="button" onclick="window.location.href='recover.php'">Recuperar senha</button>
+        <button type="button" onclick="window.location.href='register'">Criar conta</button>
+        <button type="button" onclick="window.location.href='recover'">Recuperar senha</button>
     </div>
 </div>
 
 </body>
 </html>
+

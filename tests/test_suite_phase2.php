@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Testes Integrados da Fase 2 — SDD Wert
  * Executar via CLI: php tests/test_suite_phase2.php

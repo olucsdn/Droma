@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -85,7 +85,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                     }
 
                     $pdo->commit();
-                    header("Location: investments.php?sucesso=" . urlencode("Investimento '{$nome}' cadastrado com sucesso!"));
+                    header("Location: investments?sucesso=" . urlencode("Investimento '{$nome}' cadastrado com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     if ($pdo->inTransaction()) $pdo->rollBack();
@@ -118,7 +118,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                         WHERE id = ? AND user_id = ?
                     ");
                     $stmt->execute([$nome, $tipo, $accountId, $dataVenc, $status, $notas, $invId, $userId]);
-                    header("Location: investments.php?sucesso=" . urlencode("Investimento '{$nome}' atualizado com sucesso!"));
+                    header("Location: investments?sucesso=" . urlencode("Investimento '{$nome}' atualizado com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     error_log("Erro ao atualizar investimento: " . $e->getMessage());
@@ -154,7 +154,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                     ");
                     $stmtTx->execute([$userId, $accountId, $invId, $catId, $valor, $descFinal, $data]);
 
-                    header("Location: investments.php?sucesso=" . urlencode("Aporte de R$ " . number_format($valor, 2, ',', '.') . " realizado com sucesso!"));
+                    header("Location: investments?sucesso=" . urlencode("Aporte de R$ " . number_format($valor, 2, ',', '.') . " realizado com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     error_log("Erro ao registrar aporte: " . $e->getMessage());
@@ -190,7 +190,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                     ");
                     $stmtTx->execute([$userId, $accountId, $invId, $catId, $valor, $descFinal, $data]);
 
-                    header("Location: investments.php?sucesso=" . urlencode("Rendimento de R$ " . number_format($valor, 2, ',', '.') . " creditado com sucesso!"));
+                    header("Location: investments?sucesso=" . urlencode("Rendimento de R$ " . number_format($valor, 2, ',', '.') . " creditado com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     error_log("Erro ao registrar rendimento: " . $e->getMessage());
@@ -235,7 +235,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                     }
 
                     $pdo->commit();
-                    header("Location: investments.php?sucesso=" . urlencode("Resgate de R$ " . number_format($valor, 2, ',', '.') . " creditado na conta com sucesso!"));
+                    header("Location: investments?sucesso=" . urlencode("Resgate de R$ " . number_format($valor, 2, ',', '.') . " creditado na conta com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     if ($pdo->inTransaction()) $pdo->rollBack();
@@ -251,7 +251,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 try {
                     $delStmt = $pdo->prepare("DELETE FROM investments WHERE id = ? AND user_id = ?");
                     $delStmt->execute([$invId, $userId]);
-                    header("Location: investments.php?sucesso=" . urlencode("Investimento excluído com sucesso!"));
+                    header("Location: investments?sucesso=" . urlencode("Investimento excluído com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     error_log("Erro ao excluir investimento: " . $e->getMessage());
@@ -538,7 +538,7 @@ require_once "includes/layout_header.php";
                                             ⇄ Resgate
                                         </button>
                                     <?php endif; ?>
-                                    <a href="statement.php?busca=<?= urlencode($inv['name']) ?>" class="btn-acao-inv" style="text-decoration:none;" title="Ver movimentações no extrato">
+                                    <a href="statement?busca=<?= urlencode($inv['name']) ?>" class="btn-acao-inv" style="text-decoration:none;" title="Ver movimentações no extrato">
                                         Extrato (<?= $inv['qtd_movimentacoes'] ?>)
                                     </a>
                                 </div>
@@ -547,7 +547,7 @@ require_once "includes/layout_header.php";
                                     <button type="button" class="btn-acao-lancamento" onclick="iniciarEdicaoInvestimento(<?= htmlspecialchars(json_encode($inv), ENT_QUOTES, 'UTF-8') ?>)">
                                         Editar
                                     </button>
-                                    <form action="investments.php" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir este investimento? As transações vinculadas permanecerão registradas.');">
+                                    <form action="investments" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir este investimento? As transações vinculadas permanecerão registradas.');">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="acao" value="excluir">
                                         <input type="hidden" name="investment_id" value="<?= $inv['id'] ?>">
@@ -566,7 +566,7 @@ require_once "includes/layout_header.php";
         <!-- Formulário para Criar ou Editar Investimento -->
         <div class="bloco" style="height:fit-content;">
             <h2 id="formTituloInvestimento">+ Novo Ativo / Investimento</h2>
-            <form id="formInvestimento" action="investments.php" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
+            <form id="formInvestimento" action="investments" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" id="invAcao" value="criar">
                 <input type="hidden" name="investment_id" id="invId" value="">
@@ -640,7 +640,7 @@ require_once "includes/layout_header.php";
             <h2 id="tituloModalAporte" style="margin-top:0; color:var(--color-warning);">+ Novo Aporte</h2>
             <p id="descModalAporte" style="font-size:13px; color:var(--color-text-secondary);"></p>
 
-            <form action="investments.php" method="POST" class="form-lancamento" style="padding:0; background:transparent; border:none; box-shadow:none;">
+            <form action="investments" method="POST" class="form-lancamento" style="padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" value="novo_aporte">
                 <input type="hidden" name="investment_id" id="aporteInvId" value="">
@@ -679,7 +679,7 @@ require_once "includes/layout_header.php";
             <h2 id="tituloModalRendimento" style="margin-top:0; color:var(--color-emerald);">+ Novo Rendimento / Dividendo</h2>
             <p id="descModalRendimento" style="font-size:13px; color:var(--color-text-secondary);"></p>
 
-            <form action="investments.php" method="POST" class="form-lancamento" style="padding:0; background:transparent; border:none; box-shadow:none;">
+            <form action="investments" method="POST" class="form-lancamento" style="padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" value="novo_rendimento">
                 <input type="hidden" name="investment_id" id="rendimentoInvId" value="">
@@ -718,7 +718,7 @@ require_once "includes/layout_header.php";
             <h2 id="tituloModalResgate" style="margin-top:0; color:var(--color-gold);">⇄ Resgate de Investimento</h2>
             <p id="descModalResgate" style="font-size:13px; color:var(--color-text-secondary);"></p>
 
-            <form action="investments.php" method="POST" class="form-lancamento" style="padding:0; background:transparent; border:none; box-shadow:none;">
+            <form action="investments" method="POST" class="form-lancamento" style="padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" value="novo_resgate">
                 <input type="hidden" name="investment_id" id="resgateInvId" value="">
@@ -839,4 +839,5 @@ function fecharModais() {
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

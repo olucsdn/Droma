@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     try {
                         $stmtIns = $pdo->prepare("INSERT INTO categories (user_id, name, type, budget_limit) VALUES (?, ?, ?, ?)");
                         $stmtIns->execute([$userId, $nome, $tipo, $budgetLimit]);
-                        header("Location: categories.php?sucesso=" . urlencode("Categoria '{$nome}' criada com sucesso!"));
+                        header("Location: categories?sucesso=" . urlencode("Categoria '{$nome}' criada com sucesso!"));
                         exit;
                     } catch (PDOException $e) {
                         error_log("Erro ao criar categoria: " . $e->getMessage());
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     try {
                         $stmtUpd = $pdo->prepare("UPDATE categories SET name = ?, budget_limit = ? WHERE id = ? AND user_id = ?");
                         $stmtUpd->execute([$nome, $budgetLimit, $catId, $userId]);
-                        header("Location: categories.php?sucesso=" . urlencode("Categoria '{$nome}' atualizada com sucesso!"));
+                        header("Location: categories?sucesso=" . urlencode("Categoria '{$nome}' atualizada com sucesso!"));
                         exit;
                     } catch (PDOException $e) {
                         error_log("Erro ao atualizar categoria: " . $e->getMessage());
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         try {
                             $delStmt = $pdo->prepare("DELETE FROM categories WHERE id = ? AND user_id = ?");
                             $delStmt->execute([$catId, $userId]);
-                            header("Location: categories.php?sucesso=" . urlencode("Categoria excluída com sucesso!"));
+                            header("Location: categories?sucesso=" . urlencode("Categoria excluída com sucesso!"));
                             exit;
                         } catch (PDOException $e) {
                             error_log("Erro ao excluir categoria: " . $e->getMessage());
@@ -291,7 +291,7 @@ require_once "includes/layout_header.php";
                                             Excluir
                                         </button>
                                     <?php else: ?>
-                                        <form action="categories.php" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir a categoria \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?');">
+                                        <form action="categories" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir a categoria \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?');">
                                             <?= Security::csrfField() ?>
                                             <input type="hidden" name="acao" value="excluir">
                                             <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">
@@ -355,7 +355,7 @@ require_once "includes/layout_header.php";
                                         Excluir
                                     </button>
                                 <?php else: ?>
-                                    <form action="categories.php" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir a categoria \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?');">
+                                    <form action="categories" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir a categoria \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?');">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="acao" value="excluir">
                                         <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">
@@ -387,7 +387,7 @@ require_once "includes/layout_header.php";
                 </div>
             <?php endif; ?>
 
-            <form id="formCategoria" action="categories.php" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
+            <form id="formCategoria" action="categories" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" id="catAcao" value="criar">
                 <input type="hidden" name="category_id" id="catId" value="">
@@ -498,4 +498,5 @@ if (selectTipo) {
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

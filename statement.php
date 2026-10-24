@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -252,7 +252,7 @@ require_once "includes/layout_header.php";
             $urlExport = 'statement.php?' . http_build_query($queryExport);
             ?>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <a href="import.php" class="btn-aba" style="padding:6px 14px; text-decoration:none; background:rgba(0, 200, 150, 0.15); color:var(--color-emerald); border:1px solid rgba(0,200,150,0.3);" title="Importar extrato bancário em lote">
+                <a href="import" class="btn-aba" style="padding:6px 14px; text-decoration:none; background:rgba(0, 200, 150, 0.15); color:var(--color-emerald); border:1px solid rgba(0,200,150,0.3);" title="Importar extrato bancário em lote">
                     ⬆ Importar Extrato
                 </a>
                 <a href="<?= htmlspecialchars($urlExport) ?>" class="btn-aba ativo" style="padding:6px 14px; text-decoration:none;" title="Baixar resultado em arquivo CSV">
@@ -261,7 +261,7 @@ require_once "includes/layout_header.php";
             </div>
         </div>
 
-        <form method="GET" action="statement.php" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap:12px; align-items:end; width:100%; min-width:0;">
+        <form method="GET" action="statement" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap:12px; align-items:end; width:100%; min-width:0;">
 
             <label style="margin:0; font-size:12px; color:var(--color-text-secondary);">Período
                 <select name="periodo" id="selectPeriodo" style="width:100%; height:38px; margin-top:4px;" onchange="toggleDatasPersonalizadas()">
@@ -340,7 +340,7 @@ require_once "includes/layout_header.php";
 
             <div style="display:flex; gap:8px;">
                 <button type="submit" class="btn-header-primary" style="height:38px; padding:0 18px; flex:1;">Filtrar</button>
-                <a href="statement.php" class="sair" style="height:38px; display:inline-flex; align-items:center; justify-content:center; padding:0 14px;" title="Limpar Filtros">Limpar</a>
+                <a href="statement" class="sair" style="height:38px; display:inline-flex; align-items:center; justify-content:center; padding:0 14px;" title="Limpar Filtros">Limpar</a>
             </div>
         </form>
     </section>
@@ -377,8 +377,8 @@ require_once "includes/layout_header.php";
                                 <?= $l['type'] === 'income' ? '+' : '-' ?> R$ <?= number_format($l['amount'], 2, ',', '.') ?>
                             </span>
                             <div style="display:flex; gap:6px;">
-                                <a href="edit_expense.php?id=<?= $l['id'] ?>&origem=extrato" class="btn-acao-lancamento" title="Editar este lançamento">Editar</a>
-                                <form action="delete_expense.php" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
+                                <a href="edit_expense?id=<?= $l['id'] ?>&origem=extrato" class="btn-acao-lancamento" title="Editar este lançamento">Editar</a>
+                                <form action="delete_expense" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
                                     <?= Security::csrfField() ?>
                                     <input type="hidden" name="id" value="<?= (int)$l['id'] ?>">
                                     <button type="submit" class="btn-acao-lancamento btn-acao-excluir" style="border:none; cursor:pointer;" title="Excluir lançamento">Excluir</button>
@@ -407,4 +407,5 @@ function toggleDatasPersonalizadas() {
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

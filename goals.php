@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -123,7 +123,7 @@ require_once "includes/layout_header.php";
 
                             <!-- Formulário rápido para atualizar valor ou excluir -->
                             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:10px; border-top:1px solid var(--color-border); padding-top:10px;">
-                                <form action="goals.php" method="POST" style="display:flex; gap:8px; align-items:center;">
+                                <form action="goals" method="POST" style="display:flex; gap:8px; align-items:center;">
                                     <?= Security::csrfField() ?>
                                     <input type="hidden" name="acao" value="atualizar">
                                     <input type="hidden" name="goal_id" value="<?= $m['id'] ?>">
@@ -131,7 +131,7 @@ require_once "includes/layout_header.php";
                                     <button type="submit" class="btn-aba ativo" style="padding:4px 10px; font-size:11px;">Atualizar</button>
                                 </form>
 
-                                <form action="goals.php" method="POST" onsubmit="return confirm('Deseja realmente excluir esta meta?');">
+                                <form action="goals" method="POST" onsubmit="return confirm('Deseja realmente excluir esta meta?');">
                                     <?= Security::csrfField() ?>
                                     <input type="hidden" name="acao" value="excluir">
                                     <input type="hidden" name="goal_id" value="<?= $m['id'] ?>">
@@ -147,7 +147,7 @@ require_once "includes/layout_header.php";
         <!-- Formulário para nova meta -->
         <div class="bloco">
             <h2>+ Nova Meta</h2>
-            <form action="goals.php" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
+            <form action="goals" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" value="criar">
 
@@ -178,4 +178,5 @@ require_once "includes/layout_header.php";
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

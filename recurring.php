@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $userId, $accountId, $categoryId, $tipo, (float)$valorRaw,
                         $descricao, $frequencia, $diaDoMes, $nextDate
                     ]);
-                    header("Location: recurring.php?sucesso=" . urlencode("Recorrência '{$descricao}' configurada com sucesso!"));
+                    header("Location: recurring?sucesso=" . urlencode("Recorrência '{$descricao}' configurada com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     error_log("Erro ao salvar recorrência: " . $e->getMessage());
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $stmt = $pdo->prepare("UPDATE recurring_transactions SET active = NOT active WHERE id = ? AND user_id = ?");
                 $stmt->execute([$recId, $userId]);
-                header("Location: recurring.php?sucesso=" . urlencode("Status da recorrência atualizado!"));
+                header("Location: recurring?sucesso=" . urlencode("Status da recorrência atualizado!"));
                 exit;
             } catch (PDOException $e) {
                 error_log("Erro ao alterar status da recorrência: " . $e->getMessage());
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->commit();
 
                     $msg = "Lançamento recorrente de R$ " . number_format($rec['amount'], 2, ',', '.') . " lançado com sucesso! Próxima data: " . date('d/m/Y', $proxTs);
-                    header("Location: recurring.php?sucesso=" . urlencode($msg));
+                    header("Location: recurring?sucesso=" . urlencode($msg));
                     exit;
 
                 } catch (PDOException $e) {
@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $del = $pdo->prepare("DELETE FROM recurring_transactions WHERE id = ? AND user_id = ?");
                 $del->execute([$recId, $userId]);
-                header("Location: recurring.php?sucesso=" . urlencode("Recorrência removida com sucesso!"));
+                header("Location: recurring?sucesso=" . urlencode("Recorrência removida com sucesso!"));
                 exit;
             } catch (PDOException $e) {
                 error_log("Erro ao excluir recorrência: " . $e->getMessage());
@@ -286,7 +286,7 @@ require_once "includes/layout_header.php";
                                 </span>
                                 <div style="display:flex; gap:6px;">
                                     <?php if ($r['active']): ?>
-                                        <form action="recurring.php" method="POST" style="margin:0;">
+                                        <form action="recurring" method="POST" style="margin:0;">
                                             <?= Security::csrfField() ?>
                                             <input type="hidden" name="acao" value="lancar_agora">
                                             <input type="hidden" name="id" value="<?= $r['id'] ?>">
@@ -296,7 +296,7 @@ require_once "includes/layout_header.php";
                                         </form>
                                     <?php endif; ?>
 
-                                    <form action="recurring.php" method="POST" style="margin:0;">
+                                    <form action="recurring" method="POST" style="margin:0;">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="acao" value="toggle_active">
                                         <input type="hidden" name="id" value="<?= $r['id'] ?>">
@@ -305,7 +305,7 @@ require_once "includes/layout_header.php";
                                         </button>
                                     </form>
 
-                                    <form action="recurring.php" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir esta recorrência?');">
+                                    <form action="recurring" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir esta recorrência?');">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="acao" value="excluir">
                                         <input type="hidden" name="id" value="<?= $r['id'] ?>">
@@ -324,7 +324,7 @@ require_once "includes/layout_header.php";
         <!-- Formulário para Nova Recorrência -->
         <div class="bloco" style="height:fit-content;">
             <h2>+ Nova Recorrência</h2>
-            <form action="recurring.php" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
+            <form action="recurring" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" value="criar">
 
@@ -408,4 +408,5 @@ filtrarCategoriasRec();
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

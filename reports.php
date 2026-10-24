@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -609,7 +609,7 @@ require_once "includes/layout_header.php";
         </div>
 
         <div class="relatorios-controles">
-            <form method="GET" action="reports.php" class="filtro-bar">
+            <form method="GET" action="reports" class="filtro-bar">
                 <div class="filtro-grupo">
                     <label for="ano">Ano:</label>
                     <select name="ano" id="ano" onchange="this.form.submit()">
@@ -631,7 +631,7 @@ require_once "includes/layout_header.php";
             </form>
 
             <div class="acoes-export">
-                <a href="reports.php?ano=<?= $anoSelecionado ?>&mes=<?= $mesSelecionado ?>&export=csv" class="sair" title="Exportar CSV formatado">
+                <a href="reports?ano=<?= $anoSelecionado ?>&mes=<?= $mesSelecionado ?>&export=csv" class="sair" title="Exportar CSV formatado">
                     📥 Exportar CSV
                 </a>
                 <button type="button" onclick="window.print()" class="sair" title="Imprimir relatório">
@@ -714,7 +714,7 @@ require_once "includes/layout_header.php";
         <div class="chart-box">
             <h3>
                 <span>Demonstrativo Mensal Consolidado</span>
-                <a href="reports.php?ano=<?= $anoSelecionado ?>&export=csv" class="sair" style="font-size:12px; padding:4px 8px;">Baixar Tabela</a>
+                <a href="reports?ano=<?= $anoSelecionado ?>&export=csv" class="sair" style="font-size:12px; padding:4px 8px;">Baixar Tabela</a>
             </h3>
             <div class="tabela-fluxo-wrapper">
                 <table class="tabela-fluxo">
@@ -961,4 +961,5 @@ new Chart(ctxDesp, {
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

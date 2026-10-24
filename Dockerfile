@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Habilita módulos essenciais do Apache (rewrite e headers para PWA / REST API)
-RUN a2enmod rewrite headers
+RUN a2enmod rewrite headers \
+    && sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
 # Aplica configuração otimizada de PHP
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/wert-custom.ini

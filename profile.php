@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once 'config/database.php';
 require_once 'src/Security.php';
 require_once 'src/ApiAuth.php';
@@ -14,7 +14,7 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$usuario) {
     session_unset();
     session_destroy();
-    header('Location: login.php');
+    header('Location: login');
     exit;
 }
 
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $novoToken = ApiAuth::generateToken();
             $stmtToken = $pdo->prepare('UPDATE users SET api_token = ? WHERE id = ?');
             $stmtToken->execute([$novoToken, $userId]);
-            header('Location: profile.php?sucesso=' . urlencode('Nova chave de API gerada com sucesso!'));
+            header('Location: profile?sucesso=' . urlencode('Nova chave de API gerada com sucesso!'));
             exit;
         } catch (PDOException $e) {
             error_log('Erro ao gerar API token: ' . $e->getMessage());
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $_SESSION['user_name'] = $nome;
                     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-                    header('Location: profile.php?sucesso=' . urlencode('Dados atualizados com sucesso!'));
+                    header('Location: profile?sucesso=' . urlencode('Dados atualizados com sucesso!'));
                     exit;
                 }
             } catch (PDOException $e) {
@@ -127,7 +127,7 @@ require_once "includes/layout_header.php";
             <div class="alerta-perfil alerta-perfil-sucesso" role="status"><?= htmlspecialchars($sucesso) ?></div>
         <?php endif; ?>
 
-        <form class="form-lancamento perfil-form" action="profile.php" method="POST">
+        <form class="form-lancamento perfil-form" action="profile" method="POST">
             <?= Security::csrfField() ?>
 
             <section class="perfil-secao" aria-labelledby="dados-pessoais">
@@ -203,7 +203,7 @@ require_once "includes/layout_header.php";
             <?php endif; ?>
 
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                <form method="POST" action="profile.php" style="display:inline;">
+                <form method="POST" action="profile" style="display:inline;">
                     <?= Security::csrfField() ?>
                     <input type="hidden" name="acao" value="gerar_token">
                     <button type="submit" class="sair" style="font-size:13px; padding:8px 16px; cursor:pointer;" onclick="return confirm('<?= !empty($apiToken) ? 'Regenerar o token invalidará a chave anterior. Deseja continuar?' : 'Gerar nova chave de API?' ?>')">
@@ -211,7 +211,7 @@ require_once "includes/layout_header.php";
                     </button>
                 </form>
 
-                <a href="backup.php" class="sair" style="font-size:13px; padding:8px 16px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                <a href="backup" class="sair" style="font-size:13px; padding:8px 16px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
                     📦 Backup & Restauração de Dados →
                 </a>
             </div>
@@ -271,4 +271,5 @@ perfilForm.addEventListener('submit', atualizarValidacaoPerfil);
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

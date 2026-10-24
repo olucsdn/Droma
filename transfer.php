@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->commit();
 
                 $msg = "Transferência de R$ " . number_format($valor, 2, ',', '.') . " de '{$nomeFrom}' para '{$nomeTo}' realizada com sucesso!";
-                header("Location: accounts.php?sucesso=" . urlencode($msg));
+                header("Location: accounts?sucesso=" . urlencode($msg));
                 exit;
 
             } catch (PDOException $e) {
@@ -148,10 +148,10 @@ require_once "includes/layout_header.php";
         <div class="bloco" style="max-width:520px; margin: 40px auto; text-align:center;">
             <h2>Mínimo de 2 Contas Necessário</h2>
             <p style="color:var(--color-text-secondary); margin:16px 0;">Para realizar transferências entre contas, você precisa ter cadastradas pelo menos 2 contas financeiras ativas.</p>
-            <a href="accounts.php" class="btn-header-primary" style="display:inline-block;">Cadastrar Nova Conta</a>
+            <a href="accounts" class="btn-header-primary" style="display:inline-block;">Cadastrar Nova Conta</a>
         </div>
     <?php else: ?>
-        <form class="form-lancamento" action="transfer.php" method="POST">
+        <form class="form-lancamento" action="transfer" method="POST">
             <?= Security::csrfField() ?>
 
             <div style="margin-bottom: 20px; text-align: center;">
@@ -219,4 +219,5 @@ if (fromSelect && toSelect) {
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

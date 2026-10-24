@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 require_once "src/ClienteIA.php";
@@ -342,7 +342,7 @@ require_once "includes/layout_header.php";
             Selecione o período e o foco da consultoria financeira que você deseja receber.
         </p>
 
-        <form method="POST" action="assistant.php" class="ia-form">
+        <form method="POST" action="assistant" class="ia-form">
             <?= Security::csrfField() ?>
 
             <div class="campo">
@@ -429,8 +429,8 @@ require_once "includes/layout_header.php";
                     🛡️ Seus dados são confidenciais e agregados com estrita segurança.
                 </span>
                 <div style="display:flex; gap:10px;">
-                    <a href="reports.php" class="sair" style="font-size:12px; padding:6px 12px;">Ver Relatório Completo →</a>
-                    <a href="goals.php" class="sair" style="font-size:12px; padding:6px 12px;">Definir Novas Metas →</a>
+                    <a href="reports" class="sair" style="font-size:12px; padding:6px 12px;">Ver Relatório Completo →</a>
+                    <a href="goals" class="sair" style="font-size:12px; padding:6px 12px;">Definir Novas Metas →</a>
                 </div>
             </div>
         </div>
@@ -451,4 +451,5 @@ require_once "includes/layout_header.php";
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

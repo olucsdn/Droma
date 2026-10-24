@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -6,7 +6,7 @@ $userId = Security::requireAuth();
 $id = $_GET['id'] ?? $_POST['id'] ?? 0;
 
 if (!ctype_digit((string)$id) || (int)$id <= 0) {
-    header("Location: index.php");
+    header("Location: ./");
     exit;
 }
 
@@ -18,7 +18,7 @@ $stmt->execute([$id, $userId]);
 $lancamento = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$lancamento) {
-    header("Location: index.php");
+    header("Location: ./");
     exit;
 }
 
@@ -83,11 +83,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $refDate = $dueDate ?: $date;
                 $m = date('n', strtotime($refDate));
                 $y = date('Y', strtotime($refDate));
-                header("Location: calendar.php?mes=$m&ano=$y&sucesso=" . urlencode("Lançamento atualizado com sucesso!"));
+                header("Location: calendar?mes=$m&ano=$y&sucesso=" . urlencode("Lançamento atualizado com sucesso!"));
             } elseif ($origem === 'extrato') {
-                header("Location: statement.php?sucesso=" . urlencode("Lançamento atualizado com sucesso!"));
+                header("Location: statement?sucesso=" . urlencode("Lançamento atualizado com sucesso!"));
             } else {
-                header("Location: index.php?sucesso=" . urlencode("Lançamento atualizado com sucesso!"));
+                header("Location: ./?sucesso=" . urlencode("Lançamento atualizado com sucesso!"));
             }
             exit;
         } catch (PDOException $e) {
@@ -153,7 +153,7 @@ require_once "includes/layout_header.php";
         </div>
     <?php endif; ?>
 
-    <form class="form-lancamento" action="edit_expense.php" method="POST">
+    <form class="form-lancamento" action="edit_expense" method="POST">
         <?= Security::csrfField() ?>
         <input type="hidden" name="id" value="<?= $id ?>">
         <?php if (!empty($_GET['origem']) || !empty($_POST['origem'])): ?>
@@ -247,7 +247,7 @@ require_once "includes/layout_header.php";
 
         <div style="display:flex; gap:12px; margin-top:8px;">
             <button type="submit" style="flex:1;">Salvar Alterações</button>
-            <a href="index.php" class="sair" style="text-align:center; display:flex; align-items:center; justify-content:center; text-decoration:none;">Cancelar</a>
+            <a href="./" class="sair" style="text-align:center; display:flex; align-items:center; justify-content:center; text-decoration:none;">Cancelar</a>
         </div>
     </form>
 </main>
@@ -299,4 +299,5 @@ atualizarUrgencia();
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

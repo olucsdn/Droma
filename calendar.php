@@ -1,8 +1,8 @@
-﻿<?php
+<?php
 session_start();
 
 if (empty($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: login");
     exit;
 }
 
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
             $stmt = $pdo->prepare("UPDATE transactions SET status = ? WHERE id = ? AND user_id = ?");
             $stmt->execute([$novoStatus, $transacaoId, $userId]);
             $msg = $novoStatus === 'completed' ? 'Conta marcada como paga/recebida!' : 'Conta marcada como pendente!';
-            header("Location: calendar.php?mes=$mesPost&ano=$anoPost&criterio=$criterioPost&sucesso=" . urlencode($msg));
+            header("Location: calendar?mes=$mesPost&ano=$anoPost&criterio=$criterioPost&sucesso=" . urlencode($msg));
             exit;
         } catch (PDOException $e) {
             error_log("Erro ao atualizar status da transação: " . $e->getMessage());
@@ -295,25 +295,25 @@ require_once "includes/layout_header.php";
     <!-- BARRA DE CONTROLE DO CALENDÁRIO -->
     <section class="calendario-painel-topo">
         <div class="calendario-navegacao-mes">
-            <a href="calendar.php?mes=<?= $mesAnt ?>&ano=<?= $anoAnt ?>&criterio=<?= $criterioData ?>" class="btn-mes-nav" title="Mês anterior">
+            <a href="calendar?mes=<?= $mesAnt ?>&ano=<?= $anoAnt ?>&criterio=<?= $criterioData ?>" class="btn-mes-nav" title="Mês anterior">
                 &#9664; <span class="nav-mes-nome"><?= $nomesMeses[$mesAnt] ?></span>
             </a>
 
             <div class="calendario-titulo-mes">
                 <h2><?= $nomeMesAtual ?> <span><?= $ano ?></span></h2>
                 <?php if ($mes !== $mesAtual || $ano !== $anoAtual): ?>
-                    <a href="calendar.php?mes=<?= $mesAtual ?>&ano=<?= $anoAtual ?>&criterio=<?= $criterioData ?>" class="btn-mes-hoje">Mês Atual</a>
+                    <a href="calendar?mes=<?= $mesAtual ?>&ano=<?= $anoAtual ?>&criterio=<?= $criterioData ?>" class="btn-mes-hoje">Mês Atual</a>
                 <?php endif; ?>
             </div>
 
-            <a href="calendar.php?mes=<?= $mesProx ?>&ano=<?= $anoProx ?>&criterio=<?= $criterioData ?>" class="btn-mes-nav" title="Próximo mês">
+            <a href="calendar?mes=<?= $mesProx ?>&ano=<?= $anoProx ?>&criterio=<?= $criterioData ?>" class="btn-mes-nav" title="Próximo mês">
                 <span class="nav-mes-nome"><?= $nomesMeses[$mesProx] ?></span> &#9654;
             </a>
         </div>
 
         <div class="calendario-opcoes-rapidas">
             <!-- Seletor Rápido de Mês e Ano -->
-            <form method="GET" action="calendar.php" class="form-seletor-data">
+            <form method="GET" action="calendar" class="form-seletor-data">
                 <input type="hidden" name="criterio" value="<?= htmlspecialchars($criterioData) ?>">
                 <select name="mes" onchange="this.form.submit()" class="select-mes-ano">
                     <?php foreach ($nomesMeses as $numM => $nomM): ?>
@@ -330,10 +330,10 @@ require_once "includes/layout_header.php";
             <!-- Critério de Data (Vencimento vs Registro) -->
             <div class="filtro-criterio-data">
                 <span class="label-criterio">Data por:</span>
-                <a href="calendar.php?mes=<?= $mes ?>&ano=<?= $ano ?>&criterio=vencimento" 
+                <a href="calendar?mes=<?= $mes ?>&ano=<?= $ano ?>&criterio=vencimento" 
                    class="btn-criterio <?= $criterioData === 'vencimento' ? 'ativo' : '' ?>" 
                    title="Organizar pelo dia em que a conta deve ser paga / recebida">Vencimento</a>
-                <a href="calendar.php?mes=<?= $mes ?>&ano=<?= $ano ?>&criterio=registro" 
+                <a href="calendar?mes=<?= $mes ?>&ano=<?= $ano ?>&criterio=registro" 
                    class="btn-criterio <?= $criterioData === 'registro' ? 'ativo' : '' ?>" 
                    title="Organizar pela data em que o lançamento foi registrado">Registro</a>
             </div>
@@ -402,7 +402,7 @@ require_once "includes/layout_header.php";
                                 <span class="badge-pendente-mini" title="<?= $totaisDia['pendentes'] ?> pendência(s) neste dia">⏳ <?= $totaisDia['pendentes'] ?></span>
                             <?php endif; ?>
                         </div>
-                        <a href="add_expense.php?date=<?= $dataIso ?>&origem=calendario" class="btn-add-dia" title="Novo lançamento para <?= date('d/m/Y', strtotime($dataIso)) ?>">+</a>
+                        <a href="add_expense?date=<?= $dataIso ?>&origem=calendario" class="btn-add-dia" title="Novo lançamento para <?= date('d/m/Y', strtotime($dataIso)) ?>">+</a>
                     </div>
 
                     <!-- Indicadores compactos para visualização mobile -->
@@ -487,7 +487,7 @@ require_once "includes/layout_header.php";
         </div>
 
         <div class="modal-dia-footer">
-            <a id="btnModalNovoLancamento" href="add_expense.php?origem=calendario" class="btn-header-primary">+ Adicionar Conta Neste Dia</a>
+            <a id="btnModalNovoLancamento" href="add_expense?origem=calendario" class="btn-header-primary">+ Adicionar Conta Neste Dia</a>
             <button type="button" class="sair" onclick="fecharModal()">Fechar</button>
         </div>
     </div>
@@ -570,7 +570,7 @@ function abrirDetalhesDia(dia) {
                             ${ehEntrada ? '+' : '-'} R$ ${parseFloat(item.amount).toLocaleString('pt-BR', {minimumFractionDigits: 2})}
                         </div>
                         <div class="modal-botoes-linha">
-                            <form method="POST" action="calendar.php" style="display:inline;">
+                            <form method="POST" action="calendar" style="display:inline;">
                                 <input type="hidden" name="csrf_token" value="${csrfToken}">
                                 <input type="hidden" name="acao" value="toggle_status">
                                 <input type="hidden" name="id" value="${item.id}">
@@ -580,8 +580,8 @@ function abrirDetalhesDia(dia) {
                                 <input type="hidden" name="criterio" value="${escapeHtml(criterioAtual)}">
                                 <button type="submit" class="btn-acao-lancamento" title="Alterar status de pagamento">${botaoToggleTexto}</button>
                             </form>
-                            <a href="edit_expense.php?id=${item.id}&origem=calendario" class="btn-acao-lancamento" title="Editar este lançamento">Editar</a>
-                            <form method="POST" action="delete_expense.php" style="display:inline;" onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
+                            <a href="edit_expense?id=${item.id}&origem=calendario" class="btn-acao-lancamento" title="Editar este lançamento">Editar</a>
+                            <form method="POST" action="delete_expense" style="display:inline;" onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
                                 <input type="hidden" name="csrf_token" value="${csrfToken}">
                                 <input type="hidden" name="id" value="${item.id}">
                                 <input type="hidden" name="origem" value="calendario">
@@ -670,4 +670,5 @@ botoesFiltro.forEach(btn => {
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

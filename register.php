@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "src/Security.php";
 require_once "config/database.php";
 
@@ -6,7 +6,7 @@ Security::initSession();
 
 // Se o usuário já estiver logado, redireciona ao dashboard
 if (!empty($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: ./");
     exit;
 }
 
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_name'] = $nome;
                     $_SESSION['user_role'] = 'user';
 
-                    header("Location: index.php");
+                    header("Location: ./");
                     exit;
                 }
             } catch (PDOException $e) {
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <div class="login">
-        <form action="register.php" method="POST">
+        <form action="register" method="POST">
             <?= Security::csrfField() ?>
             <input type="text" name="nome" placeholder="Seu nome completo" value="<?= htmlspecialchars($nome) ?>" required autofocus>
             <input type="email" name="email" placeholder="Seu melhor e-mail" value="<?= htmlspecialchars($email) ?>" required>
@@ -130,10 +130,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="outro">
-        <button type="button" onclick="window.location.href='login.php'">Já tenho conta</button>
-        <button type="button" onclick="window.location.href='recover.php'">Recuperar senha</button>
+        <button type="button" onclick="window.location.href='login'">Já tenho conta</button>
+        <button type="button" onclick="window.location.href='recover'">Recuperar senha</button>
     </div>
 </div>
 </body>
 </html>
+
 

@@ -1,8 +1,8 @@
 <?php
+declare(strict_types=1);
 /**
  * Módulo de Backup & Restauração de Dados Pessoais — Droma
  */
-declare(strict_types=1);
 
 require_once "config/database.php";
 require_once "src/Security.php";
@@ -432,7 +432,7 @@ require_once "includes/layout_header.php";
                 </div>
             </div>
 
-            <a href="backup.php?download=json" class="btn-header-primary" style="justify-content:center; height:42px; text-decoration:none;">
+            <a href="backup?download=json" class="btn-header-primary" style="justify-content:center; height:42px; text-decoration:none;">
                 ⬇ Baixar Arquivo de Backup (.JSON)
             </a>
         </div>
@@ -452,7 +452,7 @@ require_once "includes/layout_header.php";
                     Envie um arquivo <code>.json</code> gerado pelo Droma para recuperar seus lançamentos e cadastros com integridade relacional.
                 </p>
 
-                <form method="POST" action="backup.php" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:14px;">
+                <form method="POST" action="backup" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:14px;">
                     <?= Security::csrfField() ?>
                     <input type="hidden" name="acao" value="restaurar">
 
@@ -478,3 +478,4 @@ require_once "includes/layout_header.php";
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+

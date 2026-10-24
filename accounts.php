@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $stmt = $pdo->prepare("INSERT INTO accounts (user_id, name, type, initial_balance) VALUES (?, ?, ?, ?)");
                     $stmt->execute([$userId, $nome, $tipo, $saldoInicial]);
-                    header("Location: accounts.php?sucesso=" . urlencode("Conta '{$nome}' criada com sucesso!"));
+                    header("Location: accounts?sucesso=" . urlencode("Conta '{$nome}' criada com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     error_log("Erro ao criar conta: " . $e->getMessage());
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $stmt = $pdo->prepare("UPDATE accounts SET name = ?, type = ?, initial_balance = ? WHERE id = ? AND user_id = ?");
                     $stmt->execute([$nome, $tipo, $saldoInicial, $accountId, $userId]);
-                    header("Location: accounts.php?sucesso=" . urlencode("Conta '{$nome}' atualizada com sucesso!"));
+                    header("Location: accounts?sucesso=" . urlencode("Conta '{$nome}' atualizada com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     error_log("Erro ao atualizar conta: " . $e->getMessage());
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             try {
                                 $delStmt = $pdo->prepare("DELETE FROM accounts WHERE id = ? AND user_id = ?");
                                 $delStmt->execute([$accountId, $userId]);
-                                header("Location: accounts.php?sucesso=" . urlencode("Conta removida com sucesso!"));
+                                header("Location: accounts?sucesso=" . urlencode("Conta removida com sucesso!"));
                                 exit;
                             } catch (PDOException $e) {
                                 error_log("Erro ao excluir conta: " . $e->getMessage());
@@ -226,7 +226,7 @@ require_once "includes/layout_header.php";
         <div class="bloco">
             <div class="cabecalho-secao" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <h2 style="margin:0;">Suas Contas Financeiras</h2>
-                <a href="transfer.php" class="btn-aba" style="padding:6px 14px; text-decoration:none;">⇄ Transferir entre Contas</a>
+                <a href="transfer" class="btn-aba" style="padding:6px 14px; text-decoration:none;">⇄ Transferir entre Contas</a>
             </div>
 
             <div class="contas-grid">
@@ -280,7 +280,7 @@ require_once "includes/layout_header.php";
                                 Editar
                             </button>
 
-                            <form action="accounts.php" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir a conta \'<?= htmlspecialchars(addslashes($c['name'])) ?>\'?');">
+                            <form action="accounts" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir a conta \'<?= htmlspecialchars(addslashes($c['name'])) ?>\'?');">
                                 <?= Security::csrfField() ?>
                                 <input type="hidden" name="acao" value="excluir">
                                 <input type="hidden" name="account_id" value="<?= $c['id'] ?>">
@@ -297,7 +297,7 @@ require_once "includes/layout_header.php";
         <!-- Formulário para Criar ou Editar Conta -->
         <div class="bloco" style="height:fit-content;">
             <h2 id="formTituloConta">+ Nova Conta</h2>
-            <form id="formConta" action="accounts.php" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
+            <form id="formConta" action="accounts" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" id="contaAcao" value="criar">
                 <input type="hidden" name="account_id" id="contaId" value="">
@@ -357,4 +357,5 @@ function cancelarEdicaoConta() {
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

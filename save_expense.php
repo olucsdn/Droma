@@ -1,11 +1,11 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
 $userId = Security::requireAuth();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: add_expense.php");
+    header("Location: add_expense");
     exit;
 }
 
@@ -198,13 +198,14 @@ if ($origem === 'calendario') {
     $refDate = $dueDate ?: $date;
     $m = date('n', strtotime($refDate));
     $y = date('Y', strtotime($refDate));
-    header("Location: calendar.php?mes=$m&ano=$y&sucesso=" . urlencode("Lançamento salvo com sucesso!"));
+    header("Location: calendar?mes=$m&ano=$y&sucesso=" . urlencode("Lançamento salvo com sucesso!"));
 } elseif ($origem === 'extrato') {
-    header("Location: statement.php?sucesso=" . urlencode("Lançamento salvo com sucesso!"));
+    header("Location: statement?sucesso=" . urlencode("Lançamento salvo com sucesso!"));
 } elseif ($origem === 'cartoes' || $usaCartao) {
-    header("Location: cards.php?sucesso=" . urlencode("Compra no cartão registrada com sucesso!"));
+    header("Location: cards?sucesso=" . urlencode("Compra no cartão registrada com sucesso!"));
 } else {
-    header("Location: index.php?sucesso=" . urlencode("Lançamento salvo com sucesso!"));
+    header("Location: ./?sucesso=" . urlencode("Lançamento salvo com sucesso!"));
 }
 exit;
+
 

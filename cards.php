@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                          VALUES (?, ?, ?, ?, ?, ?, ?)"
                     );
                     $stmt->execute([$userId, $accountId, $nome, (float)$limiteRaw, $fechamento, $vencimento, $cor]);
-                    header("Location: cards.php?sucesso=" . urlencode("Cartão '{$nome}' cadastrado e vinculado com sucesso!"));
+                    header("Location: cards?sucesso=" . urlencode("Cartão '{$nome}' cadastrado e vinculado com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     error_log("Erro ao cadastrar cartão: " . $e->getMessage());
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                          WHERE id = ? AND user_id = ?"
                     );
                     $stmt->execute([$nome, (float)$limiteRaw, $fechamento, $vencimento, $cor, $cardId, $userId]);
-                    header("Location: cards.php?sucesso=" . urlencode("Cartão '{$nome}' atualizado com sucesso!"));
+                    header("Location: cards?sucesso=" . urlencode("Cartão '{$nome}' atualizado com sucesso!"));
                     exit;
                 } catch (PDOException $e) {
                     error_log("Erro ao atualizar cartão: " . $e->getMessage());
@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     try {
                         $del = $pdo->prepare("DELETE FROM credit_cards WHERE id = ? AND user_id = ?");
                         $del->execute([$cardId, $userId]);
-                        header("Location: cards.php?sucesso=" . urlencode("Cartão excluído com sucesso!"));
+                        header("Location: cards?sucesso=" . urlencode("Cartão excluído com sucesso!"));
                         exit;
                     } catch (PDOException $e) {
                         error_log("Erro ao excluir cartão: " . $e->getMessage());
@@ -187,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $pdo->commit();
 
                         $msg = "Fatura do cartão '{$cardNome}' no valor de R$ " . number_format($totalFatura, 2, ',', '.') . " paga com sucesso!";
-                        header("Location: cards.php?sucesso=" . urlencode($msg));
+                        header("Location: cards?sucesso=" . urlencode($msg));
                         exit;
 
                     } catch (PDOException $e) {
@@ -407,7 +407,7 @@ require_once "includes/layout_header.php";
                                     <button type="button" class="btn-acao-lancamento" onclick="iniciarEdicaoCartao(<?= htmlspecialchars(json_encode($card), ENT_QUOTES, 'UTF-8') ?>)">
                                         Editar
                                     </button>
-                                    <form action="cards.php" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir este cartão?');">
+                                    <form action="cards" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir este cartão?');">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="acao" value="excluir">
                                         <input type="hidden" name="card_id" value="<?= $card['id'] ?>">
@@ -429,11 +429,11 @@ require_once "includes/layout_header.php";
 
             <?php if (empty($contasDisponiveis)): ?>
                 <div id="avisoSemContas" style="background:rgba(212, 175, 108, 0.12); border-left:3px solid var(--color-gold); padding:12px; border-radius:var(--radius-md); font-size:13px; color:var(--color-gold-light); margin-bottom:14px;">
-                    ℹ️ Todas as suas contas bancárias já possuem um cartão de crédito vinculado (ou você ainda não cadastrou nenhuma conta). Como a regra do sistema é <strong>1 cartão por conta</strong>, cadastre uma nova conta em <a href="accounts.php" style="color:var(--color-gold); font-weight:700;">Contas</a> para poder adicionar outro cartão.
+                    ℹ️ Todas as suas contas bancárias já possuem um cartão de crédito vinculado (ou você ainda não cadastrou nenhuma conta). Como a regra do sistema é <strong>1 cartão por conta</strong>, cadastre uma nova conta em <a href="accounts" style="color:var(--color-gold); font-weight:700;">Contas</a> para poder adicionar outro cartão.
                 </div>
             <?php endif; ?>
 
-            <form id="formCartao" action="cards.php" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
+            <form id="formCartao" action="cards" method="POST" class="form-lancamento" style="max-width:100%; padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" id="cartaoAcao" value="criar">
                 <input type="hidden" name="card_id" id="cartaoId" value="">
@@ -489,7 +489,7 @@ require_once "includes/layout_header.php";
             <h2 id="tituloModalFatura" style="margin-top:0;">Pagar Fatura</h2>
             <p id="descModalFatura" style="font-size:13px; color:var(--color-text-secondary);"></p>
 
-            <form action="cards.php" method="POST" class="form-lancamento" style="padding:0; background:transparent; border:none; box-shadow:none;">
+            <form action="cards" method="POST" class="form-lancamento" style="padding:0; background:transparent; border:none; box-shadow:none;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" value="pagar_fatura">
                 <input type="hidden" name="card_id" id="pagtoCardId" value="">
@@ -583,4 +583,5 @@ function fecharModalFatura() {
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

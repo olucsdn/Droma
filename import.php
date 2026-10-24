@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
 
                 $pdo->commit();
                 $sucesso = "Sucesso! {$importadosTotal} movimentações foram importadas com êxito.";
-                header("Location: statement.php?sucesso=" . urlencode($sucesso));
+                header("Location: statement?sucesso=" . urlencode($sucesso));
                 exit;
 
             } catch (PDOException $e) {
@@ -214,7 +214,7 @@ require_once "includes/layout_header.php";
                 1. Selecione a Conta e o Arquivo
             </h2>
 
-            <form method="POST" action="import.php" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:16px;">
+            <form method="POST" action="import" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:16px;">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" value="processar_arquivo">
 
@@ -236,7 +236,7 @@ require_once "includes/layout_header.php";
                     <button type="submit" class="btn-header-primary" style="flex:1; justify-content:center; height:42px;">
                         📄 Analisar Extrato
                     </button>
-                    <a href="statement.php" class="sair" style="padding:10px 18px; text-decoration:none;">Cancelar</a>
+                    <a href="statement" class="sair" style="padding:10px 18px; text-decoration:none;">Cancelar</a>
                 </div>
             </form>
         </div>
@@ -260,7 +260,7 @@ require_once "includes/layout_header.php";
                 </div>
             </div>
 
-            <form method="POST" action="import.php">
+            <form method="POST" action="import">
                 <?= Security::csrfField() ?>
                 <input type="hidden" name="acao" value="salvar_importacao">
                 <input type="hidden" name="account_id" value="<?= $contaSelecionada ?>">
@@ -315,7 +315,7 @@ require_once "includes/layout_header.php";
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px; padding-top:16px; border-top:1px solid var(--color-border);">
-                    <a href="import.php" class="sair" style="text-decoration:none; padding:10px 18px;">Voltar / Cancelar</a>
+                    <a href="import" class="sair" style="text-decoration:none; padding:10px 18px;">Voltar / Cancelar</a>
                     <button type="submit" class="btn-header-primary" style="height:42px; padding:0 24px; font-size:14px;">
                         ✓ Confirmar e Importar Lançamentos
                     </button>
@@ -329,4 +329,5 @@ require_once "includes/layout_header.php";
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 

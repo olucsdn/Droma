@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once "config/database.php";
 require_once "src/Security.php";
 
@@ -145,7 +145,7 @@ require_once "includes/layout_header.php";
         <div class="bloco lancamentos">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                 <h2 style="margin:0;">Últimos lançamentos</h2>
-                <a href="statement.php" class="sair" style="font-size:12px; padding: 4px 10px;">Ver extrato completo →</a>
+                <a href="statement" class="sair" style="font-size:12px; padding: 4px 10px;">Ver extrato completo →</a>
             </div>
             <?php if (empty($ultimosLancamentos)): ?>
                 <p class="vazio">Nenhum lançamento registrado ainda.</p>
@@ -167,8 +167,8 @@ require_once "includes/layout_header.php";
                                     <?= $l['type'] === 'income' ? '+' : '-' ?> R$ <?= number_format($l['amount'], 2, ',', '.') ?>
                                 </span>
                                 <div style="display:flex; gap:6px;">
-                                    <a href="edit_expense.php?id=<?= $l['id'] ?>" class="btn-acao-lancamento" title="Editar este lançamento">Editar</a>
-                                    <form action="delete_expense.php" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
+                                    <a href="edit_expense?id=<?= $l['id'] ?>" class="btn-acao-lancamento" title="Editar este lançamento">Editar</a>
+                                    <form action="delete_expense" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="id" value="<?= (int)$l['id'] ?>">
                                         <button type="submit" class="btn-acao-lancamento btn-acao-excluir" style="border:none; cursor:pointer;" title="Excluir lançamento">Excluir</button>
@@ -211,7 +211,7 @@ require_once "includes/layout_header.php";
                         <h2 style="margin:0;">Tetos do Mês (Orçamento)</h2>
                         <span style="font-size:11px; font-weight:700; background:rgba(212,175,108,0.15); color:var(--color-gold); padding:2px 8px; border-radius:4px;">Controle</span>
                     </div>
-                    <a class="sair" href="categories.php" style="font-size:12px; padding: 5px 12px;">Gerenciar Tetos</a>
+                    <a class="sair" href="categories" style="font-size:12px; padding: 5px 12px;">Gerenciar Tetos</a>
                 </div>
 
                 <div class="grade-metas">
@@ -256,7 +256,7 @@ require_once "includes/layout_header.php";
         <div class="bloco">
             <div class="cabecalho-secao cabecalho-metas">
                 <h2 style="margin:0;">Metas Financeiras</h2>
-                <a class="sair" href="goals.php" style="font-size:12px; padding: 5px 12px;">Gerenciar Metas</a>
+                <a class="sair" href="goals" style="font-size:12px; padding: 5px 12px;">Gerenciar Metas</a>
             </div>
 
             <?php if (empty($metas)): ?>
@@ -509,4 +509,5 @@ renderizarGrafico(dadosDespesas, 'Despesas');
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
+
 
