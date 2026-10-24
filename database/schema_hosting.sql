@@ -72,7 +72,7 @@ DROP TABLE IF EXISTS `goals`;
 CREATE TABLE `goals` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int unsigned NOT NULL,
-  `title` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `target_amount` decimal(12,2) NOT NULL,
   `current_amount` decimal(12,2) NOT NULL DEFAULT '0.00',
   `deadline` date DEFAULT NULL,
