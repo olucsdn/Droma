@@ -1,7 +1,7 @@
 {
   "name": "Droma — Gestão Financeira Pessoal",
   "short_name": "Droma",
-  "start_url": "index.php",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -9,6 +9,18 @@
   "theme_color": "#070A0E",
   "description": "Controle financeiro pessoal elegante, seguro e inteligente.",
   "icons": [
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "img/icon-192.svg",
       "sizes": "192x192",

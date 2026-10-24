@@ -310,6 +310,7 @@ $roiGeral = $totalAportesGeral > 0 ? round(($lucroLiquidoGeral / $totalAportesGe
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php require_once "includes/head_favicons.php"; ?>
     <title>Droma - Gestão de Investimentos & ROI</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">

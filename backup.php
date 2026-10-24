@@ -324,6 +324,7 @@ $totaisAtuais['metas'] = (int)$pdo->query("SELECT COUNT(*) FROM goals WHERE user
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php require_once "includes/head_favicons.php"; ?>
     <title>Droma - Backup e Restauração</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">

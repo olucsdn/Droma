@@ -205,6 +205,7 @@ $tituloPeriodo = $mesSelecionado > 0 ? "{$nomesMeses[$mesSelecionado]} de {$anoS
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php require_once "includes/head_favicons.php"; ?>
     <title>Droma - Relatórios Analíticos</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <style>

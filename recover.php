@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php require_once "includes/head_favicons.php"; ?>
     <link rel="stylesheet" href="style_login.css?v=<?= filemtime('style_login.css') ?>">
     <title>Droma - Recuperar Senha</title>
 </head>

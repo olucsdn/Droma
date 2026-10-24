@@ -228,6 +228,7 @@ $diasMesAntInicio = $totalDiasMesAnt - $primeiroDiaSemana + 1;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php require_once "includes/head_favicons.php"; ?>
     <title>Droma - Calendário de Contas</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
 </head>
