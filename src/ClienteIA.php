@@ -4,7 +4,8 @@
  */
 final class ClienteIA {
     private const DEFAULT_MODEL = 'gemini-3.6-flash';
-    public const DAILY_LIMIT = 3;
+    public const QUOTA_PER_CYCLE = 1;
+    public const DAILY_LIMIT = 1; // Mantido para compatibilidade retroativa
 
     public function analisar(array $dados): string {
         $lastError = 'Nenhum provedor de IA configurado.';
@@ -157,19 +158,52 @@ final class ClienteIA {
     }
 
     /**
-     * Verifica e retorna o consumo diário do usuário
+     * Retorna informações sobre o ciclo quinzenal e o consumo de IA do usuário:
+     * - Ciclo 1 (Dias 01 a 14): Planejamento e Fechamento do Mês
+     * - Ciclo 2 (Dia 15 ao fim do mês): Check-up Quinzenal de Ajuste de Rota
+     */
+    public function getUsage(PDO $pdo, int $userId): array {
+        $diaAtual = (int)date('j');
+        $anoMes   = date('Y-m');
+
+        if ($diaAtual < 15) {
+            $cicloNome        = 'Início do Mês (Planejamento)';
+            $startDate        = "{$anoMes}-01";
+            $endDate          = "{$anoMes}-14";
+            $proximaLiberacao = date('15/m/Y');
+        } else {
+            $cicloNome        = 'Meio do Mês (Check-up Quinzenal)';
+            $startDate        = "{$anoMes}-15";
+            $endDate          = date('Y-m-t');
+            $proximaLiberacao = date('01/m/Y', strtotime('first day of next month'));
+        }
+
+        $stmt = $pdo->prepare("
+            SELECT COALESCE(SUM(requests), 0) 
+            FROM ai_daily_usage 
+            WHERE user_id = ? AND usage_date BETWEEN ? AND ?
+        ");
+        $stmt->execute([$userId, $startDate, $endDate]);
+        $requests = (int)$stmt->fetchColumn();
+
+        $remaining = max(0, self::QUOTA_PER_CYCLE - $requests);
+        $allowed   = ($remaining > 0);
+
+        return [
+            'requests'          => $requests,
+            'limit'             => self::QUOTA_PER_CYCLE,
+            'remaining'         => $remaining,
+            'allowed'           => $allowed,
+            'ciclo_nome'        => $cicloNome,
+            'proxima_liberacao' => $proximaLiberacao
+        ];
+    }
+
+    /**
+     * Mantém compatibilidade retroativa com chamadas legadas
      */
     public function getDailyUsage(PDO $pdo, int $userId): array {
-        $today = date('Y-m-d');
-        $stmt = $pdo->prepare("SELECT requests FROM ai_daily_usage WHERE user_id = ? AND usage_date = ?");
-        $stmt->execute([$userId, $today]);
-        $requests = (int) ($stmt->fetchColumn() ?: 0);
-        return [
-            'requests' => $requests,
-            'limit' => self::DAILY_LIMIT,
-            'remaining' => max(0, self::DAILY_LIMIT - $requests),
-            'allowed' => ($requests < self::DAILY_LIMIT)
-        ];
+        return $this->getUsage($pdo, $userId);
     }
 
     /**

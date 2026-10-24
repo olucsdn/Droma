@@ -107,7 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tipoAnalise = 'local';
         }
     } else {
-        $mensagemAlerta = "Você atingiu o limite de " . ClienteIA::DAILY_LIMIT . " consultas diárias da IA. Exibindo diagnóstico inteligente gerado pelo motor analítico do Wert.";
+        $proxima = $usage['proxima_liberacao'] ?? 'no próximo ciclo';
+        $ciclo   = $usage['ciclo_nome'] ?? 'atual';
+        $mensagemAlerta = "Você já utilizou sua consulta de IA para este período ({$ciclo}). Sua próxima consultoria com IA será liberada em {$proxima}! Abaixo está o diagnóstico inteligente gerado pelo motor analítico local do Wert.";
         $analiseGerada = $ai->gerarAnaliseLocal($dadosAgregados);
         $tipoAnalise = 'local';
     }
@@ -315,8 +317,13 @@ require_once "includes/layout_header.php";
             </p>
         </div>
 
-        <div class="badge-quota">
-            <span>⚡ <?= $usage['remaining'] ?> de <?= $usage['limit'] ?> consultas restantes hoje</span>
+        <div class="badge-quota" style="text-align: right;">
+            <div style="font-weight: 700;">
+                ⚡ <?= $usage['allowed'] ? '1 consulta de IA disponível' : 'Consulta do ciclo já utilizada' ?>
+            </div>
+            <div style="font-size: 11px; opacity: 0.85; margin-top: 2px;">
+                <?= $usage['allowed'] ? 'Ciclo: ' . htmlspecialchars($usage['ciclo_nome']) : 'Próxima liberação: ' . htmlspecialchars($usage['proxima_liberacao']) ?>
+            </div>
         </div>
     </div>
 
@@ -360,7 +367,7 @@ require_once "includes/layout_header.php";
 
             <div class="campo" style="flex:0 0 auto;">
                 <button type="submit" class="btn-header-primary" style="height: 42px; padding: 0 24px; font-size: 14px;">
-                    ✨ Gerar Análise
+                    ✨ <?= $usage['allowed'] ? 'Gerar Análise com IA' : 'Gerar Diagnóstico Local' ?>
                 </button>
             </div>
         </form>
