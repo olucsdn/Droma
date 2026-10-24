@@ -1,4 +1,4 @@
-# Arquitetura e Decisões Técnicas — Projeto Wert
+﻿# Arquitetura e Decisões Técnicas — Projeto Wert
 
 **Documento:** Arquitetura do Sistema e Diretrizes de Engenharia  
 **Metodologia:** Spec-Driven Development (SDD) — Etapa C  
@@ -22,10 +22,10 @@ A arquitetura atual evolui de um modelo puramente procedural em arquivos raiz pa
 ```mermaid
 flowchart TD
     subgraph Frontend["Camada de Apresentação (Views & UI)"]
-        UI_Login["paginalogar.php / cadastrar.php"]
+        UI_Login["login.php / register.php"]
         UI_Dash["index.php (Dashboard & Gráficos)"]
-        UI_Cal["calendario.php (Fluxo Mensal)"]
-        UI_Forms["adicionar_gasto.php / editar_gasto.php / metas.php"]
+        UI_Cal["calendar.php (Fluxo Mensal)"]
+        UI_Forms["add_expense.php / edit_expense.php / goals.php"]
     end
 
     subgraph Security["Camada Transversal de Segurança & Helpers"]
@@ -35,8 +35,8 @@ flowchart TD
 
     subgraph Business["Controladores / Ações de Negócio"]
         AuthAction["login.php / logout.php"]
-        TxAction["salvar_gasto.php / editar_gasto.php / excluir_gasto.php"]
-        GoalAction["metas.php (Ações POST)"]
+        TxAction["save_expense.php / edit_expense.php / delete_expense.php"]
+        GoalAction["goals.php (Ações POST)"]
         AIClient["src/ClienteIA.php (Gemini API)"]
     end
 
@@ -73,7 +73,7 @@ flowchart TD
 ## 3. Decisões Técnicas Centrais
 
 ### 3.1 Centralização de Segurança e Helpers (`src/Security.php` ou `config/helpers.php`)
-- **Problema Identificado:** O mecanismo de token CSRF estava implementado de forma isolada em `perfil.php`, enquanto `salvar_gasto.php`, `editar_gasto.php`, `excluir_gasto.php` e `metas.php` estavam desprotegidos. Além disso, a validação de propriedade (`account_id` e `category_id` pertencem ao usuário?) estava ausente nesses scripts.
+- **Problema Identificado:** O mecanismo de token CSRF estava implementado de forma isolada em `profile.php`, enquanto `save_expense.php`, `edit_expense.php`, `delete_expense.php` e `goals.php` estavam desprotegidos. Além disso, a validação de propriedade (`account_id` e `category_id` pertencem ao usuário?) estava ausente nesses scripts.
 - **Decisão:** Criar um módulo centralizado de helpers de segurança reutilizável (`src/Security.php`), fornecendo:
   - `Security::csrfToken()`: obtém ou gera o token da sessão;
   - `Security::csrfField()`: renderiza o input hidden formatado para inserção em formulários;
@@ -84,14 +84,14 @@ flowchart TD
 - **Justificativa:** Elimina duplicação de código, garante conformidade com o RNF-03 e RNF-04, e permite proteção imediata de todas as páginas sem quebrar a estrutura existente.
 
 ### 3.2 Correção da Vulnerabilidade de Exclusão via GET
-- **Problema:** `excluir_gasto.php` recebia o ID por GET e executava `DELETE` diretamente no banco, tornando-o suscetível a ataques CSRF via tags HTML normais ou links compartilhados.
+- **Problema:** `delete_expense.php` recebia o ID por GET e executava `DELETE` diretamente no banco, tornando-o suscetível a ataques CSRF via tags HTML normais ou links compartilhados.
 - **Decisão:**
-  - `excluir_gasto.php` passará a exigir estritamente o método `POST` e o token CSRF.
-  - No `index.php` e `calendario.php`, o botão "Excluir" passa a submeter um pequeno formulário inline via POST (com confirmação em JavaScript `confirm()`), mantendo exatamente o mesmo design e comportamento visual prévio.
+  - `delete_expense.php` passará a exigir estritamente o método `POST` e o token CSRF.
+  - No `index.php` e `calendar.php`, o botão "Excluir" passa a submeter um pequeno formulário inline via POST (com confirmação em JavaScript `confirm()`), mantendo exatamente o mesmo design e comportamento visual prévio.
 - **Justificativa:** Conformidade obrigatória com as boas práticas de segurança web (OWASP Top 10 / CWE-352) e com a regra de proteção contra CSRF estabelecida na especificação.
 
 ### 3.3 Normalização de Schema para `accounts`
-- **Problema:** `cadastrar.php` e `adicionar_gasto.php` inserem em `accounts` sem especificar `type`, o qual é `ENUM('checking','savings','cash','investment') NOT NULL` sem DEFAULT no schema MySQL.
+- **Problema:** `register.php` e `add_expense.php` inserem em `accounts` sem especificar `type`, o qual é `ENUM('checking','savings','cash','investment') NOT NULL` sem DEFAULT no schema MySQL.
 - **Decisão:** Atualizar as consultas SQL no código PHP para informar explicitamente `'checking'` e criar uma migration incremental reversível `database/migrations/001_alter_accounts_default_type.sql` que adiciona `DEFAULT 'checking'` à coluna `type`.
 - **Justificativa:** Garante compatibilidade total e previne falhas de inserção caso o MySQL opere sob modos restritivos de validação (`STRICT_TRANS_TABLES`).
 
@@ -108,3 +108,4 @@ Todas as alterações no banco de dados devem ser versionadas em arquivos SQL nu
 - Devem ser idempotentes ou acompanhadas de scripts de verificação;
 - Não devem utilizar comandos destrutivos (`DROP DATABASE`, `TRUNCATE`, `DROP TABLE`);
 - Devem conter bloco de aplicação (`UP`) e bloco de reversão (`DOWN`) documentado.
+

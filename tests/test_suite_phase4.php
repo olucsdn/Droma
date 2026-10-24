@@ -1,10 +1,9 @@
 <?php
+declare(strict_types=1);
 /**
  * Suíte de Testes Automatizados - Fase 4 (Análises, Relatórios e Assistente IA)
- * Metodologia SDD - Projeto Wert
+ * Metodologia SDD - Projeto Droma
  */
-
-declare(strict_types=1);
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../src/Security.php';
@@ -118,7 +117,7 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$userId, $accountId, $catExpenseId, $cardId, date('Y-m-20')]);
 
-// 6. Teste da query de fluxo mensal (como executada em relatorios.php)
+// 6. Teste da query de fluxo mensal (como executada em reports.php)
 $stmtFluxo = $pdo->prepare("
     SELECT MONTH(date) AS mes, type, SUM(amount) AS total
     FROM transactions
@@ -167,3 +166,4 @@ if ($failed === 0) {
     echo "STATUS: OCORRERAM FALHAS NOS TESTES DA FASE 4." . PHP_EOL;
     exit(1);
 }
+

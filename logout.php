@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 
 // Limpa todas as variáveis de sessão
@@ -22,5 +22,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Redireciona para a página de login
-header("Location: paginalogar.php");
+header("Location: login.php");
 exit;
+

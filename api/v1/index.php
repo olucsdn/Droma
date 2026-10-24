@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Droma API v1.0 — Console Interativo & Documentação
  */
@@ -99,8 +99,8 @@ if ($userId) {
     </div>
     <div class="acoes-topo">
         <a class="sair" href="../../index.php">Painel Web</a>
-        <a class="sair" href="../../relatorios.php">Relatórios</a>
-        <a class="sair" href="../../perfil.php">Meu Perfil</a>
+        <a class="sair" href="../../reports.php">Relatórios</a>
+        <a class="sair" href="../../profile.php">Meu Perfil</a>
     </div>
 </header>
 
@@ -118,7 +118,7 @@ if ($userId) {
             <?php if ($userToken): ?>
                 <button type="button" class="sair" style="font-size:12px; padding:6px 12px; cursor:pointer;" onclick="navigator.clipboard.writeText(document.getElementById('activeToken').value); this.textContent='Copiado!'; setTimeout(()=>this.textContent='Copiar', 2000);">Copiar</button>
             <?php else: ?>
-                <a href="../../perfil.php" class="btn-header-primary" style="font-size:12px; padding:6px 14px;">Gerar no Perfil</a>
+                <a href="../../profile.php" class="btn-header-primary" style="font-size:12px; padding:6px 14px;">Gerar no Perfil</a>
             <?php endif; ?>
         </div>
     </div>
@@ -144,9 +144,9 @@ if ($userId) {
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <span class="method-badge method-get">GET</span>
-                    <strong style="margin-left:8px; font-size:15px; color:var(--color-text);">/api/v1/contas.php</strong>
+                    <strong style="margin-left:8px; font-size:15px; color:var(--color-text);">/api/v1/accounts.php</strong>
                 </div>
-                <button class="sair" style="font-size:12px; padding:4px 10px; cursor:pointer;" onclick="testarEndpoint('contas.php', 'GET', 'res-contas')">Executar Teste ▶</button>
+                <button class="sair" style="font-size:12px; padding:4px 10px; cursor:pointer;" onclick="testarEndpoint('accounts.php', 'GET', 'res-contas')">Executar Teste ▶</button>
             </div>
             <p style="color:var(--color-text-secondary); font-size:13px; margin-top:8px;">
                 Lista as contas bancárias do usuário autenticado com saldo atual individual.
@@ -159,9 +159,9 @@ if ($userId) {
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <span class="method-badge method-get">GET</span>
-                    <strong style="margin-left:8px; font-size:15px; color:var(--color-text);">/api/v1/categorias.php</strong>
+                    <strong style="margin-left:8px; font-size:15px; color:var(--color-text);">/api/v1/categories.php</strong>
                 </div>
-                <button class="sair" style="font-size:12px; padding:4px 10px; cursor:pointer;" onclick="testarEndpoint('categorias.php', 'GET', 'res-categorias')">Executar Teste ▶</button>
+                <button class="sair" style="font-size:12px; padding:4px 10px; cursor:pointer;" onclick="testarEndpoint('categories.php', 'GET', 'res-categorias')">Executar Teste ▶</button>
             </div>
             <p style="color:var(--color-text-secondary); font-size:13px; margin-top:8px;">
                 Lista categorias de receitas e despesas com contagem de transações.
@@ -212,3 +212,4 @@ async function testarEndpoint(url, method, outputId) {
 
 </body>
 </html>
+

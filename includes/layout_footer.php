@@ -1,4 +1,4 @@
-    </div><!-- /.app-main -->
+﻿    </div><!-- /.app-main -->
 
     <!-- Barra de Navegação Inferior (Mobile - 5 opções) -->
     <nav class="app-bottom-nav" aria-label="Navegação inferior mobile">
@@ -6,14 +6,14 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span>Início</span>
         </a>
-        <a href="calendario.php" class="bottom-nav-item <?= ($paginaAtiva ?? '') === 'calendario' ? 'ativo' : '' ?>" title="Ir para o Calendário">
+        <a href="calendar.php" class="bottom-nav-item <?= ($paginaAtiva ?? '') === 'calendario' ? 'ativo' : '' ?>" title="Ir para o Calendário">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
             <span>Calendário</span>
         </a>
         <button type="button" class="bottom-nav-add-btn" id="btnQuickAdd" aria-label="Criar novo lançamento ou transferência" title="Novo Lançamento">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         </button>
-        <a href="extrato.php" class="bottom-nav-item <?= ($paginaAtiva ?? '') === 'extrato' ? 'ativo' : '' ?>" title="Ir para o Extrato">
+        <a href="statement.php" class="bottom-nav-item <?= ($paginaAtiva ?? '') === 'extrato' ? 'ativo' : '' ?>" title="Ir para o Extrato">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
             <span>Extrato</span>
         </a>
@@ -32,49 +32,49 @@
         </div>
 
         <div class="sheet-grid">
-            <a href="metas.php" class="sheet-grid-item">
+            <a href="goals.php" class="sheet-grid-item">
                 <div class="sheet-icon-bubble">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
                 </div>
                 <span>Metas</span>
             </a>
-            <a href="investimentos.php" class="sheet-grid-item">
+            <a href="investments.php" class="sheet-grid-item">
                 <div class="sheet-icon-bubble">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
                 </div>
                 <span>Investimentos</span>
             </a>
-            <a href="contas.php" class="sheet-grid-item">
+            <a href="accounts.php" class="sheet-grid-item">
                 <div class="sheet-icon-bubble">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v7h3v-7H4zm6 0v7h3v-7h-3zM2 22h19v-3H2v3zm14-12v7h3v-7h-3zm-4.5-9L2 6v2h19V6l-9.5-5z"/></svg>
                 </div>
                 <span>Contas</span>
             </a>
-            <a href="cartoes.php" class="sheet-grid-item">
+            <a href="cards.php" class="sheet-grid-item">
                 <div class="sheet-icon-bubble">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
                 </div>
                 <span>Cartões</span>
             </a>
-            <a href="categorias.php" class="sheet-grid-item">
+            <a href="categories.php" class="sheet-grid-item">
                 <div class="sheet-icon-bubble">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
                 </div>
                 <span>Categorias</span>
             </a>
-            <a href="recorrencias.php" class="sheet-grid-item">
+            <a href="recurring.php" class="sheet-grid-item">
                 <div class="sheet-icon-bubble">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
                 </div>
                 <span>Recorrências</span>
             </a>
-            <a href="relatorios.php" class="sheet-grid-item">
+            <a href="reports.php" class="sheet-grid-item">
                 <div class="sheet-icon-bubble">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14.2h-2.8zm5.6 8h2.8v6.2h-2.8z"/><path d="M19 19H5V3H3v18h18v-2z"/></svg>
                 </div>
                 <span>Relatórios</span>
             </a>
-            <a href="assistente.php" class="sheet-grid-item">
+            <a href="assistant.php" class="sheet-grid-item">
                 <div class="sheet-icon-bubble">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25z"/></svg>
                 </div>
@@ -83,7 +83,7 @@
         </div>
 
         <div style="border-top:1px solid var(--color-divider); padding-top:12px; display:flex; flex-direction:column; gap:8px;">
-            <a href="perfil.php" class="quick-add-btn" style="padding:10px 14px; font-size:13.5px;">
+            <a href="profile.php" class="quick-add-btn" style="padding:10px 14px; font-size:13.5px;">
                 <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:var(--color-gold);"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 <span>Meu Perfil</span>
             </a>
@@ -107,7 +107,7 @@
         </div>
 
         <div class="quick-add-actions">
-            <a href="adicionar_gasto.php?tipo=expense" class="quick-add-btn">
+            <a href="add_expense.php?tipo=expense" class="quick-add-btn">
                 <div class="quick-add-icon expense">
                     <svg viewBox="0 0 24 24" style="width:22px; height:22px; fill:currentColor;"><path d="M19 13H5v-2h14v2z"/></svg>
                 </div>
@@ -116,7 +116,7 @@
                     <div style="font-size:12px; font-weight:400; color:var(--color-text-secondary);">Registrar saída de dinheiro ou cartão</div>
                 </div>
             </a>
-            <a href="adicionar_gasto.php?tipo=income" class="quick-add-btn">
+            <a href="add_expense.php?tipo=income" class="quick-add-btn">
                 <div class="quick-add-icon income">
                     <svg viewBox="0 0 24 24" style="width:22px; height:22px; fill:currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                 </div>
@@ -125,7 +125,7 @@
                     <div style="font-size:12px; font-weight:400; color:var(--color-text-secondary);">Salário, rendimentos ou entradas</div>
                 </div>
             </a>
-            <a href="transferir.php" class="quick-add-btn">
+            <a href="transfer.php" class="quick-add-btn">
                 <div class="quick-add-icon transfer">
                     <svg viewBox="0 0 24 24" style="width:22px; height:22px; fill:currentColor;"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
                 </div>
@@ -134,7 +134,7 @@
                     <div style="font-size:12px; font-weight:400; color:var(--color-text-secondary);">Movimentar saldo entre contas</div>
                 </div>
             </a>
-            <a href="importar.php" class="quick-add-btn">
+            <a href="import.php" class="quick-add-btn">
                 <div class="quick-add-icon import">
                     <svg viewBox="0 0 24 24" style="width:22px; height:22px; fill:currentColor;"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
                 </div>
@@ -148,3 +148,4 @@
 </div><!-- /.app-layout -->
 
 <script src="js/app.js?v=<?= filemtime(__DIR__ . '/../js/app.js') ?? time() ?>"></script>
+

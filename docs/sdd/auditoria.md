@@ -1,4 +1,4 @@
-# Relatório de Auditoria Técnica — Projeto Wert (WertFinancy)
+﻿# Relatório de Auditoria Técnica — Projeto Wert (WertFinancy)
 
 **Data da Auditoria:** 21/10/2026  
 **Metodologia:** Spec-Driven Development (SDD) — Etapa A  
@@ -21,23 +21,23 @@ C:\laragon\www\Wert\
 ├── src/
 │   └── ClienteIA.php                   # Cliente Gemini AI (gemini-3.8-flash)
 ├── docs/sdd/                           # Documentação da metodologia SDD
-├── adicionar_gasto.php                 # Interface para novo lançamento com filtros dinâmicos
+├── add_expense.php                 # Interface para novo lançamento com filtros dinâmicos
 ├── alter_transactions.sql              # Migration executada para due_date e urgency em transactions
-├── cadastrar.php                       # Cadastro de usuário, seeding de conta e categorias padrão
-├── calendario.php                      # Painel mensal de contas a pagar/receber e fluxo de caixa
+├── register.php                       # Cadastro de usuário, seeding de conta e categorias padrão
+├── calendar.php                      # Painel mensal de contas a pagar/receber e fluxo de caixa
 ├── documentacao_controle_financeiro_php.pdf # Especificação técnica original do projeto
-├── editar_gasto.php                    # Edição de lançamentos existentes
-├── excluir_gasto.php                   # Exclusão de lançamentos
+├── edit_expense.php                    # Edição de lançamentos existentes
+├── delete_expense.php                   # Exclusão de lançamentos
 ├── gerar_hash.php                      # Script de utilitário (geração de hash de senha de teste)
 ├── index.php                           # Dashboard financeiro principal com gráficos e KPIs
 ├── login.php                           # Processador POST de autenticação
 ├── logout.php                          # Encerramento seguro de sessão
-├── metas.php                           # Gerenciamento de metas financeiras (CRUD)
-├── paginalogar.php                     # Interface de login
-├── perfil.php                          # Gestão de perfil do usuário (nome, e-mail, senha com CSRF)
-├── recuperar.php                       # Interface para recuperação de senha (placeholder funcional)
-├── registro.php                        # Redirect 301 para cadastrar.php
-├── salvar_gasto.php                    # Processador POST para inserção de movimentações
+├── goals.php                           # Gerenciamento de metas financeiras (CRUD)
+├── login.php                     # Interface de login
+├── profile.php                          # Gestão de perfil do usuário (nome, e-mail, senha com CSRF)
+├── recover.php                       # Interface para recuperação de senha (placeholder funcional)
+├── register.php                        # Redirect 301 para register.php
+├── save_expense.php                    # Processador POST para inserção de movimentações
 ├── style_form.css                      # Estilos para formulários
 ├── style_index.css                     # Estilos do dashboard, calendário e layout global
 └── style_login.css                     # Estilos das páginas de autenticação
@@ -137,22 +137,22 @@ O banco de dados ativo foi examinado diretamente no MySQL 8.4.3. O schema possui
 ## 5. Vulnerabilidades e Riscos Relevantes Encontrados
 
 1. **Exclusão de Lançamentos via GET sem CSRF (Alto Risco)**:
-   - *Arquivo:* `excluir_gasto.php`
-   - *Problema:* O script aceita exclusão através do método `GET` (`excluir_gasto.php?id=...`). Qualquer requisição forjada (por exemplo, embutida em uma tag `<img src="...">`) pode excluir os dados financeiros do usuário autenticado sem seu consentimento.
+   - *Arquivo:* `delete_expense.php`
+   - *Problema:* O script aceita exclusão através do método `GET` (`delete_expense.php?id=...`). Qualquer requisição forjada (por exemplo, embutida em uma tag `<img src="...">`) pode excluir os dados financeiros do usuário autenticado sem seu consentimento.
    - *Solução:* Exigir método `POST`, validar token CSRF do usuário e manter confirmação na interface.
 
 2. **Ausência de Token CSRF nos Formulários Financeiros (Médio Risco)**:
-   - *Arquivos:* `salvar_gasto.php`, `editar_gasto.php`, `metas.php`, `calendario.php (toggle_status)`.
-   - *Problema:* Embora `perfil.php` já possua CSRF implementado com excelência, os demais formulários POST não validam tokens anti-CSRF.
+   - *Arquivos:* `save_expense.php`, `edit_expense.php`, `goals.php`, `calendar.php (toggle_status)`.
+   - *Problema:* Embora `profile.php` já possua CSRF implementado com excelência, os demais formulários POST não validam tokens anti-CSRF.
    - *Solução:* Centralizar um helper de CSRF reutilizável e aplicá-lo a todos os formulários e ações de modificação de dados.
 
 3. **Insecure Direct Object Reference (IDOR) em Contas e Categorias (Médio Risco)**:
-   - *Arquivos:* `salvar_gasto.php`, `editar_gasto.php`
+   - *Arquivos:* `save_expense.php`, `edit_expense.php`
    - *Problema:* O script valida se `account_id` e `category_id` são inteiros (`ctype_digit`), mas não valida se pertencem de fato ao `user_id` autenticado na sessão.
    - *Solução:* Adicionar verificação de pertencimento (`SELECT id FROM accounts WHERE id = ? AND user_id = ?`) antes de gravar ou atualizar a transação.
 
 4. **Incompatibilidade de Schema no Cadastro Automático de Contas (Baixo/Médio Risco)**:
-   - *Arquivos:* `cadastrar.php` (L48), `adicionar_gasto.php` (L17)
+   - *Arquivos:* `register.php` (L48), `add_expense.php` (L17)
    - *Problema:* O código executa:
      `INSERT INTO accounts (user_id, name, initial_balance) VALUES (?, 'Carteira Principal', 0.00)`
      A coluna `type` da tabela `accounts` é `NOT NULL` do tipo `ENUM('checking','savings','cash','investment')` e não possui valor default. Em instâncias MySQL com `STRICT_TRANS_TABLES` ativado, essa inserção dispara erro de integridade.
@@ -168,9 +168,9 @@ O banco de dados ativo foi examinado diretamente no MySQL 8.4.3. O schema possui
 ## 6. Código e Componentes Reutilizáveis Mapeados
 
 - **Conexão Centralizada PDO (`config/database.php`):** Excelente base, usa charset correto (`utf8mb4`) e modo de exceção.
-- **Sistema de Sessão e Autenticação:** `login.php`, `logout.php`, `cadastrar.php` já possuem sanitização de sessões, hashes seguros e tratamento de redirecionamentos.
+- **Sistema de Sessão e Autenticação:** `login.php`, `logout.php`, `register.php` já possuem sanitização de sessões, hashes seguros e tratamento de redirecionamentos.
 - **Design System CSS:** `style_index.css`, `style_form.css`, `style_login.css` fornecem um visual coeso, paleta de cores consistente, tipografia e responsividade prontas.
-- **Mecanismo de CSRF de `perfil.php`:** Pode ser abstraído para uma função/classe reutilizável aplicável em todo o sistema.
+- **Mecanismo de CSRF de `profile.php`:** Pode ser abstraído para uma função/classe reutilizável aplicável em todo o sistema.
 - **Biblioteca Chart.js (`js/chart.umd.min.js`):** Arquivo estático local completo já integrado e configurado com paleta de cores personalizada.
 
 ---
@@ -181,7 +181,8 @@ O banco de dados ativo foi examinado diretamente no MySQL 8.4.3. O schema possui
    - Geração e validação de tokens CSRF.
    - Validação de propriedade de registros (pertencimento ao `user_id`).
    - Sanitização e escape seguro de saída.
-2. Corrigir a vulnerabilidade de exclusão via GET em `excluir_gasto.php`, exigindo POST + CSRF.
-3. Proteger `salvar_gasto.php`, `editar_gasto.php`, `metas.php` e `calendario.php` com tokens CSRF.
+2. Corrigir a vulnerabilidade de exclusão via GET em `delete_expense.php`, exigindo POST + CSRF.
+3. Proteger `save_expense.php`, `edit_expense.php`, `goals.php` e `calendar.php` com tokens CSRF.
 4. Corrigir o `INSERT` da tabela `accounts` para informar `type = 'checking'`.
 5. Ajustar o caminho de leitura do `.env` em `src/ClienteIA.php`.
+

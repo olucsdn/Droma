@@ -1,10 +1,9 @@
 <?php
+declare(strict_types=1);
 /**
  * Suíte de Testes Automatizados - Fase 6 (PWA, Importação de Extratos e Backup)
- * Metodologia SDD - Projeto Wert
+ * Metodologia SDD - Projeto Droma
  */
-
-declare(strict_types=1);
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../src/Security.php';
@@ -193,7 +192,7 @@ $stmtCheck = $pdo->prepare("SELECT credit_card_id, description FROM transactions
 $stmtCheck->execute([$txExpenseId]);
 $checkTx = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
-assertTest("editar_gasto.php associa e atualiza cartão de crédito corretamente", 
+assertTest("edit_expense.php associa e atualiza cartão de crédito corretamente", 
     (int)$checkTx['credit_card_id'] === $cardId &&
     $checkTx['description'] === 'Almoço Executivo Platinum'
 );
@@ -217,3 +216,4 @@ if ($failed === 0) {
     echo "STATUS: OCORRERAM FALHAS NOS TESTES DA FASE 6." . PHP_EOL;
     exit(1);
 }
+

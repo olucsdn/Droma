@@ -1,4 +1,4 @@
-# Documentação da API RESTful — Wert (v1.0)
+﻿# Documentação da API RESTful — Wert (v1.0)
 
 A API REST do Wert permite a integração segura de clientes externos, aplicativos móveis e rotinas de automação com o sistema financeiro pessoal.
 
@@ -70,7 +70,7 @@ Todas as respostas são retornadas em formato `application/json; charset=UTF-8` 
 ---
 
 ### 2. Listagem de Contas
-- **URL:** `GET /api/v1/contas.php`
+- **URL:** `GET /api/v1/accounts.php`
 - **Descrição:** Lista todas as contas financeiras do usuário com seus respectivos saldos atuais calculados.
 - **Exemplo de Resposta (200 OK):**
 ```json
@@ -100,7 +100,7 @@ Todas as respostas são retornadas em formato `application/json; charset=UTF-8` 
 ---
 
 ### 3. Listagem de Categorias
-- **URL:** `GET /api/v1/categorias.php`
+- **URL:** `GET /api/v1/categories.php`
 - **Parâmetros Query Opcionais:**
   - `type`: `income` ou `expense`
 - **Exemplo de Resposta (200 OK):**
@@ -189,3 +189,4 @@ Todas as respostas são retornadas em formato `application/json; charset=UTF-8` 
 | `404 Not Found` | Registro não localizado no banco. |
 | `405 Method Not Allowed` | Método HTTP não suportado pelo endpoint. |
 | `500 Internal Error` | Falha interna no servidor ou banco de dados. |
+

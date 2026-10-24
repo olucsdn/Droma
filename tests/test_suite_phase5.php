@@ -1,10 +1,9 @@
 <?php
+declare(strict_types=1);
 /**
  * Suíte de Testes Automatizados - Fase 5 (API RESTful e Expansão)
- * Metodologia SDD - Projeto Wert
+ * Metodologia SDD - Projeto Droma
  */
-
-declare(strict_types=1);
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../src/Security.php';
@@ -124,17 +123,17 @@ assertTest("Endpoint /api/v1/resumo.php responde 200 OK com token válido e reto
     $resResumo['data']['saldo_consolidado'] == 2500.00
 );
 
-// 7. Teste de Listagem: /api/v1/contas.php
-$resContas = callApi('contas.php', 'GET', [], null, $token1);
-assertTest("Endpoint /api/v1/contas.php lista apenas as contas do usuário autenticado", 
+// 7. Teste de Listagem: /api/v1/accounts.php
+$resContas = callApi('accounts.php', 'GET', [], null, $token1);
+assertTest("Endpoint /api/v1/accounts.php lista apenas as contas do usuário autenticado", 
     isset($resContas['data']['contas']) && 
     count($resContas['data']['contas']) === 1 &&
     $resContas['data']['contas'][0]['id'] === $account1Id
 );
 
-// 8. Teste de Listagem: /api/v1/categorias.php
-$resCats = callApi('categorias.php', 'GET', ['type' => 'expense'], null, $token1);
-assertTest("Endpoint /api/v1/categorias.php filtra categorias por tipo", 
+// 8. Teste de Listagem: /api/v1/categories.php
+$resCats = callApi('categories.php', 'GET', ['type' => 'expense'], null, $token1);
+assertTest("Endpoint /api/v1/categories.php filtra categorias por tipo", 
     isset($resCats['data']['categorias']) &&
     count($resCats['data']['categorias']) === 1 &&
     $resCats['data']['categorias'][0]['id'] === $cat1Id
@@ -202,3 +201,4 @@ if ($failed === 0) {
     echo "STATUS: OCORRERAM FALHAS NOS TESTES DA FASE 5." . PHP_EOL;
     exit(1);
 }
+

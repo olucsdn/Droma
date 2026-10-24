@@ -1,4 +1,4 @@
-# Droma (DromaFinancy) — Sistema de Gestão Financeira Pessoal
+﻿# Droma (DromaFinancy) — Sistema de Gestão Financeira Pessoal
 
 > **Droma** é uma plataforma moderna, segura e intuitiva para controle financeiro pessoal, desenvolvida rigorosamente sob a metodologia **Spec-Driven Development (SDD)**. O sistema oferece acompanhamento em tempo real de saldos, fluxo de caixa, cartões de crédito com parcelamentos, metas de economia, relatórios analíticos, consultoria via Inteligência Artificial (Google Gemini) e uma API RESTful completa.
 
@@ -32,21 +32,21 @@ O projeto foi construído preservando estritamente as tecnologias nativas e leve
 | Módulo | Arquivo Principal | Descrição |
 |---|---|---|
 | **Painel Geral** | [`index.php`](index.php) | Visão consolidada de saldo acumulado, entradas e saídas do mês, gráficos de pizza/barras e metas ativas. |
-| **Calendário Financeiro** | [`calendario.php`](calendario.php) | Visão mensal em grade dos lançamentos por data de vencimento ou competência, com faturas de cartão e status pago/pendente. |
-| **Metas Financeiras** | [`metas.php`](metas.php) | Cadastro e evolução de metas de economia com cálculo automático de percentual atingido e barras de progresso. |
-| **Investimentos & ROI** | [`investimentos.php`](investimentos.php) | Portfólio de ativos com relação direta entre Aportes (saídas), Rendimentos/Resgates (entradas), Lucro Real e cálculo de ROI %. |
-| **Contas Bancárias** | [`contas.php`](contas.php) | Entidade pai ("classe") com saldo individual, transferência atômica, visualização de cartões vinculados e bloqueio de exclusão da única conta ou com filhos. |
-| **Transferências** | [`transferir.php`](transferir.php) | Transferência atômica entre contas bancárias com transações PDO seguras (débito e crédito casados). |
-| **Categorias** | [`categorias.php`](categorias.php) | Gestão de categorias de receitas e despesas com estatísticas de movimentação financeira. |
-| **Cartões de Crédito** | [`cartoes.php`](cartoes.php) | Entidade filha ("subclasse" vinculada 1:1 à conta bancária), limites, faturas e quitação com débito padrão na conta de origem. |
-| **Lançamentos Recorrentes** | [`recorrencias.php`](recorrencias.php) | Agendamento de despesas e receitas fixas com ciclo mensal/semanal/anual e avanço automático de datas. |
-| **Extrato Completo** | [`extrato.php`](extrato.php) | Filtros avançados (período, tipo, status, conta, categoria, busca textual) e exportação em CSV com BOM UTF-8 para Excel. |
-| **Relatórios Analíticos** | [`relatorios.php`](relatorios.php) | Fluxo de caixa de 12 meses, gráficos de evolução anual, composição de contas, exportação CSV e visualização para impressão. |
-| **Assistente IA** | [`assistente.php`](assistente.php) | Pareceres financeiros personalizados via Google Gemini e diagnósticos heurísticos locais. |
-| **Perfil & Chaves de API** | [`perfil.php`](perfil.php) | Atualização de dados pessoais, troca segura de senha e gerenciamento da chave de API REST. |
-| **Importação de Extratos** | [`importar.php`](importar.php) | Leitura inteligente de extratos bancários (.CSV / .OFX) com inferência automática de categorias. |
+| **Calendário Financeiro** | [`calendar.php`](calendar.php) | Visão mensal em grade dos lançamentos por data de vencimento ou competência, com faturas de cartão e status pago/pendente. |
+| **Metas Financeiras** | [`goals.php`](goals.php) | Cadastro e evolução de metas de economia com cálculo automático de percentual atingido e barras de progresso. |
+| **Investimentos & ROI** | [`investments.php`](investments.php) | Portfólio de ativos com relação direta entre Aportes (saídas), Rendimentos/Resgates (entradas), Lucro Real e cálculo de ROI %. |
+| **Contas Bancárias** | [`accounts.php`](accounts.php) | Entidade pai ("classe") com saldo individual, transferência atômica, visualização de cartões vinculados e bloqueio de exclusão da única conta ou com filhos. |
+| **Transferências** | [`transfer.php`](transfer.php) | Transferência atômica entre contas bancárias com transações PDO seguras (débito e crédito casados). |
+| **Categorias** | [`categories.php`](categories.php) | Gestão de categorias de receitas e despesas com estatísticas de movimentação financeira. |
+| **Cartões de Crédito** | [`cards.php`](cards.php) | Entidade filha ("subclasse" vinculada 1:1 à conta bancária), limites, faturas e quitação com débito padrão na conta de origem. |
+| **Lançamentos Recorrentes** | [`recurring.php`](recurring.php) | Agendamento de despesas e receitas fixas com ciclo mensal/semanal/anual e avanço automático de datas. |
+| **Extrato Completo** | [`statement.php`](statement.php) | Filtros avançados (período, tipo, status, conta, categoria, busca textual) e exportação em CSV com BOM UTF-8 para Excel. |
+| **Relatórios Analíticos** | [`reports.php`](reports.php) | Fluxo de caixa de 12 meses, gráficos de evolução anual, composição de contas, exportação CSV e visualização para impressão. |
+| **Assistente IA** | [`assistant.php`](assistant.php) | Pareceres financeiros personalizados via Google Gemini e diagnósticos heurísticos locais. |
+| **Perfil & Chaves de API** | [`profile.php`](profile.php) | Atualização de dados pessoais, troca segura de senha e gerenciamento da chave de API REST. |
+| **Importação de Extratos** | [`import.php`](import.php) | Leitura inteligente de extratos bancários (.CSV / .OFX) com inferência automática de categorias. |
 | **Backup & Soberania** | [`backup.php`](backup.php) | Exportação e restauração completa de dados em JSON estruturado com integridade relacional. |
-| **API RESTful v1.0** | [`api/v1/index.php`](api/v1/index.php) | Console de testes e endpoints JSON (`/api/v1/resumo.php`, `/api/v1/contas.php`, `/api/v1/categorias.php`, `/api/v1/transacoes.php`). |
+| **API RESTful v1.0** | [`api/v1/index.php`](api/v1/index.php) | Console de testes e endpoints JSON (`/api/v1/resumo.php`, `/api/v1/accounts.php`, `/api/v1/categories.php`, `/api/v1/transacoes.php`). |
 
 ---
 
@@ -102,7 +102,7 @@ php tests/test_suite_phase7.php
      ```
 4. **Acesso:**
    - Acesse via navegador: `http://localhost/Droma` ou `http://droma.test`
-   - Realize o cadastro inicial na tela `cadastrar.php` ou acesse `login.php`.
+   - Realize o cadastro inicial na tela `register.php` ou acesse `login.php`.
 
 ---
 
@@ -133,3 +133,4 @@ A documentação viva do projeto está centralizada no diretório `docs/`:
 - [`docs/sdd/roadmap.md`](docs/sdd/roadmap.md) — Histórico de fases e marcos evolutivos.
 - [`docs/sdd/tarefas.md`](docs/sdd/tarefas.md) — Checklist atômico de tarefas de cada fase.
 - [`docs/api/endpoints.md`](docs/api/endpoints.md) — Manual de referência da API RESTful v1.0.
+

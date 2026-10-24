@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 if (!isset($paginaAtiva)) $paginaAtiva = '';
 if (!isset($tituloPagina)) $tituloPagina = 'Droma Financy';
 
@@ -58,13 +58,13 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
                         </a>
                     </li>
                     <li>
-                        <a href="calendario.php" class="nav-item <?= $paginaAtiva === 'calendario' ? 'ativo' : '' ?>" title="Calendário Financeiro">
+                        <a href="calendar.php" class="nav-item <?= $paginaAtiva === 'calendario' ? 'ativo' : '' ?>" title="Calendário Financeiro">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
                             <span>Calendário</span>
                         </a>
                     </li>
                     <li>
-                        <a href="extrato.php" class="nav-item <?= $paginaAtiva === 'extrato' ? 'ativo' : '' ?>" title="Extrato e Filtros">
+                        <a href="statement.php" class="nav-item <?= $paginaAtiva === 'extrato' ? 'ativo' : '' ?>" title="Extrato e Filtros">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                             <span>Extrato</span>
                         </a>
@@ -77,25 +77,25 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
                 <div class="nav-group-title">Finanças</div>
                 <ul class="nav-group-items">
                     <li>
-                        <a href="contas.php" class="nav-item <?= $paginaAtiva === 'contas' ? 'ativo' : '' ?>" title="Gerenciar Contas">
+                        <a href="accounts.php" class="nav-item <?= $paginaAtiva === 'contas' ? 'ativo' : '' ?>" title="Gerenciar Contas">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v7h3v-7H4zm6 0v7h3v-7h-3zM2 22h19v-3H2v3zm14-12v7h3v-7h-3zm-4.5-9L2 6v2h19V6l-9.5-5z"/></svg>
                             <span>Contas</span>
                         </a>
                     </li>
                     <li>
-                        <a href="cartoes.php" class="nav-item <?= $paginaAtiva === 'cartoes' ? 'ativo' : '' ?>" title="Cartões de Crédito">
+                        <a href="cards.php" class="nav-item <?= $paginaAtiva === 'cartoes' ? 'ativo' : '' ?>" title="Cartões de Crédito">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
                             <span>Cartões</span>
                         </a>
                     </li>
                     <li>
-                        <a href="categorias.php" class="nav-item <?= $paginaAtiva === 'categorias' ? 'ativo' : '' ?>" title="Gerenciar Categorias">
+                        <a href="categories.php" class="nav-item <?= $paginaAtiva === 'categorias' ? 'ativo' : '' ?>" title="Gerenciar Categorias">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
                             <span>Categorias</span>
                         </a>
                     </li>
                     <li>
-                        <a href="recorrencias.php" class="nav-item <?= $paginaAtiva === 'recorrencias' ? 'ativo' : '' ?>" title="Lançamentos Recorrentes">
+                        <a href="recurring.php" class="nav-item <?= $paginaAtiva === 'recorrencias' ? 'ativo' : '' ?>" title="Lançamentos Recorrentes">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
                             <span>Recorrências</span>
                         </a>
@@ -108,13 +108,13 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
                 <div class="nav-group-title">Planejamento</div>
                 <ul class="nav-group-items">
                     <li>
-                        <a href="metas.php" class="nav-item <?= $paginaAtiva === 'metas' ? 'ativo' : '' ?>" title="Metas Financeiras">
+                        <a href="goals.php" class="nav-item <?= $paginaAtiva === 'metas' ? 'ativo' : '' ?>" title="Metas Financeiras">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
                             <span>Metas</span>
                         </a>
                     </li>
                     <li>
-                        <a href="investimentos.php" class="nav-item <?= $paginaAtiva === 'investimentos' ? 'ativo' : '' ?>" title="Gestão de Investimentos">
+                        <a href="investments.php" class="nav-item <?= $paginaAtiva === 'investimentos' ? 'ativo' : '' ?>" title="Gestão de Investimentos">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
                             <span>Investimentos</span>
                         </a>
@@ -127,7 +127,7 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
                 <div class="nav-group-title">Análise</div>
                 <ul class="nav-group-items">
                     <li>
-                        <a href="relatorios.php" class="nav-item <?= $paginaAtiva === 'relatorios' ? 'ativo' : '' ?>" title="Relatórios Analíticos">
+                        <a href="reports.php" class="nav-item <?= $paginaAtiva === 'relatorios' ? 'ativo' : '' ?>" title="Relatórios Analíticos">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14.2h-2.8zm5.6 8h2.8v6.2h-2.8z"/><path d="M19 19H5V3H3v18h18v-2z"/></svg>
                             <span>Relatórios</span>
                         </a>
@@ -140,7 +140,7 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
                 <div class="nav-group-title">Ferramentas</div>
                 <ul class="nav-group-items">
                     <li>
-                        <a href="assistente.php" class="nav-item <?= $paginaAtiva === 'assistente' ? 'ativo' : '' ?>" title="Assistente Financeiro IA">
+                        <a href="assistant.php" class="nav-item <?= $paginaAtiva === 'assistente' ? 'ativo' : '' ?>" title="Assistente Financeiro IA">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25z"/></svg>
                             <span>Assistente IA</span>
                         </a>
@@ -156,7 +156,7 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
         </nav>
 
         <div class="sidebar-footer">
-            <a href="perfil.php" class="sidebar-user-link" title="Meu Perfil">
+            <a href="profile.php" class="sidebar-user-link" title="Meu Perfil">
                 <div class="avatar-mini"><?= $userInitial ?></div>
                 <div class="sidebar-user-info sidebar-footer-text">
                     <span class="name"><?= $userName ?></span>
@@ -197,7 +197,7 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
 
             <div class="topbar-right">
                 <!-- Botão Destacado Novo lançamento (Desktop) -->
-                <a class="btn-novo-lancamento" href="adicionar_gasto.php">
+                <a class="btn-novo-lancamento" href="add_expense.php">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                     <span>Novo lançamento</span>
                 </a>
@@ -212,7 +212,7 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
                             <div class="name"><?= $userName ?></div>
                             <div class="role">Conta Ativa</div>
                         </div>
-                        <a href="perfil.php" class="dropdown-link" role="menuitem">
+                        <a href="profile.php" class="dropdown-link" role="menuitem">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                             <span>Meu Perfil</span>
                         </a>
@@ -235,3 +235,4 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
             <span>Olá, <strong><?= $userName ?></strong></span>
             <span class="mobile-date"><?= $dataHojeFormatada ?></span>
         </div>
+

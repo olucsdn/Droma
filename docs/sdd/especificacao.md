@@ -1,4 +1,4 @@
-# Especificação Técnica dos Requisitos — Projeto Wert
+﻿# Especificação Técnica dos Requisitos — Projeto Wert
 
 **Documento:** Especificação Funcional e Não-Funcional  
 **Metodologia:** Spec-Driven Development (SDD) — Etapa B  
@@ -73,7 +73,7 @@ O **Wert** (ou **WertFinancy**) é uma plataforma de gestão financeira pessoal 
   - O logout deve expirar completamente o cookie de sessão e destruir os dados do servidor.
 - **Critérios de Aceitação:**
   - Usuário válido acessa `index.php`.
-  - Tentativa de acessar rotas protegidas sem sessão redireciona para `paginalogar.php`.
+  - Tentativa de acessar rotas protegidas sem sessão redireciona para `login.php`.
   - Logout invalida o acesso imediatamente; botão voltar do navegador não reativa sessão.
 
 #### 1.3 Gestão de Perfil
@@ -226,7 +226,7 @@ O **Wert** (ou **WertFinancy**) é uma plataforma de gestão financeira pessoal 
 ### Módulo 8 — API RESTful v1.0
 
 #### 8.1 Endpoints JSON
-- **Objetivo:** Expor endpoints HTTP (`/api/v1/resumo.php`, `/api/v1/contas.php`, `/api/v1/categorias.php`, `/api/v1/transacoes.php`) para integração com clientes externos.
+- **Objetivo:** Expor endpoints HTTP (`/api/v1/resumo.php`, `/api/v1/accounts.php`, `/api/v1/categories.php`, `/api/v1/transacoes.php`) para integração com clientes externos.
 - **Regras de Negócio:**
   - Autenticação via `Authorization: Bearer <api_token>` ou sessão web ativa.
   - Validação estrita de autorização e proteção contra IDOR em todas as operações de criação e exclusão.
@@ -240,16 +240,17 @@ O **Wert** (ou **WertFinancy**) é uma plataforma de gestão financeira pessoal 
 | :--- | :--- | :--- |
 | **CT-01:** Login com senha correta | E-mail e senha cadastrados válidos | Sucesso, sessão regenerada, redireciona ao `index.php`. |
 | **CT-02:** Login com senha incorreta | E-mail válido e senha incorreta | Falha, mensagem amigável, permanece na tela de login. |
-| **CT-03:** Tentativa de acesso não autenticado | Acesso direto a `index.php` sem cookie | Redirecionamento 302 imediato para `paginalogar.php`. |
+| **CT-03:** Tentativa de acesso não autenticado | Acesso direto a `index.php` sem cookie | Redirecionamento 302 imediato para `login.php`. |
 | **CT-04:** Criação de transação válida | POST com dados válidos e token CSRF | Transação persistida associada ao `user_id` logado. |
 | **CT-05:** Tentativa de CSRF em transação | POST sem token CSRF ou com token adulterado | Requisição rejeitada (HTTP 403 / erro amigável), nada salvo. |
-| **CT-06:** Exclusão indevida via GET | Requisição `GET /excluir_gasto.php?id=X` | Rejeição imediata, nenhuma exclusão executada. |
+| **CT-06:** Exclusão indevida via GET | Requisição `GET /delete_expense.php?id=X` | Rejeição imediata, nenhuma exclusão executada. |
 | **CT-07:** Exclusão legítima via POST | POST com ID pertencente ao usuário e CSRF | Transação excluída com sucesso. |
 | **CT-08:** Tentativa de IDOR em conta/categoria | POST com `account_id` pertencente a outro usuário | Rejeição por violação de propriedade; transação não gravada. |
 | **CT-09:** Cálculo de Saldo Consolidado | Usuário com saldo inicial 100, receita 50, despesa 30 | Saldo exibido exatamente como R$ 120,00. |
-| **CT-10:** Seeding de novo usuário | Novo cadastro via `cadastrar.php` | Conta padrão com `type = 'checking'` e 9 categorias criadas com sucesso. |
+| **CT-10:** Seeding de novo usuário | Novo cadastro via `register.php` | Conta padrão com `type = 'checking'` e 9 categorias criadas com sucesso. |
 | **CT-11:** Integridade de Limite de Cartão | Compra no cartão e parcelamento | Limite disponível reduzido sem afetar o saldo em dinheiro da conta. |
 | **CT-12:** Rate-Limiting Diário da IA | 4ª requisição no mesmo dia pelo mesmo usuário | Bloqueio de chamada externa e entrega de análise heurística local. |
 | **CT-13:** Autenticação da API REST | Requisição sem Bearer Token | Retorno HTTP 401 Unauthorized com payload JSON estruturado. |
 | **CT-14:** Criação de Transação via API | POST JSON com dados válidos e Bearer Token | HTTP 201 Created com dados e IDs gerados. |
 | **CT-15:** Bloqueio IDOR via API | POST JSON associando ID de conta de terceiro | HTTP 403 Forbidden impedindo vinculação indevida. |
+

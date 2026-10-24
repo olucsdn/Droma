@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Testes Integrados da Fase 2 — SDD Wert
  * Executar via CLI: php tests/test_suite_phase2.php
@@ -144,7 +144,7 @@ runTest("Regra de Limites: Trava de no máximo 8 categorias de despesa e 3 de re
     $stmtInc->execute([$userId]);
     $totalInc = (int)$stmtInc->fetchColumn();
 
-    // Simula a validação de limite que categorias.php realiza
+    // Simula a validação de limite que categories.php realiza
     $podeCriar9Despesa = ($totalExp < 8);
     $podeCriar4Receita = ($totalInc < 3);
 
@@ -271,3 +271,4 @@ if ($erros === 0) {
 } else {
     echo "STATUS: HOUVE FALHAS QUE PRECISAM DE CORREÇÃO.\n";
 }
+
