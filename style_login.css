@@ -182,7 +182,7 @@ body {
 .brand-icon {
     width: 44px;
     height: 44px;
-    background-image: url('img/favicon-darkmode.png');
+    background-image: url('img/favicon-default.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -200,7 +200,7 @@ body {
 }
 
 :root[data-theme="light"] .brand-icon {
-    background-image: url('img/favicon-default.png');
+    background-image: url('img/favicon-darkmode.png');
     border-color: rgba(180, 83, 9, 0.25);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }

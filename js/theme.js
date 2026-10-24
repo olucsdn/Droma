@@ -44,7 +44,7 @@
         }
 
         // 1. Atualiza Favicon e Apple Touch Icon em tempo real na aba do navegador
-        var iconPath = (theme === 'light') ? 'img/favicon-default.png' : 'img/favicon-darkmode.png';
+        var iconPath = (theme === 'light') ? 'img/favicon-darkmode.png' : 'img/favicon-default.png';
 
         var fav = document.getElementById('droma-favicon');
         if (fav) {

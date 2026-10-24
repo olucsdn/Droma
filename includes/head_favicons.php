@@ -3,7 +3,7 @@ $dromaTheme = $_COOKIE['droma_theme'] ?? 'dark';
 if ($dromaTheme !== 'light' && $dromaTheme !== 'dark') {
     $dromaTheme = 'dark';
 }
-$activeFavicon = ($dromaTheme === 'light') ? 'img/favicon-default.png' : 'img/favicon-darkmode.png';
+$activeFavicon = ($dromaTheme === 'light') ? 'img/favicon-darkmode.png' : 'img/favicon-default.png';
 ?>
     <!-- Script Anti-FOUC (Prevenção de Flash de Cor ao Carregar) -->
     <script>
