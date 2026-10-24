@@ -4,42 +4,25 @@ require_once "src/Security.php";
 
 $userId = Security::requireAuth();
 
-// Saldo inicial das contas
-$stmt = $pdo->prepare("SELECT COALESCE(SUM(initial_balance), 0) FROM accounts WHERE user_id = ?");
-$stmt->execute([$userId]);
-$saldoInicial = (float) $stmt->fetchColumn();
+// Otimização: Consolida os 5 cálculos de totais em 1 única viagem ao banco de dados
+$stmtTotais = $pdo->prepare("
+    SELECT 
+        (SELECT COALESCE(SUM(initial_balance), 0) FROM accounts WHERE user_id = ?) AS saldo_inicial,
+        (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE user_id = ? AND type = 'income' AND status = 'completed') AS total_receitas,
+        (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE user_id = ? AND type = 'expense' AND status = 'completed') AS total_despesas,
+        (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE user_id = ? AND type = 'income' AND MONTH(date) = MONTH(CURDATE()) AND YEAR(date) = YEAR(CURDATE())) AS receitas_mes,
+        (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE user_id = ? AND type = 'expense' AND MONTH(date) = MONTH(CURDATE()) AND YEAR(date) = YEAR(CURDATE())) AS despesas_mes
+");
+$stmtTotais->execute([$userId, $userId, $userId, $userId, $userId]);
+$totais = $stmtTotais->fetch(PDO::FETCH_ASSOC);
 
-// Total histórico de receitas realizadas
-$stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE user_id = ? AND type = 'income' AND status = 'completed'");
-$stmt->execute([$userId]);
-$totalReceitasRealizadas = (float) $stmt->fetchColumn();
+$saldoInicial            = (float) ($totais['saldo_inicial'] ?? 0);
+$totalReceitasRealizadas = (float) ($totais['total_receitas'] ?? 0);
+$totalDespesasRealizadas = (float) ($totais['total_despesas'] ?? 0);
+$saldoTotal              = $saldoInicial + $totalReceitasRealizadas - $totalDespesasRealizadas;
 
-// Total histórico de despesas realizadas
-$stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE user_id = ? AND type = 'expense' AND status = 'completed'");
-$stmt->execute([$userId]);
-$totalDespesasRealizadas = (float) $stmt->fetchColumn();
-
-// Saldo total acumulado
-$saldoTotal = $saldoInicial + $totalReceitasRealizadas - $totalDespesasRealizadas;
-
-// Receitas do mês atual
-$stmt = $pdo->prepare(
-    "SELECT COALESCE(SUM(amount), 0) FROM transactions
-     WHERE user_id = ? AND type = 'income'
-     AND MONTH(date) = MONTH(CURDATE()) AND YEAR(date) = YEAR(CURDATE())"
-);
-$stmt->execute([$userId]);
-$receitasMes = (float) $stmt->fetchColumn();
-
-// Despesas do mês atual
-$stmt = $pdo->prepare(
-    "SELECT COALESCE(SUM(amount), 0) FROM transactions
-     WHERE user_id = ? AND type = 'expense'
-     AND MONTH(date) = MONTH(CURDATE()) AND YEAR(date) = YEAR(CURDATE())"
-);
-$stmt->execute([$userId]);
-$despesasMes = (float) $stmt->fetchColumn();
-
+$receitasMes  = (float) ($totais['receitas_mes'] ?? 0);
+$despesasMes  = (float) ($totais['despesas_mes'] ?? 0);
 $resultadoMes = $receitasMes - $despesasMes;
 
 // Despesas por categoria no mês atual
