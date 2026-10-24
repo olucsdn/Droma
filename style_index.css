@@ -66,7 +66,8 @@
     --vermelho: var(--color-danger);
 }
 
-/* 8. Suporte a Modo Claro (mesmas variáveis ativadas por preferência do sistema ou [data-theme="light"]) */
+/* 8. Suporte a Modo Claro (ativado explicitamente por data-theme="light" ou preferência do sistema) */
+:root[data-theme="light"],
 @media (prefers-color-scheme: light) {
     :root:not([data-theme="dark"]) {
         --color-bg: #F8FAFC;
@@ -111,6 +112,42 @@
         --shadow-gold-subtle: 0 2px 8px rgba(180, 83, 9, 0.15);
         --shadow-gold-hover: 0 4px 14px rgba(180, 83, 9, 0.25);
     }
+}
+
+/* Botão de Alternância de Tema */
+.btn-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-gold);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+.btn-theme-toggle:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-gold);
+    transform: scale(1.05);
+}
+.btn-theme-toggle svg {
+    display: block;
+}
+:root[data-theme="light"] .theme-icon-dark {
+    display: none !important;
+}
+:root[data-theme="light"] .theme-icon-light {
+    display: inline-flex !important;
+}
+:root:not([data-theme="light"]) .theme-icon-dark {
+    display: inline-flex !important;
+}
+:root:not([data-theme="light"]) .theme-icon-light {
+    display: none !important;
 }
 
 * {
@@ -176,8 +213,11 @@ body {
 .sidebar-brand .brand-icon {
     width: 38px;
     height: 38px;
-    background: var(--gold-gradient);
-    color: var(--color-on-gold);
+    background-image: url('img/favicon-darkmode.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: transparent !important;
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
@@ -188,6 +228,13 @@ body {
     border: 1px solid rgba(249, 228, 167, 0.4);
     letter-spacing: -0.5px;
     flex-shrink: 0;
+    transition: background-image 0.25s ease, border-color 0.25s ease;
+}
+
+:root[data-theme="light"] .sidebar-brand .brand-icon {
+    background-image: url('img/favicon-default.png');
+    border-color: rgba(180, 83, 9, 0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .sidebar-brand .brand-text {
@@ -503,14 +550,22 @@ body {
 .topbar-mobile-brand .brand-icon {
     width: 32px;
     height: 32px;
-    background: var(--gold-gradient);
-    color: var(--color-on-gold);
+    background-image: url('img/favicon-darkmode.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: transparent !important;
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
     font-size: 16px;
+    transition: background-image 0.25s ease, border-color 0.25s ease;
+}
+
+:root[data-theme="light"] .topbar-mobile-brand .brand-icon {
+    background-image: url('img/favicon-default.png');
 }
 
 .topbar-mobile-brand .brand-text {
@@ -727,8 +782,11 @@ body {
 .brand-icon {
     width: 36px;
     height: 36px;
-    background: var(--gold-gradient);
-    color: var(--color-on-gold);
+    background-image: url('img/favicon-darkmode.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: transparent !important;
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
@@ -739,6 +797,13 @@ body {
     border: 1px solid rgba(249, 228, 167, 0.4);
     letter-spacing: -0.5px;
     flex-shrink: 0;
+    transition: background-image 0.25s ease, border-color 0.25s ease;
+}
+
+:root[data-theme="light"] .brand-icon {
+    background-image: url('img/favicon-default.png');
+    border-color: rgba(180, 83, 9, 0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .brand-text {

@@ -1,9 +1,26 @@
-    <!-- Favicon & Identidade Visual Droma -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
-    <link rel="icon" type="image/png" href="img/favicon-darkmode.png" media="(prefers-color-scheme: dark)">
-    <link rel="icon" type="image/png" href="img/favicon-default.png" media="(prefers-color-scheme: light)">
-    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+<?php
+$dromaTheme = $_COOKIE['droma_theme'] ?? 'dark';
+if ($dromaTheme !== 'light' && $dromaTheme !== 'dark') {
+    $dromaTheme = 'dark';
+}
+$activeFavicon = ($dromaTheme === 'light') ? 'img/favicon-default.png' : 'img/favicon-darkmode.png';
+?>
+    <!-- Script Anti-FOUC (Prevenção de Flash de Cor ao Carregar) -->
+    <script>
+    (function() {
+        try {
+            var saved = localStorage.getItem('droma_theme') || (document.cookie.match(/(?:^|;\s*)droma_theme=([^;]+)/) || [])[1] || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+        } catch (e) {}
+    })();
+    </script>
+
+    <!-- Favicons Adaptativos & Dinâmicos Droma -->
+    <link id="droma-favicon" rel="icon" type="image/png" href="<?= $activeFavicon ?>">
+    <link id="droma-favicon-ico" rel="icon" type="image/x-icon" href="favicon.ico">
+    <link id="droma-apple-touch" rel="apple-touch-icon" sizes="180x180" href="<?= $activeFavicon ?>">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#070A0E">
+    <meta name="theme-color" content="<?= ($dromaTheme === 'light') ? '#F8FAFC' : '#070A0E' ?>" id="droma-meta-theme-color">
+
+    <!-- Motor JavaScript de Alternância de Tema & Favicon -->
+    <script src="js/theme.js?v=<?= file_exists('js/theme.js') ? filemtime('js/theme.js') : '1.0' ?>"></script>
