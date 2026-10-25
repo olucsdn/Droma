@@ -53,6 +53,23 @@ if (empty($categorias)) {
 
 // Data pré-selecionada (caso venha do clique em um dia específico do calendário)
 $dataDefault = (!empty($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date'])) ? $_GET['date'] : date('Y-m-d');
+
+// Tipo pré-selecionado (suporte a ?tipo=income/expense, ?tipo=receita/despesa ou ?type=...)
+$tipoParam = strtolower(trim($_GET['tipo'] ?? $_GET['type'] ?? ''));
+if (in_array($tipoParam, ['income', 'receita', 'entrada'], true)) {
+    $tipoDefault = 'income';
+} else {
+    $tipoDefault = 'expense';
+}
+
+// Categoria inicial compatível com o tipo selecionado
+$primeiraCatTipo = null;
+foreach ($categorias as $c) {
+    if ($c['type'] === $tipoDefault) {
+        $primeiraCatTipo = $c['id'];
+        break;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -60,7 +77,7 @@ $dataDefault = (!empty($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_G
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php require_once "includes/head_favicons.php"; ?>
-    <title>Novo lançamento - Droma</title>
+    <title><?= $tipoDefault === 'income' ? 'Nova Receita' : ($tipoParam ? 'Nova Despesa' : 'Novo Lançamento') ?> - Droma</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">
 </head>
@@ -68,7 +85,7 @@ $dataDefault = (!empty($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_G
 
 <?php
 $paginaAtiva = 'adicionar';
-$tituloPagina = 'Novo Lançamento';
+$tituloPagina = ($tipoDefault === 'income') ? 'Nova Receita' : ($tipoParam ? 'Nova Despesa' : 'Novo Lançamento');
 require_once "includes/layout_header.php";
 ?>
 
@@ -81,8 +98,8 @@ require_once "includes/layout_header.php";
 
     <label>Tipo
         <select name="type" id="tipoSelect" required>
-            <option value="income">Entrada</option>
-            <option value="expense" selected>Saída</option>
+            <option value="income" <?= $tipoDefault === 'income' ? 'selected' : '' ?>>Entrada (Receita)</option>
+            <option value="expense" <?= $tipoDefault === 'expense' ? 'selected' : '' ?>>Saída (Despesa)</option>
         </select>
     </label>
 
@@ -98,7 +115,7 @@ require_once "includes/layout_header.php";
         <select name="meio_pagamento" id="meioPagamentoSelect">
             <option value="conta" selected>Conta Bancária / Dinheiro</option>
             <?php if (!empty($cartoes)): ?>
-                <option value="cartao">Cartão de Crédito</option>
+                <option value="cartao" <?= $tipoDefault === 'income' ? 'disabled' : '' ?>>Cartão de Crédito</option>
             <?php endif; ?>
         </select>
     </label>
@@ -149,7 +166,7 @@ require_once "includes/layout_header.php";
     <label>Categoria
         <select name="category_id" id="categoriaSelect" required>
             <?php foreach ($categorias as $c): ?>
-                <option value="<?= $c['id'] ?>" data-type="<?= $c['type'] ?>">
+                <option value="<?= $c['id'] ?>" data-type="<?= $c['type'] ?>" <?= ($primeiraCatTipo === $c['id']) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($c['name']) ?> (<?= $c['type'] === 'income' ? 'receita' : 'despesa' ?>)
                 </option>
             <?php endforeach; ?>
@@ -171,15 +188,15 @@ require_once "includes/layout_header.php";
         </select>
     </label>
 
-    <label id="urgenciaCampo">Urgência
-        <select name="urgency" required>
+    <label id="urgenciaCampo" <?= $tipoDefault === 'income' ? 'hidden' : '' ?>>Urgência
+        <select name="urgency" required <?= $tipoDefault === 'income' ? 'disabled' : '' ?>>
             <option value="baixa">Baixa</option>
             <option value="media" selected>Média</option>
             <option value="alta">Alta</option>
         </select>
     </label>
 
-    <button type="submit">Salvar Lançamento</button>
+    <button type="submit" id="btnSalvar"><?= $tipoDefault === 'income' ? 'Salvar Receita' : 'Salvar Despesa' ?></button>
 </form>
 </main>
 
@@ -187,6 +204,16 @@ require_once "includes/layout_header.php";
 // Filtra dinamicamente as categorias de acordo com o tipo selecionado (despesa ou receita)
 const tipoSelect = document.getElementById('tipoSelect');
 const catSelect = document.getElementById('categoriaSelect');
+const btnSalvar = document.getElementById('btnSalvar');
+
+// Sincroniza com parâmetros de URL também no front-end (garante estado mesmo com back/forward cache)
+const urlParams = new URLSearchParams(window.location.search);
+const paramTipo = (urlParams.get('tipo') || urlParams.get('type') || '').toLowerCase();
+if (['income', 'receita', 'entrada'].includes(paramTipo)) {
+    tipoSelect.value = 'income';
+} else if (['expense', 'despesa', 'saida', 'saída'].includes(paramTipo)) {
+    tipoSelect.value = 'expense';
+}
 
 function filtrarCategorias() {
     const tipo = tipoSelect.value;
@@ -204,19 +231,22 @@ function filtrarCategorias() {
         }
     });
 
-    if (primeiroVisivel && catSelect.selectedOptions[0]?.disabled) {
+    if (primeiroVisivel && (catSelect.selectedOptions.length === 0 || catSelect.selectedOptions[0]?.disabled || catSelect.selectedOptions[0]?.getAttribute('data-type') !== tipo)) {
         catSelect.value = primeiroVisivel.value;
     }
 }
 
 function atualizarUrgencia() {
     const campoUrgencia = document.getElementById('urgenciaCampo');
+    if (!campoUrgencia) return;
     const selectUrgencia = campoUrgencia.querySelector('select');
     const ehEntrada = tipoSelect.value === 'income';
 
     campoUrgencia.hidden = ehEntrada;
-    selectUrgencia.disabled = ehEntrada;
-    selectUrgencia.required = !ehEntrada;
+    if (selectUrgencia) {
+        selectUrgencia.disabled = ehEntrada;
+        selectUrgencia.required = !ehEntrada;
+    }
 }
 
 // Alterna entre Conta Bancária e Cartão de Crédito
@@ -246,6 +276,12 @@ function atualizarMeioPagamento() {
     if (campoParcelas) campoParcelas.style.display = usaCartao ? 'block' : 'none';
 }
 
+function atualizarBotao() {
+    if (btnSalvar) {
+        btnSalvar.textContent = tipoSelect.value === 'income' ? 'Salvar Receita' : 'Salvar Despesa';
+    }
+}
+
 if (meioSelect) {
     meioSelect.addEventListener('change', atualizarMeioPagamento);
 }
@@ -254,14 +290,15 @@ tipoSelect.addEventListener('change', () => {
     filtrarCategorias();
     atualizarUrgencia();
     atualizarMeioPagamento();
+    atualizarBotao();
 });
+
 filtrarCategorias();
 atualizarUrgencia();
 atualizarMeioPagamento();
+atualizarBotao();
 </script>
 
 <?php require_once "includes/layout_footer.php"; ?>
 </body>
 </html>
-
-
