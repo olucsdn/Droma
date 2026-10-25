@@ -1,8 +1,8 @@
--- Schema Consolidado Oficial — Banco de Dados Wert
--- Compatível com MySQL 8.4+
+-- Schema Consolidado Oficial — Banco de Dados Droma
+-- Compatível com MySQL 8.0+, MariaDB 10.5+ e TiDB Cloud Serverless
 
-CREATE DATABASE IF NOT EXISTS `wert` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `wert`;
+CREATE DATABASE IF NOT EXISTS `droma` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `droma`;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -61,6 +61,7 @@ DROP TABLE IF EXISTS `credit_cards`;
 CREATE TABLE `credit_cards` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int unsigned NOT NULL,
+  `account_id` int unsigned NOT NULL,
   `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `limit_amount` decimal(12,2) NOT NULL DEFAULT '0.00',
   `closing_day` tinyint unsigned NOT NULL DEFAULT '1',
@@ -70,8 +71,10 @@ CREATE TABLE `credit_cards` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_credit_cards_account` (`account_id`),
   KEY `fk_credit_cards_user` (`user_id`),
-  CONSTRAINT `fk_credit_cards_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  CONSTRAINT `fk_credit_cards_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_credit_cards_account` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 5. Tabela: goals
@@ -90,7 +93,30 @@ CREATE TABLE `goals` (
   CONSTRAINT `fk_goals_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 6. Tabela: recurring_transactions
+-- 6. Tabela: investments
+DROP TABLE IF EXISTS `investments`;
+CREATE TABLE `investments` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `account_id` int unsigned DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` enum('renda_fixa','acoes','fiis','cripto','fundos','outros') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'renda_fixa',
+  `initial_amount` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `start_date` date NOT NULL,
+  `due_date` date DEFAULT NULL,
+  `status` enum('active','redeemed','cancelled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_investments_user` (`user_id`),
+  KEY `idx_investments_status` (`status`),
+  KEY `fk_investments_account` (`account_id`),
+  CONSTRAINT `fk_investments_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_investments_account` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. Tabela: recurring_transactions
 DROP TABLE IF EXISTS `recurring_transactions`;
 CREATE TABLE `recurring_transactions` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -115,13 +141,14 @@ CREATE TABLE `recurring_transactions` (
   CONSTRAINT `fk_recurring_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 7. Tabela: transactions
+-- 8. Tabela: transactions
 DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE `transactions` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int unsigned NOT NULL,
   `account_id` int unsigned NOT NULL,
   `credit_card_id` int unsigned DEFAULT NULL,
+  `investment_id` int unsigned DEFAULT NULL,
   `category_id` int unsigned NOT NULL,
   `type` enum('income','expense') COLLATE utf8mb4_unicode_ci NOT NULL,
   `amount` decimal(12,2) NOT NULL,
@@ -137,13 +164,15 @@ CREATE TABLE `transactions` (
   KEY `fk_transactions_account` (`account_id`),
   KEY `fk_transactions_category` (`category_id`),
   KEY `fk_transactions_credit_card` (`credit_card_id`),
+  KEY `fk_transactions_investment` (`investment_id`),
   CONSTRAINT `fk_transactions_account` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_transactions_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_transactions_credit_card` FOREIGN KEY (`credit_card_id`) REFERENCES `credit_cards` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_transactions_investment` FOREIGN KEY (`investment_id`) REFERENCES `investments` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_transactions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 8. Tabela: installments
+-- 9. Tabela: installments
 DROP TABLE IF EXISTS `installments`;
 CREATE TABLE `installments` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -163,7 +192,7 @@ CREATE TABLE `installments` (
   CONSTRAINT `fk_installments_transaction` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 9. Tabela: ai_daily_usage
+-- 10. Tabela: ai_daily_usage
 DROP TABLE IF EXISTS `ai_daily_usage`;
 CREATE TABLE `ai_daily_usage` (
   `user_id` int unsigned NOT NULL,
