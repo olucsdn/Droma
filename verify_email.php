@@ -38,7 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     if ($enviado) {
                         $sucesso = "Novo código de 6 dígitos enviado para " . htmlspecialchars($u['email']) . "! Verifique sua caixa de entrada e spam.";
                     } else {
-                        $aviso = "Nota: O plano gratuito do Render bloqueia portas SMTP tradicionais (465/587). Seu código de ativação é: <strong style='font-size:20px; color:var(--color-gold); letter-spacing:4px;'>{$novoCodigo}</strong>.<br><small style='color:var(--color-text-secondary);'>Para envio automático via nuvem, configure BREVO_API_KEY ou RESEND_API_KEY no painel do Render.</small>";
+                        $codigo = $novoCodigo;
+                        $aviso = "Nota: O plano gratuito do Render bloqueia portas SMTP tradicionais (465/587). Seu código de ativação é: <strong onclick=\"document.getElementById('input-codigo').value='{$novoCodigo}';\" style='font-size:20px; color:var(--color-gold); letter-spacing:4px; cursor:pointer; text-decoration:underline;'>{$novoCodigo}</strong> (toque para preencher).<br><small style='color:var(--color-text-secondary);'>Para envio automático direto na sua caixa de entrada no Render Free, basta adicionar a variável BREVO_API_KEY no painel do Render.</small>";
                     }
                 }
             } else {
