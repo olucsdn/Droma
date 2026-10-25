@@ -25,6 +25,7 @@ try {
     $upd->execute([$user['id']]);
 
     if (!empty($_SESSION['user_id'])) {
+        $_SESSION['email_verified_at'] = date('Y-m-d H:i:s');
         header("Location: profile?sucesso=" . urlencode("E-mail confirmado com sucesso! Sua conta está 100% verificada e ativa."));
         exit;
     }

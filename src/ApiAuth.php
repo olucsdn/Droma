@@ -17,12 +17,15 @@ final class ApiAuth {
         $token = self::extractToken();
 
         if ($token !== '') {
-            $stmt = $pdo->prepare("SELECT id FROM users WHERE api_token = ? AND api_token IS NOT NULL AND api_token <> ''");
+            $stmt = $pdo->prepare("SELECT id, email_verified_at FROM users WHERE api_token = ? AND api_token IS NOT NULL AND api_token <> ''");
             $stmt->execute([$token]);
-            $userId = $stmt->fetchColumn();
+            $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($userId) {
-                return (int) $userId;
+            if ($userRow) {
+                if (empty($userRow['email_verified_at'])) {
+                    ApiResponse::forbidden('E-mail não verificado. A confirmação de e-mail é obrigatória para usar a API.');
+                }
+                return (int) $userRow['id'];
             }
             ApiResponse::unauthorized('Token de API inválido ou revogado.');
         }
@@ -32,6 +35,9 @@ final class ApiAuth {
         Security::initSession();
 
         if (!empty($_SESSION['user_id']) && is_numeric($_SESSION['user_id'])) {
+            if (empty($_SESSION['email_verified_at'])) {
+                ApiResponse::forbidden('E-mail não verificado. A confirmação de e-mail é obrigatória para usar a API.');
+            }
             $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
             // Se for método de alteração via sessão, exige cabeçalho customizado ou token CSRF para inviabilizar cross-origin CSRF
             if (in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true)) {

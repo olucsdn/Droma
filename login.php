@@ -12,59 +12,103 @@ if (!empty($_SESSION['user_id'])) {
 
 $erro = $_GET['erro'] ?? '';
 $sucesso = $_GET['sucesso'] ?? '';
+$precisaVerificar = false;
+$emailNaoVerificado = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $agora = time();
 
-    // 1. Verificação de Bloqueio por Tentativas Excessivas (Rate Limiting)
-    if (!empty($_SESSION['login_lockout']) && $_SESSION['login_lockout'] > $agora) {
-        $restante = $_SESSION['login_lockout'] - $agora;
-        $erro = "Muitas tentativas incorretas. Por segurança, aguarde {$restante} segundos.";
-    } elseif (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
-        // 2. Validação Anti-CSRF
-        $erro = "Sessão expirada ou requisição inválida. Tente novamente.";
-    } else {
-        $email = trim($_POST['email'] ?? '');
-        $senha = $_POST['senha'] ?? '';
-
-        if (empty($email) || empty($senha)) {
-            $erro = "Por favor, preencha todos os campos.";
+    // 1. Reenvio de e-mail de confirmação
+    if (isset($_POST['action']) && $_POST['action'] === 'resend_verification') {
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            $erro = "Sessão expirada ou requisição inválida. Tente novamente.";
         } else {
-            try {
-                $stmt = $pdo->prepare("SELECT id, name, email, password, role FROM users WHERE email = ?");
-                $stmt->execute([$email]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $resendEmail = trim($_POST['email'] ?? '');
+            if (empty($resendEmail) || !filter_var($resendEmail, FILTER_VALIDATE_EMAIL)) {
+                $erro = "Informe um e-mail válido para reenviar a confirmação.";
+            } else {
+                try {
+                    $stmt = $pdo->prepare("SELECT id, name, email, email_verified_at FROM users WHERE email = ?");
+                    $stmt->execute([$resendEmail]);
+                    $u = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if (!$user || !password_verify($senha, $user['password'])) {
-                    $_SESSION['login_failed_attempts'] = ($_SESSION['login_failed_attempts'] ?? 0) + 1;
+                    if ($u) {
+                        if (!empty($u['email_verified_at'])) {
+                            $sucesso = "Este e-mail já está confirmado! Você já pode entrar com sua senha.";
+                        } else {
+                            require_once "src/Mailer.php";
+                            $newToken = bin2hex(random_bytes(32));
+                            $upd = $pdo->prepare("UPDATE users SET verification_token = ? WHERE id = ?");
+                            $upd->execute([$newToken, $u['id']]);
 
-                    // Delay progressivo após 4 tentativas
-                    if ($_SESSION['login_failed_attempts'] >= 4) {
-                        sleep(2);
-                    }
-
-                    // Bloqueio temporário de 60 segundos após 7 falhas
-                    if ($_SESSION['login_failed_attempts'] >= 7) {
-                        $_SESSION['login_lockout'] = time() + 60;
-                        $erro = "Número máximo de tentativas atingido. Acesso bloqueado por 60 segundos.";
+                            Mailer::sendEmailVerification($u['email'], $u['name'], $newToken);
+                            $sucesso = "E-mail de confirmação enviado para " . htmlspecialchars($u['email']) . "! Verifique sua caixa de entrada e pasta de spam.";
+                        }
                     } else {
-                        $erro = "E-mail ou senha incorretos.";
+                        $sucesso = "Se este e-mail estiver cadastrado, um link de confirmação foi enviado.";
                     }
-                } else {
-                    // Sucesso: limpa tentativas e autentica
-                    unset($_SESSION['login_failed_attempts'], $_SESSION['login_lockout']);
-                    session_regenerate_id(true);
-
-                    $_SESSION['user_id']   = $user['id'];
-                    $_SESSION['user_name'] = $user['name'];
-                    $_SESSION['user_role'] = $user['role'] ?? 'user';
-
-                    header("Location: ./");
-                    exit;
+                } catch (Throwable $e) {
+                    error_log("[Resend Verification Error] " . $e->getMessage());
+                    $erro = "Não foi possível enviar o e-mail no momento. Tente novamente mais tarde.";
                 }
-            } catch (PDOException $e) {
-                error_log("Erro ao buscar usuário: " . $e->getMessage());
-                $erro = "Erro no servidor. Tente novamente mais tarde.";
+            }
+        }
+    } else {
+        // 2. Fluxo Normal de Login
+        if (!empty($_SESSION['login_lockout']) && $_SESSION['login_lockout'] > $agora) {
+            $restante = $_SESSION['login_lockout'] - $agora;
+            $erro = "Muitas tentativas incorretas. Por segurança, aguarde {$restante} segundos.";
+        } elseif (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            $erro = "Sessão expirada ou requisição inválida. Tente novamente.";
+        } else {
+            $email = trim($_POST['email'] ?? '');
+            $senha = $_POST['senha'] ?? '';
+
+            if (empty($email) || empty($senha)) {
+                $erro = "Por favor, preencha todos os campos.";
+            } else {
+                try {
+                    $stmt = $pdo->prepare("SELECT id, name, email, password, role, email_verified_at FROM users WHERE email = ?");
+                    $stmt->execute([$email]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if (!$user || !password_verify($senha, $user['password'])) {
+                        $_SESSION['login_failed_attempts'] = ($_SESSION['login_failed_attempts'] ?? 0) + 1;
+
+                        // Delay progressivo após 4 tentativas
+                        if ($_SESSION['login_failed_attempts'] >= 4) {
+                            sleep(2);
+                        }
+
+                        // Bloqueio temporário de 60 segundos após 7 falhas
+                        if ($_SESSION['login_failed_attempts'] >= 7) {
+                            $_SESSION['login_lockout'] = time() + 60;
+                            $erro = "Número máximo de tentativas atingido. Acesso bloqueado por 60 segundos.";
+                        } else {
+                            $erro = "E-mail ou senha incorretos.";
+                        }
+                    } elseif (empty($user['email_verified_at'])) {
+                        // Senha correta, mas e-mail NÃO verificado
+                        $precisaVerificar = true;
+                        $emailNaoVerificado = $user['email'];
+                        $erro = "Seu e-mail ainda não foi verificado. A confirmação de e-mail é obrigatória para acessar o Droma.";
+                    } else {
+                        // Sucesso: limpa tentativas e autentica
+                        unset($_SESSION['login_failed_attempts'], $_SESSION['login_lockout']);
+                        session_regenerate_id(true);
+
+                        $_SESSION['user_id']           = $user['id'];
+                        $_SESSION['user_name']         = $user['name'];
+                        $_SESSION['user_role']         = $user['role'] ?? 'user';
+                        $_SESSION['email_verified_at'] = $user['email_verified_at'];
+
+                        header("Location: ./");
+                        exit;
+                    }
+                } catch (PDOException $e) {
+                    error_log("Erro ao buscar usuário: " . $e->getMessage());
+                    $erro = "Erro no servidor. Tente novamente mais tarde.";
+                }
             }
         }
     }
@@ -96,6 +140,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if (!empty($erro)): ?>
         <div class="alerta alerta-erro">
             <?= htmlspecialchars($erro) ?>
+            <?php if (!empty($precisaVerificar)): ?>
+                <form action="login" method="POST" style="margin-top: 12px;">
+                    <?= Security::csrfField() ?>
+                    <input type="hidden" name="action" value="resend_verification">
+                    <input type="hidden" name="email" value="<?= htmlspecialchars($emailNaoVerificado) ?>">
+                    <button type="submit" style="background: rgba(212, 175, 108, 0.15); border: 1px solid var(--color-gold); color: var(--color-gold-light); padding: 9px 16px; border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; font-weight: 600; width: 100%; transition: all 0.2s ease;">
+                        ✉️ Reenviar E-mail de Confirmação
+                    </button>
+                </form>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 
@@ -122,4 +176,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
-

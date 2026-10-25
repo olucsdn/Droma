@@ -82,13 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         error_log("[Register Mailer Error] " . $mailEx->getMessage());
                     }
 
-                    // Autentica o usuário automaticamente
-                    session_regenerate_id(true);
-                    $_SESSION['user_id']   = $userId;
-                    $_SESSION['user_name'] = $nome;
-                    $_SESSION['user_role'] = 'user';
-
-                    header("Location: ./");
+                    // Redireciona para a tela de login informando a necessidade de confirmar o e-mail
+                    header("Location: login?sucesso=" . urlencode("Conta criada com sucesso! Enviamos um link de confirmação para {$email}. Por favor, confirme seu e-mail para poder acessar o Droma."));
                     exit;
                 }
             } catch (PDOException $e) {

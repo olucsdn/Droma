@@ -43,6 +43,32 @@ final class Security {
             exit;
         }
 
+        // Validação estrita de e-mail verificado
+        if (empty($_SESSION['email_verified_at'])) {
+            require_once __DIR__ . '/../config/database.php';
+            global $pdo;
+            if ($pdo) {
+                $stmt = $pdo->prepare("SELECT email_verified_at FROM users WHERE id = ?");
+                $stmt->execute([$_SESSION['user_id']]);
+                $verifiedAt = $stmt->fetchColumn();
+
+                if (empty($verifiedAt)) {
+                    $_SESSION = [];
+                    if (ini_get("session.use_cookies")) {
+                        $params = session_get_cookie_params();
+                        setcookie(session_name(), '', time() - 42000,
+                            $params["path"], $params["domain"],
+                            $params["secure"], $params["httponly"]
+                        );
+                    }
+                    session_destroy();
+                    header('Location: login?erro=' . urlencode("A confirmação de e-mail é obrigatória para acessar o Droma. Por favor, confirme seu e-mail."));
+                    exit;
+                }
+                $_SESSION['email_verified_at'] = $verifiedAt;
+            }
+        }
+
         return (int) $_SESSION['user_id'];
     }
 
