@@ -6,7 +6,16 @@
 final class Security {
 
     /**
-     * Garante que a sessão PHP esteja inicializada com configurações seguras.
+     * Detecta se a conexão atual é segura via HTTPS (incluindo proxies reversos e nuvem)
+     */
+    public static function isHttps(): bool {
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    }
+
+    /**
+     * Garante que a sessão PHP esteja inicializada com configurações seguras e persistentes.
      */
     public static function initSession(): void {
         if (session_status() === PHP_SESSION_NONE) {
@@ -16,11 +25,11 @@ final class Security {
                 ini_set('session.cookie_httponly', '1');
                 ini_set('session.cookie_samesite', 'Lax');
 
-                $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-                    || (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
-                    || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+                // Persistência de 30 dias para não deslogar ao fechar navegador ou app
+                ini_set('session.cookie_lifetime', (string)(86400 * 30));
+                ini_set('session.gc_maxlifetime', (string)(86400 * 30));
 
-                if ($isHttps) {
+                if (self::isHttps()) {
                     ini_set('session.cookie_secure', '1');
                 }
 
@@ -29,6 +38,86 @@ final class Security {
                 @session_start();
             }
         }
+
+        // Auto-login por cookie persistente seguro (Remember Me) caso a sessão em memória expire
+        if (empty($_SESSION['user_id']) && !empty($_COOKIE['droma_remember'])) {
+            self::attemptRememberLogin();
+        }
+    }
+
+    /**
+     * Restaura a autenticação do usuário a partir do token persistente do dispositivo
+     */
+    private static function attemptRememberLogin(): void {
+        $cookie = (string)$_COOKIE['droma_remember'];
+        if (!str_contains($cookie, ':')) {
+            return;
+        }
+
+        [$userId, $token] = explode(':', $cookie, 2);
+        if (!is_numeric($userId) || empty($token)) {
+            return;
+        }
+
+        require_once __DIR__ . '/../config/database.php';
+        global $pdo;
+        if (!$pdo) {
+            return;
+        }
+
+        try {
+            $stmt = $pdo->prepare("SELECT id, name, role, email_verified_at, api_token FROM users WHERE id = ?");
+            $stmt->execute([(int)$userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user && !empty($user['api_token']) && hash_equals($user['api_token'], $token)) {
+                if (!empty($user['email_verified_at'])) {
+                    session_regenerate_id(true);
+                    $_SESSION['user_id']           = (int)$user['id'];
+                    $_SESSION['user_name']         = $user['name'];
+                    $_SESSION['user_role']         = $user['role'] ?? 'user';
+                    $_SESSION['email_verified_at'] = $user['email_verified_at'];
+                }
+            } else {
+                // Token inválido ou alterado: limpa cookie
+                self::clearRememberCookie();
+            }
+        } catch (Throwable $e) {
+            error_log("[Remember Login Error] " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Define o cookie de persistência seguro de longo prazo (60 dias)
+     */
+    public static function setRememberCookie(int $userId, string $apiToken): void {
+        $value = "{$userId}:{$apiToken}";
+        $isHttps = self::isHttps();
+        setcookie('droma_remember', $value, [
+            'expires'  => time() + (86400 * 60),
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => $isHttps,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+        $_COOKIE['droma_remember'] = $value;
+    }
+
+    /**
+     * Remove o cookie de persistência ao deslogar
+     */
+    public static function clearRememberCookie(): void {
+        $isHttps = self::isHttps();
+        setcookie('droma_remember', '', [
+            'expires'  => time() - 3600,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => $isHttps,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+        unset($_COOKIE['droma_remember']);
     }
 
     /**

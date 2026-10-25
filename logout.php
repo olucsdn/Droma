@@ -1,5 +1,9 @@
 <?php
-session_start();
+require_once "src/Security.php";
+Security::initSession();
+
+// Remove o cookie persistente de "Lembrar de mim"
+Security::clearRememberCookie();
 
 // Limpa todas as variáveis de sessão
 $_SESSION = [];

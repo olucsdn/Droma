@@ -65,7 +65,7 @@ if ($deveValidar) {
         $erro = "O código deve conter exatamente 6 dígitos numéricos.";
     } else {
         try {
-            $stmt = $pdo->prepare("SELECT id, name, email, verification_token, email_verified_at, role FROM users WHERE email = ?");
+            $stmt = $pdo->prepare("SELECT id, name, email, verification_token, email_verified_at, role, api_token FROM users WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -88,6 +88,15 @@ if ($deveValidar) {
                 $_SESSION['user_name']         = $user['name'];
                 $_SESSION['user_role']         = $user['role'] ?? 'user';
                 $_SESSION['email_verified_at'] = date('Y-m-d H:i:s');
+
+                // Persistência de login em cookie seguro de 60 dias (Remember Me)
+                $apiToken = $user['api_token'] ?? '';
+                if (empty($apiToken)) {
+                    $apiToken = bin2hex(random_bytes(32));
+                    $updTok = $pdo->prepare("UPDATE users SET api_token = ? WHERE id = ?");
+                    $updTok->execute([$apiToken, $user['id']]);
+                }
+                Security::setRememberCookie((int)$user['id'], $apiToken);
 
                 header("Location: ./?sucesso=" . urlencode("Conta verificada com sucesso! Bem-vindo ao Droma."));
                 exit;

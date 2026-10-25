@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $erro = "Por favor, preencha todos os campos.";
             } else {
                 try {
-                    $stmt = $pdo->prepare("SELECT id, name, email, password, role, email_verified_at, verification_token FROM users WHERE email = ?");
+                    $stmt = $pdo->prepare("SELECT id, name, email, password, role, email_verified_at, verification_token, api_token FROM users WHERE email = ?");
                     $stmt->execute([$email]);
                     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -118,6 +118,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['user_name']         = $user['name'];
                         $_SESSION['user_role']         = $user['role'] ?? 'user';
                         $_SESSION['email_verified_at'] = $user['email_verified_at'];
+
+                        // Persistência de login em cookie seguro de 60 dias (Remember Me)
+                        $apiToken = $user['api_token'] ?? '';
+                        if (empty($apiToken)) {
+                            $apiToken = bin2hex(random_bytes(32));
+                            $updTok = $pdo->prepare("UPDATE users SET api_token = ? WHERE id = ?");
+                            $updTok->execute([$apiToken, $user['id']]);
+                        }
+                        Security::setRememberCookie((int)$user['id'], $apiToken);
 
                         header("Location: ./");
                         exit;
