@@ -332,6 +332,12 @@ button[type="submit"]:hover {
     color: var(--color-emerald);
 }
 
+.alerta-aviso {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #FDE68A;
+}
+
 @media (max-width: 480px) {
     body {
         padding: 16px 12px;

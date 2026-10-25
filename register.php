@@ -76,15 +76,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->commit();
 
                     // Dispara o e-mail transacional com o código de 6 dígitos
+                    $enviado = false;
                     try {
-                        Mailer::sendEmailVerification($email, $nome, $verificationCode);
+                        $enviado = Mailer::sendEmailVerification($email, $nome, $verificationCode);
                     } catch (Throwable $mailEx) {
                         error_log("[Register Mailer Error] " . $mailEx->getMessage());
                     }
 
-                    // Redireciona diretamente para a tela de inserção do código de 6 dígitos
-                    header("Location: verify_email?email=" . urlencode($email) . "&sucesso=" . urlencode("Conta criada com sucesso! Enviamos um código de 6 dígitos para {$email}."));
-                    exit;
+                    if ($enviado) {
+                        header("Location: verify_email?email=" . urlencode($email) . "&sucesso=" . urlencode("Conta criada com sucesso! Enviamos um código de 6 dígitos para {$email}."));
+                        exit;
+                    } else {
+                        // Se o provedor em nuvem bloquear a porta SMTP (ex: Render Free Tier)
+                        header("Location: verify_email?email=" . urlencode($email) . "&code=" . urlencode($verificationCode) . "&aviso=" . urlencode("Conta criada com sucesso! (Aviso: O envio SMTP foi bloqueado pela nuvem Render Free). Preenchemos seu código de ativação automaticamente abaixo:"));
+                        exit;
+                    }
                 }
             } catch (PDOException $e) {
                 if ($pdo->inTransaction()) {

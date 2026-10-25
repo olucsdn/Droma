@@ -12,6 +12,7 @@ $codigo = preg_replace('/\D/', '', $codigo);
 
 $erro = $_GET['erro'] ?? '';
 $sucesso = $_GET['sucesso'] ?? '';
+$aviso = $_GET['aviso'] ?? '';
 
 // 1. Processamento de Reenvio de Código
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'resend_code') {
@@ -33,8 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $upd = $pdo->prepare("UPDATE users SET verification_token = ? WHERE id = ?");
                     $upd->execute([$novoCodigo, $u['id']]);
 
-                    Mailer::sendEmailVerification($u['email'], $u['name'], $novoCodigo);
-                    $sucesso = "Novo código de 6 dígitos enviado para " . htmlspecialchars($u['email']) . "! Verifique sua caixa de entrada e spam.";
+                    $enviado = Mailer::sendEmailVerification($u['email'], $u['name'], $novoCodigo);
+                    if ($enviado) {
+                        $sucesso = "Novo código de 6 dígitos enviado para " . htmlspecialchars($u['email']) . "! Verifique sua caixa de entrada e spam.";
+                    } else {
+                        $aviso = "Nota: O plano gratuito do Render bloqueia portas SMTP tradicionais (465/587). Seu código de ativação é: <strong style='font-size:20px; color:var(--color-gold); letter-spacing:4px;'>{$novoCodigo}</strong>.<br><small style='color:var(--color-text-secondary);'>Para envio automático via nuvem, configure BREVO_API_KEY ou RESEND_API_KEY no painel do Render.</small>";
+                    }
                 }
             } else {
                 $sucesso = "Se este e-mail estiver cadastrado, um novo código foi enviado.";
@@ -122,6 +127,12 @@ if ($deveValidar) {
             Informe o e-mail cadastrado e o código de 6 dígitos recebido
         <?php endif; ?>
     </p>
+
+    <?php if (!empty($aviso)): ?>
+        <div class="alerta alerta-aviso">
+            <?= $aviso ?>
+        </div>
+    <?php endif; ?>
 
     <?php if (!empty($erro)): ?>
         <div class="alerta alerta-erro">

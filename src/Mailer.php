@@ -19,9 +19,116 @@ final class Mailer {
     }
 
     /**
-     * Envia um e-mail transacional via socket SMTP seguro (SSL porta 465)
+     * Envia um e-mail transacional (tenta APIs HTTP em porta 443 antes do fallback para socket SMTP)
      */
     public static function send(string $toEmail, string $subject, string $htmlBody, string $textBody = ''): bool {
+        // 1. Tenta envio via Brevo REST API (HTTPS Porta 443 - 100% livre de bloqueio em nuvem)
+        $brevoKey = self::getSetting('BREVO_API_KEY');
+        if ($brevoKey !== '') {
+            $brevoRes = self::sendViaBrevo($brevoKey, $toEmail, $subject, $htmlBody, $textBody);
+            if ($brevoRes) {
+                return true;
+            }
+        }
+
+        // 2. Tenta envio via Resend REST API (HTTPS Porta 443)
+        $resendKey = self::getSetting('RESEND_API_KEY');
+        if ($resendKey !== '') {
+            $resendRes = self::sendViaResend($resendKey, $toEmail, $subject, $htmlBody);
+            if ($resendRes) {
+                return true;
+            }
+        }
+
+        // 3. Fallback para Socket SMTP Seguro (SSL porta 465)
+        return self::sendViaSmtpSocket($toEmail, $subject, $htmlBody, $textBody);
+    }
+
+    /**
+     * Envio via Brevo REST API (HTTPS porta 443 - compatível com Render Free)
+     */
+    private static function sendViaBrevo(string $apiKey, string $toEmail, string $subject, string $htmlBody, string $textBody = ''): bool {
+        $senderEmail = self::getSetting('SMTP_USER', 'dromafinancy@gmail.com');
+        $senderName  = self::getSetting('SMTP_FROM_NAME', 'Droma Financy');
+
+        $payload = [
+            'sender'      => ['name' => $senderName, 'email' => $senderEmail],
+            'to'          => [['email' => $toEmail]],
+            'subject'     => $subject,
+            'htmlContent' => $htmlBody,
+        ];
+        if ($textBody !== '') {
+            $payload['textContent'] = $textBody;
+        }
+
+        $ch = curl_init('https://api.brevo.com/v3/smtp/email');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
+                'api-key: ' . $apiKey,
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 8,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error    = curl_error($ch);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        }
+
+        error_log("[Mailer Brevo Error] HTTP {$httpCode}: {$response} (cURL: {$error})");
+        return false;
+    }
+
+    /**
+     * Envio via Resend REST API (HTTPS porta 443 - compatível com Render Free)
+     */
+    private static function sendViaResend(string $apiKey, string $toEmail, string $subject, string $htmlBody): bool {
+        $from = self::getSetting('RESEND_FROM', 'Droma Financy <onboarding@resend.dev>');
+
+        $payload = [
+            'from'    => $from,
+            'to'      => [$toEmail],
+            'subject' => $subject,
+            'html'    => $htmlBody,
+        ];
+
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $apiKey,
+                'Content-Type: application/json',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 8,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error    = curl_error($ch);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        }
+
+        error_log("[Mailer Resend Error] HTTP {$httpCode}: {$response} (cURL: {$error})");
+        return false;
+    }
+
+    /**
+     * Envio nativo via Socket SMTP Seguro (SSL porta 465)
+     */
+    private static function sendViaSmtpSocket(string $toEmail, string $subject, string $htmlBody, string $textBody = ''): bool {
         $host     = self::getSetting('SMTP_HOST', 'smtp.gmail.com');
         $port     = (int) self::getSetting('SMTP_PORT', '465');
         $user     = self::getSetting('SMTP_USER', 'dromafinancy@gmail.com');
@@ -31,9 +138,10 @@ final class Mailer {
         // Remove espaços de senhas de app do Google
         $pass = str_replace(' ', '', $pass);
 
-        $socket = @fsockopen("ssl://{$host}", $port, $errno, $errstr, 15);
+        // Timeout rápido de 4s para detectar bloqueios de porta sem congelar a requisição
+        $socket = @fsockopen("ssl://{$host}", $port, $errno, $errstr, 4);
         if (!$socket) {
-            error_log("[Mailer Error] Falha de conexão SMTP: {$errno} - {$errstr}");
+            error_log("[Mailer Error] Conexão SMTP na porta {$port} bloqueada ou indisponível: {$errno} - {$errstr}");
             return false;
         }
 

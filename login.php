@@ -95,14 +95,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $code = sprintf("%06d", random_int(100000, 999999));
                             $upd = $pdo->prepare("UPDATE users SET verification_token = ? WHERE id = ?");
                             $upd->execute([$code, $user['id']]);
-                            require_once "src/Mailer.php";
-                            try {
-                                Mailer::sendEmailVerification($user['email'], $user['name'], $code);
-                            } catch (Throwable $e) {}
                         }
+                        require_once "src/Mailer.php";
+                        $enviado = false;
+                        try {
+                            $enviado = Mailer::sendEmailVerification($user['email'], $user['name'], $code);
+                        } catch (Throwable $e) {}
 
-                        header("Location: verify_email?email=" . urlencode($user['email']) . "&erro=" . urlencode("A verificação de e-mail é obrigatória. Digite o código de 6 dígitos enviado para sua caixa de entrada."));
-                        exit;
+                        if ($enviado) {
+                            header("Location: verify_email?email=" . urlencode($user['email']) . "&erro=" . urlencode("A verificação de e-mail é obrigatória. Digite o código de 6 dígitos enviado para sua caixa de entrada."));
+                            exit;
+                        } else {
+                            header("Location: verify_email?email=" . urlencode($user['email']) . "&code=" . urlencode($code) . "&aviso=" . urlencode("A verificação de e-mail é obrigatória. (O envio SMTP foi bloqueado pela nuvem Render Free). Seu código de ativação é: {$code}"));
+                            exit;
+                        }
                     } else {
                         // Sucesso: limpa tentativas e autentica
                         unset($_SESSION['login_failed_attempts'], $_SESSION['login_lockout']);
