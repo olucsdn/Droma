@@ -42,12 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif ($acao === 'reenviar_verificacao') {
         try {
-            $novoToken = bin2hex(random_bytes(32));
+            $novoCodigo = sprintf("%06d", random_int(100000, 999999));
             $stmtToken = $pdo->prepare('UPDATE users SET verification_token = ? WHERE id = ?');
-            $stmtToken->execute([$novoToken, $userId]);
+            $stmtToken->execute([$novoCodigo, $userId]);
 
-            Mailer::sendEmailVerification($usuario['email'], $usuario['name'], $novoToken);
-            header('Location: profile?sucesso=' . urlencode('E-mail de confirmação reenviado com sucesso! Verifique sua caixa de entrada e spam.'));
+            Mailer::sendEmailVerification($usuario['email'], $usuario['name'], $novoCodigo);
+            header('Location: verify_email?email=' . urlencode($usuario['email']) . '&sucesso=' . urlencode('Código de confirmação de 6 dígitos enviado com sucesso! Verifique sua caixa de entrada e spam.'));
             exit;
         } catch (Throwable $e) {
             error_log('Erro ao reenviar e-mail: ' . $e->getMessage());
@@ -86,19 +86,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($erro === '') {
                     if ($emailAlterado) {
-                        $novoToken = bin2hex(random_bytes(32));
+                        $novoCodigo = sprintf("%06d", random_int(100000, 999999));
                         if ($senhaAlterada) {
                             $update = $pdo->prepare('UPDATE users SET name = ?, email = ?, password = ?, email_verified_at = NULL, verification_token = ? WHERE id = ?');
-                            $update->execute([$nome, $email, password_hash($novaSenha, PASSWORD_DEFAULT), $novoToken, $userId]);
+                            $update->execute([$nome, $email, password_hash($novaSenha, PASSWORD_DEFAULT), $novoCodigo, $userId]);
                         } else {
                             $update = $pdo->prepare('UPDATE users SET name = ?, email = ?, email_verified_at = NULL, verification_token = ? WHERE id = ?');
-                            $update->execute([$nome, $email, $novoToken, $userId]);
+                            $update->execute([$nome, $email, $novoCodigo, $userId]);
                         }
                         try {
-                            Mailer::sendEmailVerification($email, $nome, $novoToken);
+                            Mailer::sendEmailVerification($email, $nome, $novoCodigo);
                         } catch (Throwable $e) {
                             error_log("[Mailer Error] " . $e->getMessage());
                         }
+
+                        $_SESSION['user_name'] = $nome;
+                        $_SESSION['email_verified_at'] = null;
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                        header('Location: verify_email?email=' . urlencode($email) . '&sucesso=' . urlencode('Dados atualizados! Digite o código de 6 dígitos enviado para seu novo e-mail para confirmá-lo.'));
+                        exit;
                     } else {
                         if ($senhaAlterada) {
                             $update = $pdo->prepare('UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?');
@@ -107,15 +113,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $update = $pdo->prepare('UPDATE users SET name = ?, email = ? WHERE id = ?');
                             $update->execute([$nome, $email, $userId]);
                         }
-                    }
 
-                    $_SESSION['user_name'] = $nome;
-                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-                    $msgSucesso = $emailAlterado
-                        ? 'Dados atualizados! Enviamos um link para você confirmar seu novo e-mail.'
-                        : 'Dados atualizados com sucesso!';
-                    header('Location: profile?sucesso=' . urlencode($msgSucesso));
-                    exit;
+                        $_SESSION['user_name'] = $nome;
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                        header('Location: profile?sucesso=' . urlencode('Dados atualizados com sucesso!'));
+                        exit;
+                    }
                 }
             } catch (PDOException $e) {
                 error_log('Erro ao atualizar perfil: ' . $e->getMessage());

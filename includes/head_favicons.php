@@ -1,6 +1,6 @@
 <?php
 $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '');
-$isAuthFixedDark = !empty($dromaFixedDark) || in_array($currentPage, ['login.php', 'register.php', 'recover.php', 'reset_password.php']);
+$isAuthFixedDark = !empty($dromaFixedDark) || in_array($currentPage, ['login.php', 'register.php', 'recover.php', 'reset_password.php', 'verify_email.php']);
 
 if ($isAuthFixedDark) {
     $dromaTheme = 'dark';

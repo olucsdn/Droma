@@ -46,9 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $hash = password_hash($senha, PASSWORD_DEFAULT);
                     $apiToken = bin2hex(random_bytes(32));
-                    $verificationToken = bin2hex(random_bytes(32));
+                    $verificationCode = sprintf("%06d", random_int(100000, 999999));
                     $stmt = $pdo->prepare("INSERT INTO users (name, email, password, api_token, role, verification_token) VALUES (?, ?, ?, ?, 'user', ?)");
-                    $stmt->execute([$nome, $email, $hash, $apiToken, $verificationToken]);
+                    $stmt->execute([$nome, $email, $hash, $apiToken, $verificationCode]);
                     $userId = (int) $pdo->lastInsertId();
 
                     // Cria uma conta inicial padrão
@@ -75,15 +75,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $pdo->commit();
 
-                    // Dispara o e-mail transacional de confirmação de conta
+                    // Dispara o e-mail transacional com o código de 6 dígitos
                     try {
-                        Mailer::sendEmailVerification($email, $nome, $verificationToken);
+                        Mailer::sendEmailVerification($email, $nome, $verificationCode);
                     } catch (Throwable $mailEx) {
                         error_log("[Register Mailer Error] " . $mailEx->getMessage());
                     }
 
-                    // Redireciona para a tela de login informando a necessidade de confirmar o e-mail
-                    header("Location: login?sucesso=" . urlencode("Conta criada com sucesso! Enviamos um link de confirmação para {$email}. Por favor, confirme seu e-mail para poder acessar o Droma."));
+                    // Redireciona diretamente para a tela de inserção do código de 6 dígitos
+                    header("Location: verify_email?email=" . urlencode($email) . "&sucesso=" . urlencode("Conta criada com sucesso! Enviamos um código de 6 dígitos para {$email}."));
                     exit;
                 }
             } catch (PDOException $e) {

@@ -240,6 +240,25 @@ input:focus {
     outline-offset: 1px;
 }
 
+/* Campo Especial de Código de 6 Dígitos */
+.input-codigo-verificacao {
+    font-size: 28px !important;
+    letter-spacing: 12px !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+    font-family: ui-monospace, Menlo, Monaco, Consolas, monospace !important;
+    padding-left: 20px !important;
+    background: #070A0E !important;
+    border: 2px solid var(--color-gold) !important;
+    color: var(--color-gold-light) !important;
+    height: 58px !important;
+}
+
+.input-codigo-verificacao:focus {
+    border-color: var(--color-gold-light) !important;
+    outline: 2px solid rgba(212, 175, 108, 0.45) !important;
+}
+
 button[type="submit"] {
     height: 48px;
     border: 1px solid rgba(249, 228, 167, 0.35);

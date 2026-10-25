@@ -37,12 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $sucesso = "Este e-mail já está confirmado! Você já pode entrar com sua senha.";
                         } else {
                             require_once "src/Mailer.php";
-                            $newToken = bin2hex(random_bytes(32));
+                            $novoCodigo = sprintf("%06d", random_int(100000, 999999));
                             $upd = $pdo->prepare("UPDATE users SET verification_token = ? WHERE id = ?");
-                            $upd->execute([$newToken, $u['id']]);
+                            $upd->execute([$novoCodigo, $u['id']]);
 
-                            Mailer::sendEmailVerification($u['email'], $u['name'], $newToken);
-                            $sucesso = "E-mail de confirmação enviado para " . htmlspecialchars($u['email']) . "! Verifique sua caixa de entrada e pasta de spam.";
+                            Mailer::sendEmailVerification($u['email'], $u['name'], $novoCodigo);
+                            header("Location: verify_email?email=" . urlencode($u['email']) . "&sucesso=" . urlencode("Novo código de 6 dígitos enviado para seu e-mail!"));
+                            exit;
                         }
                     } else {
                         $sucesso = "Se este e-mail estiver cadastrado, um link de confirmação foi enviado.";
@@ -68,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $erro = "Por favor, preencha todos os campos.";
             } else {
                 try {
-                    $stmt = $pdo->prepare("SELECT id, name, email, password, role, email_verified_at FROM users WHERE email = ?");
+                    $stmt = $pdo->prepare("SELECT id, name, email, password, role, email_verified_at, verification_token FROM users WHERE email = ?");
                     $stmt->execute([$email]);
                     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -88,10 +89,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $erro = "E-mail ou senha incorretos.";
                         }
                     } elseif (empty($user['email_verified_at'])) {
-                        // Senha correta, mas e-mail NÃO verificado
-                        $precisaVerificar = true;
-                        $emailNaoVerificado = $user['email'];
-                        $erro = "Seu e-mail ainda não foi verificado. A confirmação de e-mail é obrigatória para acessar o Droma.";
+                        // Senha correta, porém e-mail NÃO verificado -> Redireciona para tela de código de 6 dígitos
+                        $code = $user['verification_token'] ?? '';
+                        if (strlen($code) !== 6 || !ctype_digit($code)) {
+                            $code = sprintf("%06d", random_int(100000, 999999));
+                            $upd = $pdo->prepare("UPDATE users SET verification_token = ? WHERE id = ?");
+                            $upd->execute([$code, $user['id']]);
+                            require_once "src/Mailer.php";
+                            try {
+                                Mailer::sendEmailVerification($user['email'], $user['name'], $code);
+                            } catch (Throwable $e) {}
+                        }
+
+                        header("Location: verify_email?email=" . urlencode($user['email']) . "&erro=" . urlencode("A verificação de e-mail é obrigatória. Digite o código de 6 dígitos enviado para sua caixa de entrada."));
+                        exit;
                     } else {
                         // Sucesso: limpa tentativas e autentica
                         unset($_SESSION['login_failed_attempts'], $_SESSION['login_lockout']);
