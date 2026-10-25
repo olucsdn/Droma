@@ -139,6 +139,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Auto-repara caracteres corrompidos em categorias padrão caso existam
+try {
+    $pdo->exec("UPDATE categories SET name = 'Alimentação' WHERE (name LIKE 'Alimenta%' AND name LIKE '%o' AND name <> 'Alimentação') OR name = 'Alimenta??o'");
+    $pdo->exec("UPDATE categories SET name = 'Educação' WHERE (name LIKE 'Educa%' AND name LIKE '%o' AND name <> 'Educação') OR name = 'Educa??o'");
+    $pdo->exec("UPDATE categories SET name = 'Saúde' WHERE (name LIKE 'Sa%de' AND name <> 'Saúde') OR name = 'Sa?de'");
+    $pdo->exec("UPDATE categories SET name = 'Salário' WHERE (name LIKE 'Sal%rio' AND name <> 'Salário') OR name = 'Sal?rio'");
+} catch (Throwable $e) {}
+
 // Busca categorias com contagem de transações, volume histórico e gasto do mês atual para tetos
 $stmt = $pdo->prepare(
     "SELECT 

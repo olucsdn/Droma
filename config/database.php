@@ -47,12 +47,13 @@ if (!$isLocal || $appEnv === 'production') {
     }
 }
 
-// 4. Configuração de Opções do PDO (com criptografia SSL/TLS em nuvem)
+// 4. Configuração de Opções do PDO (com criptografia SSL/TLS em nuvem e UTF-8 Completo)
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
     PDO::ATTR_PERSISTENT         => true, // Reutiliza conexões ativas para eliminar atraso de handshake SSL
+    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
 ];
 
 // Conexão criptografada obrigatória para clusters em nuvem (ex: TiDB Cloud, Aiven, AWS RDS)
@@ -81,6 +82,17 @@ $dsn = "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
 
 try {
     $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
+    $pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+    $pdo->exec("SET CHARACTER SET utf8mb4");
+
+    // Correção automática de categorias com caracteres corrompidos por encoding anterior
+    try {
+        $pdo->exec("UPDATE categories SET name = 'Alimentação' WHERE (name LIKE 'Alimenta%' AND name LIKE '%o' AND name <> 'Alimentação') OR name = 'Alimenta??o'");
+        $pdo->exec("UPDATE categories SET name = 'Educação' WHERE (name LIKE 'Educa%' AND name LIKE '%o' AND name <> 'Educação') OR name = 'Educa??o'");
+        $pdo->exec("UPDATE categories SET name = 'Saúde' WHERE (name LIKE 'Sa%de' AND name <> 'Saúde') OR name = 'Sa?de'");
+        $pdo->exec("UPDATE categories SET name = 'Salário' WHERE (name LIKE 'Sal%rio' AND name <> 'Salário') OR name = 'Sal?rio'");
+        $pdo->exec("UPDATE categories SET name = 'Transferência' WHERE (name LIKE 'Transfer%ncia' AND name <> 'Transferência') OR name = 'Transfer?ncia'");
+    } catch (Throwable $e) {}
 } catch (PDOException $e) {
     // Registra o erro no log interno do servidor e nunca expõe detalhes ao usuário
     error_log("[Wert DB Error] " . $e->getMessage());
