@@ -36,3 +36,22 @@ $activeFavicon = 'img/favicon-darkmode.png';
 
     <!-- Motor JavaScript de Alternância de Tema & Favicon -->
     <script src="js/theme.js?v=<?= file_exists('js/theme.js') ? filemtime('js/theme.js') : '1.0' ?>"></script>
+
+    <!-- CSS Crítico Anti-FOUC (Fundo, Tipografia e Ocultação Imediata da Barra Desktop em Mobile) -->
+    <style>
+        html, body {
+            background-color: <?= ($dromaTheme === 'light') ? '#F8FAFC' : '#070A0E' ?>;
+            color: <?= ($dromaTheme === 'light') ? '#0F172A' : '#F1F5F9' ?>;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        @media (max-width: 768px) {
+            .app-sidebar {
+                display: none !important;
+            }
+        }
+        svg {
+            max-width: 100%;
+        }
+    </style>
