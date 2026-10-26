@@ -194,18 +194,33 @@ try {
 }
 
 $origem = $_POST['origem'] ?? '';
+$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+       || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'));
+
 if ($origem === 'calendario') {
     $refDate = $dueDate ?: $date;
     $m = date('n', strtotime($refDate));
     $y = date('Y', strtotime($refDate));
-    header("Location: calendar?mes=$m&ano=$y&sucesso=" . urlencode("Lançamento salvo com sucesso!"));
+    $redirectUrl = "calendar?mes=$m&ano=$y&sucesso=" . urlencode("Lançamento salvo com sucesso!");
 } elseif ($origem === 'extrato') {
-    header("Location: statement?sucesso=" . urlencode("Lançamento salvo com sucesso!"));
+    $redirectUrl = "statement?sucesso=" . urlencode("Lançamento salvo com sucesso!");
 } elseif ($origem === 'cartoes' || $usaCartao) {
-    header("Location: cards?sucesso=" . urlencode("Compra no cartão registrada com sucesso!"));
+    $redirectUrl = "cards?sucesso=" . urlencode("Compra no cartão registrada com sucesso!");
 } else {
-    header("Location: ./?sucesso=" . urlencode("Lançamento salvo com sucesso!"));
+    $redirectUrl = "./?sucesso=" . urlencode("Lançamento salvo com sucesso!");
 }
+
+if ($isAjax) {
+    header('Content-Type: application/json; charset=UTF-8');
+    echo json_encode([
+        'success'      => true,
+        'message'      => 'Lançamento salvo com sucesso!',
+        'redirect_url' => $redirectUrl
+    ]);
+    exit;
+}
+
+header("Location: {$redirectUrl}");
 exit;
 
 

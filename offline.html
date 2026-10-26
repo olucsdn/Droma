@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark" data-theme-fixed="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modo Offline — Droma</title>
+    <link rel="icon" type="image/png" href="img/favicon-darkmode.png">
+    <link rel="apple-touch-icon" href="img/favicon-darkmode.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#070A0E">
+    <style>
+        :root {
+            --bg-color: #070A0E;
+            --surface-color: #0F1722;
+            --border-color: #1F2937;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --gold-primary: #D4AF6C;
+            --gold-hover: #E2C288;
+            --success-color: #10B981;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .offline-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px 32px;
+            max-width: 460px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .brand-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--gold-primary), #8B7345);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #070A0E;
+        }
+        .brand-name {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .brand-name span {
+            color: var(--gold-primary);
+        }
+        .offline-icon-wrap {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(212, 175, 108, 0.1);
+            border: 1px solid rgba(212, 175, 108, 0.25);
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-primary);
+        }
+        .offline-icon-wrap svg {
+            width: 38px;
+            height: 38px;
+            fill: currentColor;
+        }
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        p {
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        .queue-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 28px;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--gold-primary);
+        }
+        .btn-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn-action-primary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--gold-primary), #B89248);
+            color: #070A0E;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(212, 175, 108, 0.2);
+        }
+        .btn-action-primary:hover {
+            background: linear-gradient(135deg, var(--gold-hover), var(--gold-primary));
+            transform: translateY(-1px);
+        }
+        .btn-action-secondary {
+            display: block;
+            background: transparent;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        .btn-action-secondary:hover {
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--gold-primary);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.9); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="offline-card">
+    <div class="brand-header">
+        <div class="brand-logo">D</div>
+        <div class="brand-name">Droma<span>.</span></div>
+    </div>
+
+    <div class="offline-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M23.64 7c-.45-.34-4.93-3.66-11.64-3.66-6.72 0-11.2 3.32-11.64 3.66L12 21.5 23.64 7zm-1.84 1.25L12 20.35 2.2 8.25C3.21 7.54 7.21 4.95 12 4.95c4.78 0 8.78 2.58 9.8 3.3zM3.41 1.86L2 3.27l4.08 4.08C4.54 8.08 3.65 8.7 3.4 8.89L12 19.58l3.74-4.66 4.85 4.85 1.41-1.41L3.41 1.86z"/></svg>
+    </div>
+
+    <h1>Você está offline</h1>
+    <p>
+        Sem sinal de internet no momento. Não se preocupe: você ainda pode continuar registrando receitas e despesas normalmente no seu aparelho.
+    </p>
+
+    <div class="queue-box" id="offlineQueueBox">
+        <div class="status-dot"></div>
+        <span id="offlineQueueText">Verificando dados locais...</span>
+    </div>
+
+    <div class="btn-stack">
+        <a href="add_expense" class="btn-action-primary">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <span>Novo Lançamento Offline</span>
+        </a>
+        <a href="./" class="btn-action-secondary">
+            Tentar Voltar ao Início
+        </a>
+    </div>
+</div>
+
+<script src="js/offline-manager.js"></script>
+<script>
+    // Atualiza contagem de transações pendentes no IndexedDB
+    async function updateQueueDisplay() {
+        try {
+            const count = await window.DromaOffline?.countPending() || 0;
+            const el = document.getElementById('offlineQueueText');
+            if (el) {
+                if (count > 0) {
+                    el.textContent = `${count} lançamento(s) salvos no aparelho aguardando conexão.`;
+                } else {
+                    el.textContent = 'Nenhum lançamento pendente no aparelho.';
+                }
+            }
+        } catch (e) {
+            const el = document.getElementById('offlineQueueText');
+            if (el) el.textContent = 'Modo de armazenamento offline ativo.';
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', updateQueueDisplay);
+    window.addEventListener('online', () => {
+        window.location.reload();
+    });
+</script>
+
+</body>
+</html>

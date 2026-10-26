@@ -297,6 +297,112 @@ filtrarCategorias();
 atualizarUrgencia();
 atualizarMeioPagamento();
 atualizarBotao();
+
+// ==========================================================================
+// RESILIÊNCIA OFFLINE (IndexedDB + Sincronização em Segundo Plano)
+// ==========================================================================
+const formLancamento = document.querySelector('.form-lancamento');
+if (formLancamento) {
+    // 1. Salva metadados de contas e categorias em cache para uso offline
+    try {
+        const contas = Array.from(document.querySelectorAll('#accountSelect option')).map(o => ({ id: o.value, name: o.textContent.trim() }));
+        const categorias = Array.from(document.querySelectorAll('#categoriaSelect option')).map(o => ({ id: o.value, name: o.textContent.trim(), type: o.getAttribute('data-type') }));
+        const cartoes = Array.from(document.querySelectorAll('#cardSelect option')).map(o => ({ id: o.value, name: o.textContent.trim() }));
+        window.DromaOffline?.cacheMetadata({ contas, categorias, cartoes });
+    } catch (e) {}
+
+    function limparFormularioAposOffline() {
+        const amountInput = formLancamento.querySelector('input[name="amount"]');
+        const descInput = formLancamento.querySelector('input[name="description"]');
+        if (amountInput) {
+            amountInput.value = '';
+            amountInput.focus();
+        }
+        if (descInput) descInput.value = '';
+    }
+
+    formLancamento.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(formLancamento);
+        const txData = {
+            client_id: 'off_' + Date.now() + '_' + Math.random().toString(36).substr(2, 7),
+            type: formData.get('type') || 'expense',
+            description: (formData.get('description') || '').trim(),
+            amount: (formData.get('amount') || '').trim(),
+            meio_pagamento: formData.get('meio_pagamento') || 'conta',
+            account_id: formData.get('account_id') || null,
+            credit_card_id: formData.get('credit_card_id') || null,
+            installments: formData.get('installments') || 1,
+            investment_id: formData.get('investment_id') || null,
+            category_id: formData.get('category_id') || null,
+            date: formData.get('date') || new Date().toISOString().split('T')[0],
+            due_date: formData.get('due_date') || null,
+            status: formData.get('status') || 'completed',
+            urgency: formData.get('urgency') || 'media'
+        };
+
+        // Validação mínima de valor
+        const numVal = parseFloat(txData.amount.replace(',', '.'));
+        if (isNaN(numVal) || numVal <= 0) {
+            window.DromaOffline?.showToast('Por favor, informe um valor válido maior que zero.', 'warning');
+            return;
+        }
+
+        // Cenário 1: Se estiver offline comprovadamente
+        if (!navigator.onLine) {
+            await window.DromaOffline?.savePendingTransaction(txData);
+            limparFormularioAposOffline();
+            return;
+        }
+
+        // Cenário 2: Se estiver online, tenta enviar com fallback automático caso a rede caia
+        if (btnSalvar) {
+            btnSalvar.disabled = true;
+            btnSalvar.style.opacity = '0.7';
+            btnSalvar.textContent = 'Enviando...';
+        }
+
+        try {
+            const response = await fetch('save_expense', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok || response.redirected) {
+                let destUrl = response.redirected ? response.url : null;
+                try {
+                    const json = await response.clone().json();
+                    if (json && json.redirect_url) {
+                        destUrl = json.redirect_url;
+                    }
+                } catch (e) {}
+
+                if (!destUrl) {
+                    destUrl = (formData.get('origem') === 'calendario') ? 'calendar?sucesso=Lançamento+salvo' : './?sucesso=Lançamento+salvo';
+                }
+                window.location.href = destUrl;
+                return;
+            }
+
+            throw new Error(`Falha no servidor (HTTP ${response.status})`);
+        } catch (err) {
+            console.warn('[Droma] Falha na rede ao salvar, registrando no IndexedDB local:', err);
+            await window.DromaOffline?.savePendingTransaction(txData);
+            limparFormularioAposOffline();
+        } finally {
+            if (btnSalvar) {
+                btnSalvar.disabled = false;
+                btnSalvar.style.opacity = '';
+                atualizarBotao();
+            }
+        }
+    });
+}
+
 </script>
 
 <?php require_once "includes/layout_footer.php"; ?>

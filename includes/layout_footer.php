@@ -158,6 +158,8 @@
     </div>
 </div><!-- /.app-layout -->
 
+<script src="js/offline-manager.js?v=<?= file_exists(__DIR__ . '/../js/offline-manager.js') ? filemtime(__DIR__ . '/../js/offline-manager.js') : time() ?>"></script>
 <script src="js/app.js?v=<?= filemtime(__DIR__ . '/../js/app.js') ?? time() ?>"></script>
+
 
 

@@ -33,5 +33,21 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nova Despesa",
+      "short_name": "Despesa",
+      "description": "Registrar nova saída de dinheiro ou cartão",
+      "url": "add_expense?tipo=expense",
+      "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Nova Receita",
+      "short_name": "Receita",
+      "description": "Registrar nova entrada ou rendimento",
+      "url": "add_expense?tipo=income",
+      "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
