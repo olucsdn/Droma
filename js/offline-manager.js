@@ -240,6 +240,12 @@
          * Atualiza o badge/indicador visual de lançamentos pendentes
          */
         async updateBadge() {
+            if (window.location.pathname.includes('offline.html')) {
+                const existing = document.getElementById('dromaOfflineBadge');
+                if (existing) existing.remove();
+                return;
+            }
+
             const count = await this.countPending();
             let badge = document.getElementById('dromaOfflineBadge');
 

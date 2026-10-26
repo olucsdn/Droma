@@ -1,12 +1,13 @@
 /**
- * Droma — Service Worker v3.0 (Offline-First PWA)
- * Suporte a cache resiliente para navegação sem internet e retorno de páginas em modo offline.
+ * Droma — Service Worker v4.0 (Offline-First PWA)
+ * Suporte a cache resiliente com ignoreSearch para preservação completa de CSS e assets.
  */
-const CACHE_NAME = 'droma-cache-v3';
+const CACHE_NAME = 'droma-cache-v4';
 
 const PRECACHE_ASSETS = [
   './',
   'add_expense',
+  'add_expense.php',
   'offline.html',
   'style_index.css',
   'style_form.css',
@@ -25,7 +26,6 @@ const PRECACHE_ASSETS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
-      // Adiciona individualmente para tolerar falhas caso algum asset opcional mude
       for (const asset of PRECACHE_ASSETS) {
         try {
           await cache.add(asset);
@@ -74,18 +74,24 @@ self.addEventListener('fetch', event => {
           return networkResponse;
         })
         .catch(async () => {
-          // Quando sem sinal: tenta a página solicitada em cache
-          const cachedPage = await caches.match(request);
+          // Quando sem sinal: tenta a página solicitada em cache (ignorando query strings como ?tipo=expense)
+          const cachedPage = await caches.match(request, { ignoreSearch: true });
           if (cachedPage) return cachedPage;
 
-          // Se for nova despesa/receita, tenta add_expense em cache
+          // Se for formulário de novo lançamento (add_expense ou add_expense.php)
           if (url.pathname.includes('add_expense')) {
-            const addPage = await caches.match('add_expense');
+            const addPage = await caches.match('add_expense', { ignoreSearch: true }) || await caches.match('add_expense.php', { ignoreSearch: true });
             if (addPage) return addPage;
           }
 
-          // Fallback final: tela elegante offline.html
-          const offlinePage = await caches.match('offline.html');
+          // Se for página inicial
+          if (url.pathname === '/' || url.pathname.endsWith('/index.php')) {
+            const homePage = await caches.match('./', { ignoreSearch: true });
+            if (homePage) return homePage;
+          }
+
+          // Fallback final: tela offline.html
+          const offlinePage = await caches.match('offline.html', { ignoreSearch: true });
           if (offlinePage) return offlinePage;
 
           return new Response('Sem conexão com a internet. O Droma sincronizará seus dados ao retornar.', {
@@ -96,10 +102,10 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 2. Arquivos Estáticos (CSS, JS, Imagens, Fontes, SVG) -> Cache-First / Stale-While-Revalidate
+  // 2. Arquivos Estáticos (CSS, JS, Imagens, Fontes, SVG) -> Cache-First / Stale-While-Revalidate com ignoreSearch
   if (/\.(css|js|svg|png|jpg|jpeg|webp|woff2?|ico)$/i.test(url.pathname)) {
     event.respondWith(
-      caches.match(request).then(cachedResponse => {
+      caches.match(request, { ignoreSearch: true }).then(cachedResponse => {
         const fetchPromise = fetch(request).then(networkResponse => {
           if (networkResponse && networkResponse.status === 200) {
             const copy = networkResponse.clone();
@@ -108,6 +114,7 @@ self.addEventListener('fetch', event => {
           return networkResponse;
         }).catch(() => null);
 
+        // Retorna o cacheado imediatamente se existir, ou aguarda o fetch de rede
         return cachedResponse || fetchPromise;
       })
     );

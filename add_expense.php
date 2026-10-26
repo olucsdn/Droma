@@ -80,6 +80,62 @@ foreach ($categorias as $c) {
     <title><?= $tipoDefault === 'income' ? 'Nova Receita' : ($tipoParam ? 'Nova Despesa' : 'Novo Lançamento') ?> - Droma</title>
     <link rel="stylesheet" href="style_index.css?v=<?= filemtime('style_index.css') ?>">
     <link rel="stylesheet" href="style_form.css?v=<?= filemtime('style_form.css') ?>">
+    <!-- CSS Crítico Embarcado para Garantia de Renderização 100% Estilizada Mesmo Offline -->
+    <style>
+        .form-lancamento {
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--color-surface, #0F1722);
+            border: 1px solid var(--color-border, #1F2937);
+            border-radius: var(--radius-lg, 18px);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: var(--shadow-card, 0 10px 30px rgba(0, 0, 0, 0.35));
+        }
+        .form-lancamento label {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--color-text-secondary, #94A3B8);
+        }
+        .form-lancamento label[hidden] {
+            display: none !important;
+        }
+        .form-lancamento input,
+        .form-lancamento select,
+        .form-lancamento textarea {
+            padding: 0 14px;
+            border: 1px solid var(--color-border, #1F2937);
+            border-radius: var(--radius-md, 10px);
+            background: var(--color-bg, #070A0E);
+            color: var(--color-text, #F1F5F9);
+            font-size: 14px;
+            font-family: inherit;
+            box-sizing: border-box;
+            width: 100%;
+            height: 46px;
+        }
+        .form-lancamento button[type="submit"] {
+            height: 46px;
+            border: 1px solid rgba(212, 175, 108, 0.4);
+            border-radius: var(--radius-md, 10px);
+            background: var(--gold-gradient, linear-gradient(135deg, #D4AF6C, #8B7345));
+            color: #070A0E;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            box-shadow: var(--shadow-gold-subtle, 0 4px 14px rgba(212, 175, 108, 0.2));
+            transition: all 0.2s ease;
+        }
+    </style>
 </head>
 <body>
 

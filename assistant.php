@@ -223,20 +223,59 @@ function markdownToHtml(string $markdown): string {
             background: linear-gradient(145deg, #0f171b 0%, #152228 100%);
             border: 1px solid rgba(212, 175, 108, 0.35);
             border-radius: var(--radius-lg);
-            padding: 28px;
-            position: relative;
+            padding: 24px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.35);
         }
-        .resposta-box .badge-tipo {
-            position: absolute;
-            top: 20px;
-            right: 24px;
+        .resposta-cabecalho {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .resposta-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1 1 220px;
+            min-width: 0;
+        }
+        .resposta-icone {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gold-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-on-gold);
+            font-size: 20px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .resposta-titulo {
+            margin: 0;
+            font-size: 18px;
+            color: var(--color-gold-light);
+            word-break: break-word;
+        }
+        .resposta-subtitulo {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            display: block;
+            margin-top: 2px;
+        }
+        .badge-tipo {
             font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
             padding: 4px 10px;
             border-radius: var(--radius-pill);
             letter-spacing: 0.5px;
+            flex-shrink: 0;
+            align-self: flex-start;
+            margin-top: 2px;
         }
         .badge-tipo.ai {
             background: rgba(0, 200, 150, 0.15);
@@ -403,22 +442,19 @@ require_once "includes/layout_header.php";
     <!-- Exibição do Resultado da Análise -->
     <?php if ($analiseGerada !== null): ?>
         <div class="resposta-box">
-            <span class="badge-tipo <?= $tipoAnalise === 'ai' ? 'ai' : 'local' ?>">
-                <?= $tipoAnalise === 'ai' ? 'Gemini 3.5 IA' : 'Droma Engine Local' ?>
-            </span>
-
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
-                <div style="width:40px; height:40px; border-radius:50%; background:var(--gold-gradient); display:flex; align-items:center; justify-content:center; color:var(--color-on-gold); font-size:20px; font-weight:800;">
-                    ✦
+            <div class="resposta-cabecalho">
+                <div class="resposta-info">
+                    <div class="resposta-icone">✦</div>
+                    <div>
+                        <h3 class="resposta-titulo">Parecer do Assistente Droma</h3>
+                        <span class="resposta-subtitulo">
+                            Gerado em <?= date('d/m/Y \à\s H:i') ?> para <?= htmlspecialchars($dadosAgregados['periodo']) ?>
+                        </span>
+                    </div>
                 </div>
-                <div>
-                    <h3 style="margin:0; font-size:18px; color:var(--color-gold-light);">
-                        Parecer do Assistente Droma
-                    </h3>
-                    <span style="font-size:12px; color:var(--color-text-secondary);">
-                        Gerado em <?= date('d/m/Y \à\s H:i') ?> para <?= htmlspecialchars($dadosAgregados['periodo']) ?>
-                    </span>
-                </div>
+                <span class="badge-tipo <?= $tipoAnalise === 'ai' ? 'ai' : 'local' ?>">
+                    <?= $tipoAnalise === 'ai' ? 'Gemini 3.5 IA' : 'Droma Engine Local' ?>
+                </span>
             </div>
 
             <div class="conteudo-analise" style="font-size: 15px; line-height: 1.7; color: var(--color-text);">
