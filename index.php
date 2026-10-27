@@ -118,44 +118,23 @@ require_once "includes/layout_header.php";
     <?php endif; ?>
 
     <section class="cartoes">
-        <div class="cartao cartao-saldo">
-            <div class="cartao-header-linha">
-                <span class="rotulo">Saldo Atual</span>
-                <span class="cartao-icone-badge" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-                </span>
-            </div>
+        <div class="cartao">
+            <span class="rotulo">Saldo Atual</span>
             <span class="valor">R$ <?= number_format($saldoTotal, 2, ',', '.') ?></span>
         </div>
         <div class="cartao">
-            <div class="cartao-header-linha">
-                <span class="rotulo">Entradas do mês</span>
-                <span class="cartao-icone-badge badge-entradas" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M5 17.59L15.59 7H9V5h10v10h-2V8.41L6.41 19 5 17.59z"/></svg>
-                </span>
-            </div>
+            <span class="rotulo">Entradas do mês</span>
             <span class="valor positivo">R$ <?= number_format($receitasMes, 2, ',', '.') ?></span>
         </div>
         <div class="cartao">
-            <div class="cartao-header-linha">
-                <span class="rotulo">Despesas do mês</span>
-                <span class="cartao-icone-badge badge-despesas" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M19 6.41L8.41 17H15v2H5V9h2v6.59L17.59 5 19 6.41z"/></svg>
-                </span>
-            </div>
+            <span class="rotulo">Despesas do mês</span>
             <span class="valor negativo">R$ <?= number_format($despesasMes, 2, ',', '.') ?></span>
         </div>
         <div class="cartao">
-            <div class="cartao-header-linha">
-                <span class="rotulo">Fim do mês</span>
-                <span class="cartao-icone-badge badge-projecao" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/></svg>
-                </span>
-            </div>
-            <span class="valor valor-fim-mes">
+            <span class="rotulo">Fim do mês</span>
+            <span class="valor <?= $resultadoMes >= 0 ? 'positivo' : 'negativo' ?>">
                 R$ <?= number_format($resultadoMes, 2, ',', '.') ?>
             </span>
-            <span class="legenda-subtexto">Saldo projetado após fixas</span>
         </div>
     </section>
 
@@ -170,58 +149,22 @@ require_once "includes/layout_header.php";
                 <p class="vazio">Nenhum lançamento registrado ainda.</p>
             <?php else: ?>
                 <ul class="lista-lancamentos">
-                    <?php foreach ($ultimosLancamentos as $l): 
-                        $tipo = $l['type'] ?? 'expense';
-                        $status = $l['status'] ?? 'pending';
-                        $catNome = $l['categoria'] ?? 'Geral';
-                        $dataFmt = date('d M', strtotime($l['date']));
-                        $isPago = ($status === 'completed');
-                        $catLower = mb_strtolower($catNome);
-                    ?>
-                        <li class="item-lancamento-moderno">
-                            <div class="lancamento-col-esquerda">
-                                <div class="cat-icone-wrap" aria-hidden="true">
-                                    <?php
-                                    if (str_contains($catLower, 'aliment') || str_contains($catLower, 'mercado') || str_contains($catLower, 'lanche') || str_contains($catLower, 'restaurante')) {
-                                        echo '<svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>';
-                                    } elseif (str_contains($catLower, 'transporte') || str_contains($catLower, 'carro') || str_contains($catLower, 'uber') || str_contains($catLower, 'combustivel') || str_contains($catLower, 'gasolina')) {
-                                        echo '<svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>';
-                                    } elseif (str_contains($catLower, 'moradia') || str_contains($catLower, 'aluguel') || str_contains($catLower, 'casa') || str_contains($catLower, 'luz') || str_contains($catLower, 'agua') || str_contains($catLower, 'internet')) {
-                                        echo '<svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>';
-                                    } elseif (str_contains($catLower, 'saude') || str_contains($catLower, 'farmacia') || str_contains($catLower, 'medico') || str_contains($catLower, 'hospital')) {
-                                        echo '<svg viewBox="0 0 24 24"><path d="M19 10.5h-4.5V6h-5v4.5H5v5h4.5V20h5v-4.5H19z"/></svg>';
-                                    } elseif (str_contains($catLower, 'educa') || str_contains($catLower, 'curso') || str_contains($catLower, 'escola') || str_contains($catLower, 'faculdade')) {
-                                        echo '<svg viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>';
-                                    } elseif (str_contains($catLower, 'lazer') || str_contains($catLower, 'viagem') || str_contains($catLower, 'cinema') || str_contains($catLower, 'jogos') || str_contains($catLower, 'streaming')) {
-                                        echo '<svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>';
-                                    } elseif ($tipo === 'income' || str_contains($catLower, 'salario') || str_contains($catLower, 'renda') || str_contains($catLower, 'pix')) {
-                                        echo '<svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>';
-                                    } elseif (str_contains($catLower, 'invest')) {
-                                        echo '<svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>';
-                                    } else {
-                                        echo '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4 4 4 4-4 4 4V5c0-1.1-.9-2-2-2zm0 10l-2-2-4 4-4-4-2 2V5h12v8z"/></svg>';
-                                    }
-                                    ?>
-                                </div>
-                                <div class="info">
-                                    <span class="descricao"><?= htmlspecialchars($l['description'] ?: 'Sem descrição') ?></span>
-                                    <span class="categoria-sublinha">
-                                        <?= htmlspecialchars($catNome) ?> • <?= $dataFmt ?>
-                                        <span class="badge-status badge-<?= $status ?>"><?= $isPago ? 'Pago' : ($status === 'cancelled' ? 'Cancelado' : 'Pendente') ?></span>
-                                        <?php if (!$isPago && !empty($l['due_date'])): ?>
-                                            • vence <?= date('d/m', strtotime($l['due_date'])) ?>
-                                        <?php endif; ?>
-                                        <?php if (!$isPago && !empty($l['urgency']) && $l['urgency'] === 'alta'): ?>
-                                            • <span class="badge-urgencia-alta">urgente</span>
-                                        <?php endif; ?>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="lancamento-col-direita">
-                                <span class="valor-item <?= $tipo === 'income' ? 'positivo' : 'negativo' ?>">
-                                    <?= $tipo === 'income' ? '+' : '-' ?> R$ <?= number_format($l['amount'], 2, ',', '.') ?>
+                    <?php foreach ($ultimosLancamentos as $l): ?>
+                        <li>
+                            <div class="info">
+                                <span class="descricao"><?= htmlspecialchars($l['description'] ?: 'Sem descrição') ?></span>
+                                <span class="categoria">
+                                    <?= htmlspecialchars($l['categoria'] ?? 'Sem categoria') ?> · <?= date('d/m/Y', strtotime($l['date'])) ?>
+                                    · <span class="badge-status badge-<?= $l['status'] ?>"><?= $l['status'] === 'completed' ? 'Pago' : ($l['status'] === 'cancelled' ? 'Cancelado' : 'Pendente') ?></span>
+                                    <?php if (!empty($l['due_date'])): ?> · vence <?= date('d/m/Y', strtotime($l['due_date'])) ?><?php endif; ?>
+                                    <?php if (!empty($l['urgency'])): ?> · urgência <span class="<?= $l['urgency'] === 'alta' ? 'badge-urgencia-alta' : '' ?>"><?= ['baixa' => 'baixa', 'media' => 'média', 'alta' => 'alta'][$l['urgency']] ?? $l['urgency'] ?></span><?php endif; ?>
                                 </span>
-                                <div class="acoes-lancamento">
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+                                <span class="valor-item <?= $l['type'] === 'income' ? 'positivo' : 'negativo' ?>">
+                                    <?= $l['type'] === 'income' ? '+' : '-' ?> R$ <?= number_format($l['amount'], 2, ',', '.') ?>
+                                </span>
+                                <div style="display:flex; gap:6px;">
                                     <a href="edit_expense?id=<?= $l['id'] ?>" class="btn-acao-lancamento" title="Editar este lançamento">Editar</a>
                                     <form action="delete_expense" method="POST" style="margin:0; display:inline;" data-confirm="Deseja realmente excluir este lançamento?" data-confirm-title="Excluir Lançamento?">
                                         <?= Security::csrfField() ?>
@@ -237,24 +180,23 @@ require_once "includes/layout_header.php";
         </div>
 
         <div class="bloco grafico">
-            <div class="cabecalho-grafico-novo">
-                <h2 style="margin:0 0 12px 0;">Distribuição por Categoria</h2>
-                <div class="segmented-control-grafico">
-                    <button type="button" class="btn-segmented ativo" id="btnDespesas">Despesas</button>
-                    <button type="button" class="btn-segmented" id="btnReceitas">Receitas</button>
-                    <button type="button" class="btn-segmented" id="btnComparativo">Comparativo</button>
+            <div class="cabecalho-secao cabecalho-grafico">
+                <h2 style="margin:0;">Distribuição por Categoria</h2>
+                <div class="aba-grafico" style="margin-bottom:0;">
+                    <button type="button" class="btn-aba ativo" id="btnDespesas">Despesas</button>
+                    <button type="button" class="btn-aba" id="btnReceitas">Receitas</button>
+                    <button type="button" class="btn-aba" id="btnComparativo">Comparativo</button>
                 </div>
             </div>
+
+            <div id="totalTipoExibicao" class="total-exibicao-grafico"></div>
 
             <div id="containerGraficoCategorias" class="grafico-categorias-container">
                 <canvas id="graficoCategorias"></canvas>
-                <div id="donutCenterInfo" class="donut-center-info">
-                    <span class="donut-rotulo-centro" id="donutRotuloCentro">Total Despesas</span>
-                    <span class="donut-valor-centro" id="donutValorCentro">R$ 0,00</span>
-                </div>
             </div>
 
             <div id="containerDetalhesCategorias" class="lista-detalhes-categorias"></div>
+
         </div>
 
     </section>
@@ -357,16 +299,14 @@ const dadosDespesas = <?= json_encode($gastosPorCategoria) ?>;
 const dadosReceitas = <?= json_encode($receitasPorCategoria) ?>;
 
 const palette = [
-    '#6366F1', '#10B981', '#F43F5E', '#06B6D4',
-    '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#3B82F6'
+    '#D4AF6C', '#00C896', '#3282F6', '#A78BFA',
+    '#F472B6', '#E5B85C', '#64748B', '#38BDF8'
 ];
 
 const ctx = document.getElementById('graficoCategorias');
 const containerGrafico = document.getElementById('containerGraficoCategorias');
 const containerDetalhes = document.getElementById('containerDetalhesCategorias');
-const donutCenter = document.getElementById('donutCenterInfo');
-const donutRotulo = document.getElementById('donutRotuloCentro');
-const donutValor = document.getElementById('donutValorCentro');
+const totalTipoExibicao = document.getElementById('totalTipoExibicao');
 const btnDespesas = document.getElementById('btnDespesas');
 const btnReceitas = document.getElementById('btnReceitas');
 const btnComparativo = document.getElementById('btnComparativo');
@@ -378,9 +318,7 @@ function renderizarGrafico(lista, tituloTipo) {
     const totalGeral = lista.reduce((acc, item) => acc + parseFloat(item.total), 0);
     const temDados = lista.length > 0 && totalGeral > 0;
 
-    if (donutCenter) donutCenter.style.display = temDados ? 'flex' : 'none';
-    if (donutRotulo) donutRotulo.textContent = 'Total ' + tituloTipo;
-    if (donutValor) donutValor.textContent = 'R$ ' + totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    totalTipoExibicao.textContent = 'Total de ' + tituloTipo + ': R$ ' + totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
     const labels = temDados ? lista.map(item => item.categoria) : ['Sem ' + tituloTipo.toLowerCase() + ' no mês'];
     const data = temDados ? lista.map(item => parseFloat(item.total)) : [1];
@@ -397,22 +335,21 @@ function renderizarGrafico(lista, tituloTipo) {
             datasets: [{
                 data: data,
                 backgroundColor: cores,
-                borderColor: '#141824',
+                borderColor: '#0F171B',
                 borderWidth: 2
             }]
         },
         options: {
             responsive: true,
-            cutout: '72%',
             plugins: {
                 legend: { display: false },
                 tooltip: {
                     enabled: temDados,
-                    backgroundColor: '#131722',
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: '#1A2A30',
+                    borderColor: '#2B3A43',
                     borderWidth: 1,
-                    titleColor: '#F8FAFC',
-                    bodyColor: '#F8FAFC',
+                    titleColor: '#F4EFE3',
+                    bodyColor: '#F4EFE3',
                     padding: 10,
                     callbacks: {
                         label: function(context) {
@@ -441,13 +378,13 @@ function renderizarGrafico(lista, tituloTipo) {
         const row = document.createElement('div');
         row.className = 'item-detalhe-cat';
         row.innerHTML = `
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span class="cat-indicador" style="background:${cor}; width:9px; height:9px; border-radius:50%; display:inline-block; flex-shrink:0;"></span>
-                <span style="font-weight:500; font-size:13px; color:var(--color-text);">${item.categoria}</span>
+            <div style="display:flex; align-items:center;">
+                <span class="cat-indicador" style="background:${cor};"></span>
+                <span>${item.categoria}</span>
             </div>
-            <div style="display:flex; align-items:center; gap:8px; font-variant-numeric:tabular-nums;">
-                <span style="font-weight:600; font-size:13px; color:#FFFFFF;">R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                <span style="color:var(--color-text-secondary); font-size:12px;">(${pct}%)</span>
+            <div style="display:flex; gap:12px; font-weight:bold;">
+                <span style="color:var(--texto-secundario); font-size:12px;">${pct}%</span>
+                <span>R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
         `;
         containerDetalhes.appendChild(row);
@@ -456,8 +393,6 @@ function renderizarGrafico(lista, tituloTipo) {
 
 function renderizarGraficoComparativo() {
     containerGrafico.classList.add('modo-comparativo');
-    if (donutCenter) donutCenter.style.display = 'none';
-
     const categorias = [...new Set([
         ...dadosReceitas.map(item => item.categoria),
         ...dadosDespesas.map(item => item.categoria)
@@ -470,6 +405,7 @@ function renderizarGraficoComparativo() {
     const entradas = totalPorCategoria(dadosReceitas);
     const saidas = totalPorCategoria(dadosDespesas);
 
+    totalTipoExibicao.textContent = 'Entradas e saídas por categoria';
     containerDetalhes.innerHTML = '';
 
     if (chartInstance) {
