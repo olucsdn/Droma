@@ -16,6 +16,7 @@ const STATIC_PRECACHE = [
   'manifest.json',
   'offline.html',
   'favicon.ico',
+  'img/logo-sidebar.png',
   'img/favicon-darkmode.png',
   'img/icon-192.png',
   'img/icon-512.png',
