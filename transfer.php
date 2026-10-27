@@ -38,7 +38,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $fromId     = (int)($_POST['from_account_id'] ?? 0);
         $toId       = (int)($_POST['to_account_id'] ?? 0);
-        $valorRaw   = str_replace(',', '.', trim($_POST['amount'] ?? ''));
+        $valorRaw   = trim($_POST['amount'] ?? '');
+        if (is_string($valorRaw)) {
+            $valorRaw = str_replace(['R$', ' '], '', $valorRaw);
+            if (str_contains($valorRaw, ',') && str_contains($valorRaw, '.')) {
+                $valorRaw = str_replace('.', '', $valorRaw);
+                $valorRaw = str_replace(',', '.', $valorRaw);
+            } elseif (str_contains($valorRaw, ',')) {
+                $valorRaw = str_replace(',', '.', $valorRaw);
+            }
+        }
         $data       = trim($_POST['date'] ?? date('Y-m-d'));
         $descricao  = trim($_POST['description'] ?? '');
 
@@ -182,8 +191,9 @@ require_once "includes/layout_header.php";
                 </select>
             </label>
 
-            <label>Valor da Transferência (R$)
-                <input type="number" step="0.01" min="0.01" name="amount" placeholder="0,00" required autofocus>
+            <label>Valor da Transferência
+                <input type="text" id="amountDisplayTransfer" class="money-mask" data-target-name="amount" placeholder="R$ 0,00" autofocus>
+                <input type="hidden" name="amount" id="amountValueTransfer" value="0.00" required>
             </label>
 
             <label>Data da Transferência

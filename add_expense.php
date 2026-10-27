@@ -163,8 +163,9 @@ require_once "includes/layout_header.php";
         <input type="text" name="description" maxlength="255" placeholder="Ex: Supermercado, Salário...">
     </label>
 
-    <label>Valor (R$)
-        <input type="number" step="0.01" min="0.01" name="amount" placeholder="0,00" required autofocus>
+    <label>Valor
+        <input type="text" id="amountDisplay" class="money-mask" data-target-name="amount" placeholder="R$ 0,00" autofocus>
+        <input type="hidden" name="amount" id="amountValue" value="0.00" required>
     </label>
 
     <label>Forma de Pagamento
@@ -368,12 +369,12 @@ if (formLancamento) {
     } catch (e) {}
 
     function limparFormularioAposOffline() {
-        const amountInput = formLancamento.querySelector('input[name="amount"]');
-        const descInput = formLancamento.querySelector('input[name="description"]');
-        if (amountInput) {
-            amountInput.value = '';
-            amountInput.focus();
+        const amountDisplay = formLancamento.querySelector('#amountDisplay') || formLancamento.querySelector('.money-mask');
+        if (amountDisplay && amountDisplay.resetMoneyMask) {
+            amountDisplay.resetMoneyMask();
+            amountDisplay.focus();
         }
+        const descInput = formLancamento.querySelector('input[name="description"]');
         if (descInput) descInput.value = '';
     }
 

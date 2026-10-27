@@ -27,7 +27,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($acao === 'criar') {
             $tipo        = $_POST['type'] ?? 'expense';
             $descricao   = trim($_POST['description'] ?? '');
-            $valorRaw    = str_replace(',', '.', trim($_POST['amount'] ?? '0'));
+            $valorRaw    = trim($_POST['amount'] ?? '0');
+            if (is_string($valorRaw)) {
+                $valorRaw = str_replace(['R$', ' '], '', $valorRaw);
+                if (str_contains($valorRaw, ',') && str_contains($valorRaw, '.')) {
+                    $valorRaw = str_replace('.', '', $valorRaw);
+                    $valorRaw = str_replace(',', '.', $valorRaw);
+                } elseif (str_contains($valorRaw, ',')) {
+                    $valorRaw = str_replace(',', '.', $valorRaw);
+                }
+            }
             $accountId   = (int)($_POST['account_id'] ?? 0);
             $categoryId  = (int)($_POST['category_id'] ?? 0);
             $frequencia  = $_POST['frequency'] ?? 'monthly';
@@ -340,8 +349,9 @@ require_once "includes/layout_header.php";
                     <input type="text" name="description" placeholder="Ex: Aluguel, Netflix, Internet, Salário..." maxlength="150" required>
                 </label>
 
-                <label>Valor (R$)
-                    <input type="number" step="0.01" min="0.01" name="amount" placeholder="0,00" required>
+                <label>Valor
+                    <input type="text" id="amountDisplayRecurring" class="money-mask" data-target-name="amount" placeholder="R$ 0,00">
+                    <input type="hidden" name="amount" id="amountValueRecurring" value="0.00" required>
                 </label>
 
                 <label>Conta Bancária

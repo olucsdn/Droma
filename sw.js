@@ -12,6 +12,7 @@ const STATIC_PRECACHE = [
   'js/theme.js',
   'js/app.js',
   'js/offline-manager.js',
+  'js/money-mask.js',
   'manifest.json',
   'offline.html',
   'img/favicon-darkmode.png',

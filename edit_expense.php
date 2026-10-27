@@ -27,7 +27,17 @@ $erro = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $type        = $_POST['type'] ?? '';
     $description = trim($_POST['description'] ?? '');
-    $amount      = $_POST['amount'] ?? '';
+    $amountRaw   = trim($_POST['amount'] ?? '');
+    if (is_string($amountRaw)) {
+        $amountRaw = str_replace(['R$', ' '], '', $amountRaw);
+        if (str_contains($amountRaw, ',') && str_contains($amountRaw, '.')) {
+            $amountRaw = str_replace('.', '', $amountRaw);
+            $amountRaw = str_replace(',', '.', $amountRaw);
+        } elseif (str_contains($amountRaw, ',')) {
+            $amountRaw = str_replace(',', '.', $amountRaw);
+        }
+    }
+    $amount      = is_numeric($amountRaw) ? (float)$amountRaw : 0;
     $accountId   = $_POST['account_id'] ?? '';
     $categoryId  = $_POST['category_id'] ?? '';
     $creditCardId = !empty($_POST['credit_card_id']) && is_numeric($_POST['credit_card_id']) ? (int)$_POST['credit_card_id'] : null;
@@ -172,8 +182,9 @@ require_once "includes/layout_header.php";
             <input type="text" name="description" maxlength="255" value="<?= htmlspecialchars($lancamento['description'] ?? '') ?>" placeholder="Ex: Supermercado, Salário...">
         </label>
 
-        <label>Valor (R$)
-            <input type="number" step="0.01" min="0.01" name="amount" value="<?= htmlspecialchars($lancamento['amount'] ?? '') ?>" required autofocus>
+        <label>Valor
+            <input type="text" id="amountDisplay" class="money-mask" data-target-name="amount" data-initial-value="<?= htmlspecialchars((string)($lancamento['amount'] ?? '0.00')) ?>" placeholder="R$ 0,00" autofocus>
+            <input type="hidden" name="amount" id="amountValue" value="<?= htmlspecialchars((string)($lancamento['amount'] ?? '0.00')) ?>" required>
         </label>
 
         <label>Conta Bancária

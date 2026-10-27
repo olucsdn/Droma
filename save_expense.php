@@ -16,7 +16,16 @@ if (!Security::validateCsrf($csrfToken)) {
 
 $type           = $_POST['type'] ?? '';
 $description    = trim($_POST['description'] ?? '');
-$amountRaw      = str_replace(',', '.', trim($_POST['amount'] ?? ''));
+$amountRaw      = trim($_POST['amount'] ?? '');
+if (is_string($amountRaw)) {
+    $amountRaw = str_replace(['R$', ' '], '', $amountRaw);
+    if (str_contains($amountRaw, ',') && str_contains($amountRaw, '.')) {
+        $amountRaw = str_replace('.', '', $amountRaw);
+        $amountRaw = str_replace(',', '.', $amountRaw);
+    } elseif (str_contains($amountRaw, ',')) {
+        $amountRaw = str_replace(',', '.', $amountRaw);
+    }
+}
 $accountId      = $_POST['account_id'] ?? '';
 $categoryId     = $_POST['category_id'] ?? '';
 $date           = $_POST['date'] ?? '';
