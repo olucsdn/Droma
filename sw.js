@@ -2,7 +2,7 @@
  * Droma — Service Worker v7.0 (Modal Customizado & Offline-First)
  * Garante que CSS, JS e recursos visuais NUNCA falhem, mesmo sob rede instável ou offline.
  */
-const CACHE_NAME = 'droma-cache-v7';
+const CACHE_NAME = 'droma-cache-v8';
 
 // Apenas assets estáticos essenciais que NUNCA exigem autenticação ou redirecionamento
 const STATIC_PRECACHE = [
