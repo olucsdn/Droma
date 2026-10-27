@@ -582,7 +582,7 @@ function abrirDetalhesDia(dia) {
                                 <button type="submit" class="btn-acao-lancamento" title="Alterar status de pagamento">${botaoToggleTexto}</button>
                             </form>
                             <a href="edit_expense?id=${item.id}&origem=calendario" class="btn-acao-lancamento" title="Editar este lançamento">Editar</a>
-                            <form method="POST" action="delete_expense" style="display:inline;" onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
+                            <form method="POST" action="delete_expense" style="display:inline;" data-confirm="Deseja realmente excluir este lançamento?" data-confirm-title="Excluir Lançamento?">
                                 <input type="hidden" name="csrf_token" value="${csrfToken}">
                                 <input type="hidden" name="id" value="${item.id}">
                                 <input type="hidden" name="origem" value="calendario">

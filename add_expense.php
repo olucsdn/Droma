@@ -361,12 +361,24 @@ atualizarBotao();
 const formLancamento = document.querySelector('.form-lancamento');
 if (formLancamento) {
     // 1. Salva metadados de contas e categorias em cache para uso offline
-    try {
-        const contas = Array.from(document.querySelectorAll('#accountSelect option')).map(o => ({ id: o.value, name: o.textContent.trim() }));
-        const categorias = Array.from(document.querySelectorAll('#categoriaSelect option')).map(o => ({ id: o.value, name: o.textContent.trim(), type: o.getAttribute('data-type') }));
-        const cartoes = Array.from(document.querySelectorAll('#cardSelect option')).map(o => ({ id: o.value, name: o.textContent.trim() }));
-        window.DromaOffline?.cacheMetadata({ contas, categorias, cartoes });
-    } catch (e) {}
+    function salvarMetadadosOffline() {
+        try {
+            const contas = Array.from(document.querySelectorAll('#accountSelect option')).map(o => ({ id: o.value, name: o.textContent.trim() })).filter(c => c.id);
+            const categorias = Array.from(document.querySelectorAll('#categoriaSelect option')).map(o => ({ id: o.value, name: o.textContent.trim(), type: o.getAttribute('data-type') })).filter(c => c.id);
+            const cartoes = Array.from(document.querySelectorAll('#cardSelect option')).map(o => ({ id: o.value, name: o.textContent.trim() })).filter(c => c.id);
+            if (window.DromaOffline?.cacheMetadata) {
+                window.DromaOffline.cacheMetadata({ contas, categorias, cartoes });
+            } else {
+                localStorage.setItem('droma_cached_meta', JSON.stringify({ contas, categorias, cartoes, cached_at: Date.now() }));
+            }
+        } catch (e) {}
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', salvarMetadadosOffline);
+    } else {
+        salvarMetadadosOffline();
+    }
 
     function limparFormularioAposOffline() {
         const amountDisplay = formLancamento.querySelector('#amountDisplay') || formLancamento.querySelector('.money-mask');
@@ -376,6 +388,16 @@ if (formLancamento) {
         }
         const descInput = formLancamento.querySelector('input[name="description"]');
         if (descInput) descInput.value = '';
+    }
+
+    async function persistirLocalmente(tx) {
+        if (window.DromaOffline?.savePendingTransaction) {
+            return await window.DromaOffline.savePendingTransaction(tx);
+        }
+        const cur = JSON.parse(localStorage.getItem('droma_fallback_pending') || '[]');
+        cur.push({ ...tx, created_at_local: new Date().toISOString() });
+        localStorage.setItem('droma_fallback_pending', JSON.stringify(cur));
+        return tx.client_id;
     }
 
     formLancamento.addEventListener('submit', async (e) => {
@@ -399,16 +421,29 @@ if (formLancamento) {
             urgency: formData.get('urgency') || 'media'
         };
 
-        // Validação mínima de valor
-        const numVal = parseFloat(txData.amount.replace(',', '.'));
+        // Validação flexível e robusta de valor monetário
+        let numVal = parseFloat(String(txData.amount).replace(',', '.'));
         if (isNaN(numVal) || numVal <= 0) {
-            window.DromaOffline?.showToast('Por favor, informe um valor válido maior que zero.', 'warning');
+            const displayVal = formLancamento.querySelector('#amountDisplay')?.value || '';
+            const cleanDigits = displayVal.replace(/\D/g, '');
+            if (cleanDigits && parseInt(cleanDigits, 10) > 0) {
+                numVal = parseInt(cleanDigits, 10) / 100;
+                txData.amount = numVal.toFixed(2);
+            }
+        }
+
+        if (isNaN(numVal) || numVal <= 0) {
+            if (window.DromaOffline?.showToast) {
+                window.DromaOffline.showToast('Por favor, informe um valor maior que R$ 0,00.', 'warning');
+            } else {
+                alert('Por favor, informe um valor maior que R$ 0,00.');
+            }
             return;
         }
 
         // Cenário 1: Se estiver offline comprovadamente
         if (!navigator.onLine) {
-            await window.DromaOffline?.savePendingTransaction(txData);
+            await persistirLocalmente(txData);
             limparFormularioAposOffline();
             return;
         }
@@ -445,11 +480,28 @@ if (formLancamento) {
                 return;
             }
 
+            // Se for erro do cliente (ex: 400 ou 422), alerta o usuário sem registrar no offline
+            if (response.status >= 400 && response.status < 500) {
+                const errText = await response.text();
+                throw new Error(errText || `Erro na validação (${response.status})`);
+            }
+
             throw new Error(`Falha no servidor (HTTP ${response.status})`);
         } catch (err) {
-            console.warn('[Droma] Falha na rede ao salvar, registrando no IndexedDB local:', err);
-            await window.DromaOffline?.savePendingTransaction(txData);
-            limparFormularioAposOffline();
+            // Em caso de falha de conexão (offline intermitente), salva no IndexedDB
+            const isConnectionFailure = !navigator.onLine || err.name === 'TypeError';
+            if (isConnectionFailure) {
+                console.warn('[Droma] Falha na rede ao salvar, registrando no IndexedDB local:', err);
+                await persistirLocalmente(txData);
+                limparFormularioAposOffline();
+            } else {
+                console.error('[Droma] Erro na validação do lançamento:', err);
+                if (window.DromaOffline?.showToast) {
+                    window.DromaOffline.showToast('Erro ao salvar: ' + (err.message || 'Verifique os dados informados.'), 'warning');
+                } else {
+                    alert('Erro ao salvar: ' + (err.message || 'Verifique os dados informados.'));
+                }
+            }
         } finally {
             if (btnSalvar) {
                 btnSalvar.disabled = false;

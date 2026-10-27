@@ -548,7 +548,7 @@ require_once "includes/layout_header.php";
                                     <button type="button" class="btn-acao-lancamento" onclick="iniciarEdicaoInvestimento(<?= htmlspecialchars(json_encode($inv), ENT_QUOTES, 'UTF-8') ?>)">
                                         Editar
                                     </button>
-                                    <form action="investments" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir este investimento? As transações vinculadas permanecerão registradas.');">
+                                    <form action="investments" method="POST" style="margin:0;" data-confirm="Deseja realmente excluir este investimento? As transações vinculadas permanecerão registradas." data-confirm-title="Excluir Investimento?">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="acao" value="excluir">
                                         <input type="hidden" name="investment_id" value="<?= $inv['id'] ?>">

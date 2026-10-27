@@ -158,6 +158,18 @@
         }
 
         /**
+         * Resolve o endpoint da API de sincronização com suporte a subdiretórios
+         */
+        _getSyncUrl() {
+            try {
+                const basePath = window.location.pathname.replace(/\/[^\/]*$/, '/');
+                return new URL('api/v1/sync.php', window.location.origin + basePath).href;
+            } catch (e) {
+                return 'api/v1/sync.php';
+            }
+        }
+
+        /**
          * Guarda metadados essenciais (contas, categorias, cartões) para preencher a tela offline
          */
         async cacheMetadata(data) {
@@ -179,6 +191,33 @@
         }
 
         /**
+         * Auto-captura metadados da página atual se houver selects de contas e categorias
+         */
+        _autoCacheMetadata() {
+            try {
+                const accSelect = document.getElementById('accountSelect');
+                const catSelect = document.getElementById('categoriaSelect');
+                const cardSelect = document.getElementById('cardSelect');
+
+                if (accSelect && catSelect) {
+                    const contas = Array.from(accSelect.querySelectorAll('option'))
+                        .map(o => ({ id: o.value, name: o.textContent.trim() }))
+                        .filter(c => c.id);
+                    const categorias = Array.from(catSelect.querySelectorAll('option'))
+                        .map(o => ({ id: o.value, name: o.textContent.trim(), type: o.getAttribute('data-type') }))
+                        .filter(c => c.id);
+                    const cartoes = cardSelect ? Array.from(cardSelect.querySelectorAll('option'))
+                        .map(o => ({ id: o.value, name: o.textContent.trim() }))
+                        .filter(c => c.id) : [];
+
+                    if (contas.length > 0 || categorias.length > 0) {
+                        this.cacheMetadata({ contas, categorias, cartoes });
+                    }
+                }
+            } catch (e) {}
+        }
+
+        /**
          * Executa a sincronização de todos os lançamentos locais com o servidor
          */
         async syncPending() {
@@ -194,7 +233,8 @@
             this.showToast(`Sincronizando ${pending.length} lançamento(s) com a nuvem... 🔄`, 'info', 3000);
 
             try {
-                const response = await fetch('api/v1/sync.php', {
+                const syncUrl = this._getSyncUrl();
+                const response = await fetch(syncUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -204,22 +244,43 @@
                     body: JSON.stringify({ transactions: pending })
                 });
 
+                if (response.status === 401 || response.status === 403) {
+                    this.showToast('Sessão expirada. Faça login para sincronizar os lançamentos salvos localmente.', 'warning', 6000);
+                    return;
+                }
+
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
 
                 const result = await response.json();
                 if (result.success) {
-                    const syncedIds = (result.data?.results || [])
-                        .filter(r => r.status === 'synced')
-                        .map(r => r.client_id);
+                    const syncedIds = [];
+                    const errorIds = [];
 
+                    (result.data?.results || []).forEach(r => {
+                        if (r.status === 'synced') {
+                            syncedIds.push(r.client_id);
+                        } else if (r.status === 'error') {
+                            errorIds.push(r.client_id);
+                        }
+                    });
+
+                    // Remove lançamentos salvos com sucesso
                     if (syncedIds.length > 0) {
                         await this.removePending(syncedIds);
                         this.showToast(`✅ ${syncedIds.length} lançamento(s) sincronizado(s) com sucesso!`, 'success', 4000);
                         window.dispatchEvent(new CustomEvent('droma:synced', { detail: result.data }));
+                    }
 
-                        // Se estiver na tela inicial ou extrato, recarrega suavemente após 1.2s para refletir novos saldos
+                    // Remove lançamentos inválidos para evitar loop perpétuo de requisições
+                    if (errorIds.length > 0) {
+                        await this.removePending(errorIds);
+                        this.showToast(`⚠️ ${errorIds.length} lançamento(s) continham dados inválidos e foram descartados.`, 'warning', 5000);
+                    }
+
+                    // Se estiver na tela inicial ou extrato, recarrega suavemente após 1.2s para refletir novos saldos
+                    if (syncedIds.length > 0) {
                         const path = window.location.pathname;
                         if (path.endsWith('/') || path.endsWith('index.php') || path.endsWith('statement') || path.endsWith('statement.php')) {
                             setTimeout(() => {
@@ -336,6 +397,9 @@
                 this.updateBadge();
                 this.showToast('Você está offline. Lançamentos serão salvos no aparelho. 📡', 'warning', 4000);
             });
+
+            // Auto-captura metadados para preenchimento de formulários offline
+            this._autoCacheMetadata();
 
             // Verifica pendências ao carregar
             if (navigator.onLine) {

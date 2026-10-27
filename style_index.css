@@ -3446,4 +3446,178 @@ body {
     transition: all 0.2s ease;
 }
 
+/* ==============================================================================
+   DROMA CONFIRMATION DIALOG MODAL (Substituto do confirm() nativo)
+   ============================================================================== */
+.droma-confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.74);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.droma-confirm-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.droma-confirm-card {
+    background: var(--color-surface, #121826);
+    border: 1px solid var(--color-border, #1F2A3F);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    max-width: 400px;
+    width: 100%;
+    padding: 28px 24px 24px;
+    text-align: center;
+    transform: scale(0.92) translateY(12px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+}
+
+.droma-confirm-backdrop.active .droma-confirm-card {
+    transform: scale(1) translateY(0);
+}
+
+.droma-confirm-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.droma-confirm-icon-wrap.danger {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    color: #EF4444;
+}
+
+.droma-confirm-icon-wrap.info {
+    background: rgba(212, 175, 108, 0.12);
+    border: 1px solid rgba(212, 175, 108, 0.28);
+    color: var(--color-gold, #D4AF6C);
+}
+
+.droma-confirm-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--color-text, #F8FAFC);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.3px;
+}
+
+.droma-confirm-msg {
+    font-size: 14.5px;
+    color: var(--color-text-secondary, #94A3B8);
+    line-height: 1.55;
+    margin: 0 0 24px 0;
+    word-break: break-word;
+}
+
+.droma-confirm-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-confirm-cancel {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border, #1F2A3F);
+    color: var(--color-text-secondary, #94A3B8);
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.btn-confirm-cancel:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: var(--color-text, #F8FAFC);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-confirm-danger {
+    flex: 1;
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    border: none;
+    color: #FFFFFF;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.btn-confirm-danger:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(239, 68, 68, 0.35);
+}
+
+.btn-confirm-primary {
+    flex: 1;
+    background: var(--gold-gradient, linear-gradient(135deg, #F7E5B8 0%, #D4AF6C 50%, #A17632 100%));
+    border: none;
+    color: #0A0E17;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 14px rgba(212, 175, 108, 0.25);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.btn-confirm-primary:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+/* Ajustes Específicos para Modo Claro */
+:root[data-theme="light"] .droma-confirm-card {
+    background: #FFFFFF !important;
+    border-color: #E2E8F0 !important;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2) !important;
+}
+
+:root[data-theme="light"] .droma-confirm-title {
+    color: #0F172A !important;
+}
+
+:root[data-theme="light"] .droma-confirm-msg {
+    color: #64748B !important;
+}
+
+:root[data-theme="light"] .btn-confirm-cancel {
+    background: #F1F5F9 !important;
+    border-color: #CBD5E1 !important;
+    color: #475569 !important;
+}
+
+:root[data-theme="light"] .btn-confirm-cancel:hover {
+    background: #E2E8F0 !important;
+    color: #0F172A !important;
+}
+
+
 

@@ -466,7 +466,7 @@ require_once "includes/layout_header.php";
                         🛡️ As transações do arquivo serão associadas ao seu usuário autenticado sem sobrescrever registros pré-existentes.
                     </div>
 
-                    <button type="submit" class="sair" style="height:42px; cursor:pointer; font-size:14px; margin-top:8px;" onclick="return confirm('Deseja iniciar a restauração dos dados do arquivo selecionado?')">
+                    <button type="submit" class="sair" style="height:42px; cursor:pointer; font-size:14px; margin-top:8px;" data-confirm="Deseja iniciar a restauração dos dados do arquivo selecionado?" data-confirm-title="Restaurar Backup?" data-confirm-btn="Restaurar" data-confirm-type="info">
                         🔄 Iniciar Restauração
                     </button>
                 </form>

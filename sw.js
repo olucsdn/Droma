@@ -1,8 +1,8 @@
 /**
- * Droma — Service Worker v5.0 (Offline-First Resiliente)
+ * Droma — Service Worker v7.0 (Modal Customizado & Offline-First)
  * Garante que CSS, JS e recursos visuais NUNCA falhem, mesmo sob rede instável ou offline.
  */
-const CACHE_NAME = 'droma-cache-v5';
+const CACHE_NAME = 'droma-cache-v7';
 
 // Apenas assets estáticos essenciais que NUNCA exigem autenticação ou redirecionamento
 const STATIC_PRECACHE = [
@@ -15,6 +15,7 @@ const STATIC_PRECACHE = [
   'js/money-mask.js',
   'manifest.json',
   'offline.html',
+  'favicon.ico',
   'img/favicon-darkmode.png',
   'img/icon-192.png',
   'img/icon-512.png',
@@ -69,26 +70,40 @@ self.addEventListener('fetch', event => {
           const networkResponse = await fetch(request);
           if (networkResponse && networkResponse.status === 200) {
             const copy = networkResponse.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(request, copy);
+              // Salva aliases canônicos para garantir navegação offline instantânea
+              if (url.pathname.includes('add_expense')) {
+                cache.put('add_expense', copy.clone()).catch(() => {});
+                cache.put('add_expense.php', copy.clone()).catch(() => {});
+              }
+              if (url.pathname === '/' || url.pathname.endsWith('/') || url.pathname.endsWith('/index.php')) {
+                cache.put('./', copy.clone()).catch(() => {});
+              }
+            });
           }
           return networkResponse;
         } catch (err) {
-          // Offline: tenta em cache
+          // 1. Tenta match direto na requisição (ignorando query parameters)
           const cachedPage = await caches.match(request, { ignoreSearch: true }) ||
                              await caches.match(url.pathname, { ignoreSearch: true });
           if (cachedPage) return cachedPage;
 
+          // 2. Se for formulário de lançamento
           if (url.pathname.includes('add_expense')) {
             const addPage = await caches.match('add_expense', { ignoreSearch: true }) ||
                             await caches.match('add_expense.php', { ignoreSearch: true });
             if (addPage) return addPage;
           }
 
-          if (url.pathname === '/' || url.pathname.endsWith('/index.php')) {
-            const homePage = await caches.match('./', { ignoreSearch: true });
+          // 3. Se for painel / página inicial
+          if (url.pathname === '/' || url.pathname.endsWith('/') || url.pathname.endsWith('/index.php')) {
+            const homePage = await caches.match('./', { ignoreSearch: true }) ||
+                             await caches.match('index.php', { ignoreSearch: true });
             if (homePage) return homePage;
           }
 
+          // 4. Fallback final elegante: tela offline autônoma
           const offlinePage = await caches.match('offline.html', { ignoreSearch: true });
           if (offlinePage) return offlinePage;
 
@@ -105,28 +120,28 @@ self.addEventListener('fetch', event => {
   if (/\.(css|js|svg|png|jpg|jpeg|webp|woff2?|ico)$/i.test(url.pathname)) {
     event.respondWith(
       (async () => {
-        const cleanPath = url.pathname.replace(/^\//, ''); // ex: "style_index.css"
+        const filename = url.pathname.split('/').pop(); // ex: "style_index.css"
 
-        // Busca no cache primeiro (por URL completa, com ignoreSearch, ou por cleanPath)
+        // Busca no cache primeiro por request, por nome do arquivo ou por pathname
         const cached = await caches.match(request, { ignoreSearch: true }) ||
-                       await caches.match(cleanPath, { ignoreSearch: true }) ||
-                       await caches.match('/' + cleanPath, { ignoreSearch: true });
+                       (filename ? await caches.match(filename, { ignoreSearch: true }) : null) ||
+                       await caches.match(url.pathname, { ignoreSearch: true });
 
-        // Tenta buscar da rede para atualizar o cache
+        // Tenta buscar da rede para atualizar o cache (Stale-While-Revalidate)
         const networkFetch = fetch(request)
           .then(networkResponse => {
             if (networkResponse && networkResponse.status === 200) {
               const copy = networkResponse.clone();
               caches.open(CACHE_NAME).then(cache => {
                 cache.put(request, copy);
-                cache.put(cleanPath, copy.clone());
+                if (filename) cache.put(filename, copy.clone()).catch(() => {});
               });
             }
             return networkResponse;
           })
           .catch(() => null);
 
-        // Se temos em cache, retorna IMEDIATAMENTE (stale-while-revalidate)
+        // Se temos em cache, retorna imediatamente
         if (cached) {
           return cached;
         }
@@ -137,14 +152,18 @@ self.addEventListener('fetch', event => {
           return networkResponse;
         }
 
-        // Se a rede falhou e era CSS, retorna fallback seguro para nunca deixar o HTML quebrado
+        // Se a rede falhou e era CSS, tenta servir uma folha de estilos básica cacheada em vez de arquivo vazio
         if (url.pathname.endsWith('.css')) {
-          return new Response('/* Offline safe CSS fallback */', {
+          const fallbackCss = await caches.match('style_index.css', { ignoreSearch: true }) ||
+                              await caches.match('style_form.css', { ignoreSearch: true });
+          if (fallbackCss) return fallbackCss;
+
+          return new Response('/* Offline fallback CSS */', {
             headers: { 'Content-Type': 'text/css; charset=utf-8' }
           });
         }
 
-        // Fallback genérico para imagens ou JS
+        // Fallback genérico para imagens ou JS indisponíveis
         return new Response('', { status: 408, statusText: 'Resource Offline' });
       })()
     );

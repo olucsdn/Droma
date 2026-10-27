@@ -65,6 +65,13 @@ try {
     $stmtAccDef->execute([$userId]);
     $defaultAccountId = (int)$stmtAccDef->fetchColumn();
 
+    // Se o usuário não tiver conta cadastrada, cria a Carteira Principal para evitar falha de FK
+    if ($defaultAccountId === 0) {
+        $insAcc = $pdo->prepare("INSERT INTO accounts (user_id, name, type, initial_balance) VALUES (?, 'Carteira Principal', 'checking', 0.00)");
+        $insAcc->execute([$userId]);
+        $defaultAccountId = (int)$pdo->lastInsertId();
+    }
+
     $stmtCatDefInc = $pdo->prepare("SELECT id FROM categories WHERE user_id = ? AND type = 'income' ORDER BY id ASC LIMIT 1");
     $stmtCatDefInc->execute([$userId]);
     $defaultCatIncome = (int)$stmtCatDefInc->fetchColumn();
@@ -72,6 +79,30 @@ try {
     $stmtCatDefExp = $pdo->prepare("SELECT id FROM categories WHERE user_id = ? AND type = 'expense' ORDER BY id ASC LIMIT 1");
     $stmtCatDefExp->execute([$userId]);
     $defaultCatExpense = (int)$stmtCatDefExp->fetchColumn();
+
+    // Se faltarem categorias padrão, cria categorias essenciais automaticamente
+    if ($defaultCatExpense === 0 || $defaultCatIncome === 0) {
+        $defaultsCat = [
+            ['Alimentação', 'expense'],
+            ['Transporte', 'expense'],
+            ['Moradia', 'expense'],
+            ['Outros', 'expense'],
+            ['Salário', 'income'],
+            ['Investimentos', 'income']
+        ];
+        $insCat = $pdo->prepare("INSERT INTO categories (user_id, name, type) VALUES (?, ?, ?)");
+        foreach ($defaultsCat as [$cName, $cType]) {
+            try { $insCat->execute([$userId, $cName, $cType]); } catch (Throwable $e) {}
+        }
+        if ($defaultCatIncome === 0) {
+            $stmtCatDefInc->execute([$userId]);
+            $defaultCatIncome = (int)$stmtCatDefInc->fetchColumn();
+        }
+        if ($defaultCatExpense === 0) {
+            $stmtCatDefExp->execute([$userId]);
+            $defaultCatExpense = (int)$stmtCatDefExp->fetchColumn();
+        }
+    }
 
     foreach ($transactions as $item) {
         if (!is_array($item)) continue;

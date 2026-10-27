@@ -132,7 +132,7 @@ require_once "includes/layout_header.php";
                                     <button type="submit" class="btn-aba ativo" style="padding:4px 10px; font-size:11px;">Atualizar</button>
                                 </form>
 
-                                <form action="goals" method="POST" onsubmit="return confirm('Deseja realmente excluir esta meta?');">
+                                <form action="goals" method="POST" data-confirm="Deseja realmente excluir esta meta?" data-confirm-title="Excluir Meta?">
                                     <?= Security::csrfField() ?>
                                     <input type="hidden" name="acao" value="excluir">
                                     <input type="hidden" name="goal_id" value="<?= $m['id'] ?>">

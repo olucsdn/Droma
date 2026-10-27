@@ -166,7 +166,7 @@ require_once "includes/layout_header.php";
                                 </span>
                                 <div style="display:flex; gap:6px;">
                                     <a href="edit_expense?id=<?= $l['id'] ?>" class="btn-acao-lancamento" title="Editar este lançamento">Editar</a>
-                                    <form action="delete_expense" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
+                                    <form action="delete_expense" method="POST" style="margin:0; display:inline;" data-confirm="Deseja realmente excluir este lançamento?" data-confirm-title="Excluir Lançamento?">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="id" value="<?= (int)$l['id'] ?>">
                                         <button type="submit" class="btn-acao-lancamento btn-acao-excluir" style="border:none; cursor:pointer;" title="Excluir lançamento">Excluir</button>

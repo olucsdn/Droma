@@ -258,7 +258,7 @@ require_once "includes/layout_header.php";
                 <form method="POST" action="profile" style="display:inline;">
                     <?= Security::csrfField() ?>
                     <input type="hidden" name="acao" value="gerar_token">
-                    <button type="submit" class="sair" style="font-size:13px; padding:8px 16px; cursor:pointer;" onclick="return confirm('<?= !empty($apiToken) ? 'Regenerar o token invalidará a chave anterior. Deseja continuar?' : 'Gerar nova chave de API?' ?>')">
+                    <button type="submit" class="sair" style="font-size:13px; padding:8px 16px; cursor:pointer;" data-confirm="<?= !empty($apiToken) ? 'Regenerar o token invalidará a chave anterior. Deseja continuar?' : 'Gerar nova chave de API?' ?>" data-confirm-title="Chave de API" data-confirm-btn="Continuar" data-confirm-type="<?= !empty($apiToken) ? 'danger' : 'info' ?>">
                         <?= !empty($apiToken) ? '🔄 Regenerar Chave de API' : '🔑 Gerar Chave de API' ?>
                     </button>
                 </form>

@@ -160,10 +160,248 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Register Service Worker
+    // Register Service Worker & Pré-aquecimento de rotas vitais
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.debug('SW reg error:', err));
+
+            // Quando online e autenticado, pré-aquece formulário e páginas essenciais no cache
+            if ('caches' in window && navigator.onLine) {
+                setTimeout(() => {
+                    caches.open('droma-cache-v6').then(cache => {
+                        cache.add('add_expense').catch(() => {});
+                        cache.add('add_expense.php').catch(() => {});
+                        cache.add('./').catch(() => {});
+                    }).catch(() => {});
+                }, 2000);
+            }
         });
     }
 });
+
+// ==============================================================================
+// 4. Modal de Confirmação Global & Elegante (Substituto do confirm() nativo)
+// ==============================================================================
+(function() {
+    let confirmModal = null;
+    let confirmCallback = null;
+    let cancelCallback = null;
+
+    function createConfirmModal() {
+        let modal = document.getElementById('dromaConfirmModal');
+        if (modal) return modal;
+
+        modal = document.createElement('div');
+        modal.id = 'dromaConfirmModal';
+        modal.className = 'droma-confirm-backdrop';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.innerHTML = `
+            <div class="droma-confirm-card">
+                <div class="droma-confirm-icon-wrap danger" id="dromaConfirmIcon">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </div>
+                <h3 class="droma-confirm-title" id="dromaConfirmTitle">Confirmar Exclusão</h3>
+                <p class="droma-confirm-msg" id="dromaConfirmMsg">Deseja realmente excluir este item?</p>
+                <div class="droma-confirm-actions">
+                    <button type="button" class="btn-confirm-cancel" id="dromaConfirmCancel">Cancelar</button>
+                    <button type="button" class="btn-confirm-danger" id="dromaConfirmOk">Excluir</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        const btnOk = modal.querySelector('#dromaConfirmOk');
+        const btnCancel = modal.querySelector('#dromaConfirmCancel');
+
+        btnOk.addEventListener('click', () => {
+            closeModal();
+            if (typeof confirmCallback === 'function') {
+                confirmCallback();
+            }
+        });
+
+        btnCancel.addEventListener('click', () => {
+            closeModal();
+            if (typeof cancelCallback === 'function') {
+                cancelCallback();
+            }
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+                if (typeof cancelCallback === 'function') {
+                    cancelCallback();
+                }
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (modal.classList.contains('active') && e.key === 'Escape') {
+                closeModal();
+                if (typeof cancelCallback === 'function') {
+                    cancelCallback();
+                }
+            }
+        });
+
+        return modal;
+    }
+
+    function closeModal() {
+        if (!confirmModal) return;
+        confirmModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    window.DromaConfirm = {
+        show(options = {}) {
+            confirmModal = createConfirmModal();
+            const titleEl = confirmModal.querySelector('#dromaConfirmTitle');
+            const msgEl = confirmModal.querySelector('#dromaConfirmMsg');
+            const okBtn = confirmModal.querySelector('#dromaConfirmOk');
+            const cancelBtn = confirmModal.querySelector('#dromaConfirmCancel');
+            const iconWrap = confirmModal.querySelector('#dromaConfirmIcon');
+
+            titleEl.textContent = options.title || 'Confirmar ação';
+            msgEl.textContent = options.message || 'Deseja realmente continuar?';
+            okBtn.textContent = options.confirmText || 'Confirmar';
+            cancelBtn.textContent = options.cancelText || 'Cancelar';
+
+            const type = options.type || 'danger';
+            if (type === 'danger') {
+                okBtn.className = 'btn-confirm-danger';
+                iconWrap.className = 'droma-confirm-icon-wrap danger';
+                iconWrap.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                `;
+            } else {
+                okBtn.className = 'btn-confirm-primary';
+                iconWrap.className = 'droma-confirm-icon-wrap info';
+                iconWrap.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                `;
+            }
+
+            confirmCallback = options.onConfirm || null;
+            cancelCallback = options.onCancel || null;
+
+            confirmModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            setTimeout(() => {
+                cancelBtn.focus();
+            }, 60);
+        },
+        close: closeModal
+    };
+
+    function extrairMensagem(str) {
+        if (!str) return null;
+        const match = str.match(/confirm\s*\(\s*(['"`])(.*?)\1\s*\)/);
+        return match ? match[2] : null;
+    }
+
+    function sugerirTitulo(msg) {
+        const m = (msg || '').toLowerCase();
+        if (m.includes('lançamento') || m.includes('lancamento')) return 'Excluir Lançamento?';
+        if (m.includes('conta')) return 'Excluir Conta?';
+        if (m.includes('cartão') || m.includes('cartao')) return 'Excluir Cartão?';
+        if (m.includes('categoria')) return 'Excluir Categoria?';
+        if (m.includes('meta')) return 'Excluir Meta?';
+        if (m.includes('investimento')) return 'Excluir Investimento?';
+        if (m.includes('recorrência') || m.includes('recorrencia')) return 'Excluir Recorrência?';
+        if (m.includes('restauração') || m.includes('restauracao')) return 'Restaurar Dados?';
+        if (m.includes('token') || m.includes('chave')) return 'Gerar Chave de API?';
+        return 'Confirmar Exclusão?';
+    }
+
+    // 1. Interceptação global de envios de formulário
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (!form) return;
+
+        if (form._dromaConfirmed) {
+            return;
+        }
+
+        let confirmMsg = form.dataset.confirm || extrairMensagem(form.getAttribute('onsubmit'));
+        if (!confirmMsg) return;
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const title = form.dataset.confirmTitle || sugerirTitulo(confirmMsg);
+        const confirmBtnText = form.dataset.confirmBtn || 'Excluir';
+        const type = form.dataset.confirmType || 'danger';
+
+        window.DromaConfirm.show({
+            title: title,
+            message: confirmMsg,
+            confirmText: confirmBtnText,
+            cancelText: 'Cancelar',
+            type: type,
+            onConfirm: () => {
+                form._dromaConfirmed = true;
+                form.removeAttribute('onsubmit');
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+            }
+        });
+    }, true);
+
+    // 2. Interceptação de botões individuais com onclick="return confirm(...)" ou data-confirm
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('button, a, [data-confirm]');
+        if (!btn) return;
+
+        if (btn._dromaConfirmed) return;
+
+        let confirmMsg = btn.dataset.confirm || extrairMensagem(btn.getAttribute('onclick'));
+        if (!confirmMsg) return;
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const form = btn.closest('form');
+        const title = btn.dataset.confirmTitle || sugerirTitulo(confirmMsg);
+        const isDanger = confirmMsg.toLowerCase().includes('excluir') || confirmMsg.toLowerCase().includes('invalida');
+
+        window.DromaConfirm.show({
+            title: title,
+            message: confirmMsg,
+            confirmText: btn.dataset.confirmBtn || (isDanger ? 'Confirmar' : 'Continuar'),
+            cancelText: 'Cancelar',
+            type: isDanger ? 'danger' : 'info',
+            onConfirm: () => {
+                btn._dromaConfirmed = true;
+                btn.removeAttribute('onclick');
+                if (btn.tagName === 'A' && btn.href) {
+                    window.location.href = btn.href;
+                } else if (form) {
+                    form._dromaConfirmed = true;
+                    btn.click();
+                }
+            }
+        });
+    }, true);
+})();

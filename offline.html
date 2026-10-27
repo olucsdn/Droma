@@ -192,19 +192,254 @@
         <span id="offlineQueueText">Verificando dados locais...</span>
     </div>
 
-    <div class="btn-stack">
-        <a href="add_expense" class="btn-action-primary">
+    <div class="btn-stack" id="offlineInitialActions">
+        <button type="button" class="btn-action-primary" id="btnAbrirFormOffline">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             <span>Novo Lançamento Offline</span>
+        </button>
+        <a href="add_expense" class="btn-action-secondary">
+            Abrir Formulário Completo
         </a>
-        <a href="./" class="btn-action-secondary">
+        <a href="./" class="btn-action-secondary" style="border:none; font-size:13px; opacity:0.8;">
             Tentar Voltar ao Início
         </a>
     </div>
+
+    <!-- Formulário Autônomo para Gravação Direta no IndexedDB sem Internet -->
+    <div id="offlineFormWrap" style="display:none; text-align:left; margin-top:20px; animation: fadeIn 0.25s ease;">
+        <hr style="border:none; border-top:1px solid var(--border-color); margin-bottom:20px;">
+        <form id="offlineQuickForm">
+            <!-- Alternador de Tipo -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+                <button type="button" id="btnTypeExpense" class="type-toggle active" style="padding:10px; border-radius:10px; border:1px solid #EF4444; background:rgba(239, 68, 68, 0.15); color:#FCA5A5; font-weight:600; font-size:13px; cursor:pointer;">
+                    Saída (Despesa)
+                </button>
+                <button type="button" id="btnTypeIncome" class="type-toggle" style="padding:10px; border-radius:10px; border:1px solid var(--border-color); background:transparent; color:var(--text-secondary); font-weight:600; font-size:13px; cursor:pointer;">
+                    Entrada (Receita)
+                </button>
+                <input type="hidden" name="type" id="offlineTypeInput" value="expense">
+            </div>
+
+            <!-- Valor -->
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Valor</label>
+                <input type="text" id="offlineAmountDisplay" class="money-mask" placeholder="R$ 0,00" style="width:100%; padding:12px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border-color); border-radius:10px; color:var(--text-primary); font-size:18px; font-weight:700; outline:none;" autofocus>
+                <input type="hidden" name="amount" id="offlineAmountValue" value="0.00">
+            </div>
+
+            <!-- Descrição -->
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Descrição</label>
+                <input type="text" name="description" id="offlineDescInput" placeholder="Ex: Supermercado, Combustível, Salário..." maxlength="255" style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border-color); border-radius:10px; color:var(--text-primary); font-size:14px; outline:none;">
+            </div>
+
+            <!-- Categoria e Conta -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Categoria</label>
+                    <select name="category_id" id="offlineCategorySelect" style="width:100%; padding:10px 12px; background:var(--surface-color); border:1px solid var(--border-color); border-radius:10px; color:var(--text-primary); font-size:13.5px; outline:none;">
+                        <!-- Preenchido via JavaScript -->
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Conta</label>
+                    <select name="account_id" id="offlineAccountSelect" style="width:100%; padding:10px 12px; background:var(--surface-color); border:1px solid var(--border-color); border-radius:10px; color:var(--text-primary); font-size:13.5px; outline:none;">
+                        <!-- Preenchido via JavaScript -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Data -->
+            <div style="margin-bottom:18px;">
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Data</label>
+                <input type="date" name="date" id="offlineDateInput" style="width:100%; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border-color); border-radius:10px; color:var(--text-primary); font-size:14px; outline:none;">
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button type="submit" class="btn-action-primary" style="flex:1;">
+                    Salvar no Aparelho
+                </button>
+                <button type="button" id="btnCancelarFormOffline" class="btn-action-secondary" style="padding:10px 16px;">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
+<script src="js/theme.js"></script>
 <script src="js/offline-manager.js"></script>
+<script src="js/money-mask.js"></script>
 <script>
+    // Inicialização da tela offline autônoma
+    const defaultCategories = [
+        { id: '1', name: 'Alimentação', type: 'expense' },
+        { id: '2', name: 'Transporte', type: 'expense' },
+        { id: '3', name: 'Moradia', type: 'expense' },
+        { id: '4', name: 'Saúde', type: 'expense' },
+        { id: '5', name: 'Lazer', type: 'expense' },
+        { id: '6', name: 'Outros', type: 'expense' },
+        { id: '7', name: 'Salário', type: 'income' },
+        { id: '8', name: 'Investimentos', type: 'income' },
+        { id: '9', name: 'Outras Receitas', type: 'income' }
+    ];
+
+    const defaultAccounts = [
+        { id: '1', name: 'Carteira Principal' }
+    ];
+
+    // Data padrão de hoje
+    const dateInput = document.getElementById('offlineDateInput');
+    if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+
+    // Carrega categorias e contas do cache
+    function popularCampos() {
+        const meta = window.DromaOffline?.getCachedMetadata() || {};
+        const categories = (meta.categorias && meta.categorias.length > 0) ? meta.categorias : defaultCategories;
+        const accounts = (meta.contas && meta.contas.length > 0) ? meta.contas : defaultAccounts;
+
+        const catSelect = document.getElementById('offlineCategorySelect');
+        const accSelect = document.getElementById('offlineAccountSelect');
+        const currentType = document.getElementById('offlineTypeInput').value;
+
+        if (catSelect) {
+            catSelect.innerHTML = '';
+            categories
+                .filter(c => !c.type || c.type === currentType)
+                .forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.name;
+                    catSelect.appendChild(opt);
+                });
+        }
+
+        if (accSelect) {
+            accSelect.innerHTML = '';
+            accounts.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id;
+                opt.textContent = a.name;
+                accSelect.appendChild(opt);
+            });
+        }
+    }
+
+    // Alternância de tipo (Despesa / Receita)
+    const btnExp = document.getElementById('btnTypeExpense');
+    const btnInc = document.getElementById('btnTypeIncome');
+    const typeInput = document.getElementById('offlineTypeInput');
+
+    if (btnExp && btnInc) {
+        btnExp.addEventListener('click', () => {
+            typeInput.value = 'expense';
+            btnExp.style.background = 'rgba(239, 68, 68, 0.15)';
+            btnExp.style.borderColor = '#EF4444';
+            btnExp.style.color = '#FCA5A5';
+            btnInc.style.background = 'transparent';
+            btnInc.style.borderColor = 'var(--border-color)';
+            btnInc.style.color = 'var(--text-secondary)';
+            popularCampos();
+        });
+
+        btnInc.addEventListener('click', () => {
+            typeInput.value = 'income';
+            btnInc.style.background = 'rgba(16, 185, 129, 0.15)';
+            btnInc.style.borderColor = '#10B981';
+            btnInc.style.color = '#6EE7B7';
+            btnExp.style.background = 'transparent';
+            btnExp.style.borderColor = 'var(--border-color)';
+            btnExp.style.color = 'var(--text-secondary)';
+            popularCampos();
+        });
+    }
+
+    // Abertura e cancelamento do formulário offline
+    const btnAbrir = document.getElementById('btnAbrirFormOffline');
+    const btnCancelar = document.getElementById('btnCancelarFormOffline');
+    const initialActions = document.getElementById('offlineInitialActions');
+    const formWrap = document.getElementById('offlineFormWrap');
+
+    if (btnAbrir && formWrap) {
+        btnAbrir.addEventListener('click', () => {
+            initialActions.style.display = 'none';
+            formWrap.style.display = 'block';
+            popularCampos();
+            const amt = document.getElementById('offlineAmountDisplay');
+            if (amt) amt.focus();
+        });
+    }
+
+    if (btnCancelar && formWrap) {
+        btnCancelar.addEventListener('click', () => {
+            formWrap.style.display = 'none';
+            initialActions.style.display = 'flex';
+        });
+    }
+
+    // Submissão do formulário offline
+    const form = document.getElementById('offlineQuickForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const amountDisplay = document.getElementById('offlineAmountDisplay');
+            const hiddenAmount = document.getElementById('offlineAmountValue');
+            let rawValue = hiddenAmount?.value || '';
+
+            let numVal = parseFloat(rawValue);
+            if (isNaN(numVal) || numVal <= 0) {
+                const clean = (amountDisplay?.value || '').replace(/\D/g, '');
+                if (clean && parseInt(clean, 10) > 0) {
+                    numVal = parseInt(clean, 10) / 100;
+                    rawValue = numVal.toFixed(2);
+                }
+            }
+
+            if (isNaN(numVal) || numVal <= 0) {
+                window.DromaOffline?.showToast('Por favor, informe um valor maior que R$ 0,00.', 'warning');
+                amountDisplay?.focus();
+                return;
+            }
+
+            const txData = {
+                client_id: 'off_' + Date.now() + '_' + Math.random().toString(36).substr(2, 7),
+                type: typeInput.value || 'expense',
+                description: (document.getElementById('offlineDescInput')?.value || '').trim(),
+                amount: rawValue,
+                account_id: document.getElementById('offlineAccountSelect')?.value || null,
+                category_id: document.getElementById('offlineCategorySelect')?.value || null,
+                date: document.getElementById('offlineDateInput')?.value || new Date().toISOString().split('T')[0],
+                status: 'completed',
+                urgency: 'media'
+            };
+
+            if (window.DromaOffline?.savePendingTransaction) {
+                await window.DromaOffline.savePendingTransaction(txData);
+            } else {
+                const cur = JSON.parse(localStorage.getItem('droma_fallback_pending') || '[]');
+                cur.push({ ...txData, created_at_local: new Date().toISOString() });
+                localStorage.setItem('droma_fallback_pending', JSON.stringify(cur));
+            }
+
+            // Reseta formulário e volta à tela principal
+            if (amountDisplay && amountDisplay.resetMoneyMask) {
+                amountDisplay.resetMoneyMask();
+            } else if (amountDisplay) {
+                amountDisplay.value = '';
+            }
+            if (hiddenAmount) hiddenAmount.value = '0.00';
+            const desc = document.getElementById('offlineDescInput');
+            if (desc) desc.value = '';
+
+            formWrap.style.display = 'none';
+            initialActions.style.display = 'flex';
+            updateQueueDisplay();
+        });
+    }
+
     // Atualiza contagem de transações pendentes no IndexedDB
     async function updateQueueDisplay() {
         try {
@@ -212,7 +447,7 @@
             const el = document.getElementById('offlineQueueText');
             if (el) {
                 if (count > 0) {
-                    el.textContent = `${count} lançamento(s) salvos no aparelho aguardando conexão.`;
+                    el.textContent = `${count} lançamento(s) salvo(s) no aparelho aguardando conexão.`;
                 } else {
                     el.textContent = 'Nenhum lançamento pendente no aparelho.';
                 }
@@ -223,7 +458,11 @@
         }
     }
 
-    window.addEventListener('DOMContentLoaded', updateQueueDisplay);
+    window.addEventListener('DOMContentLoaded', () => {
+        popularCampos();
+        updateQueueDisplay();
+    });
+
     window.addEventListener('online', () => {
         window.location.reload();
     });

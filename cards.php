@@ -408,7 +408,7 @@ require_once "includes/layout_header.php";
                                     <button type="button" class="btn-acao-lancamento" onclick="iniciarEdicaoCartao(<?= htmlspecialchars(json_encode($card), ENT_QUOTES, 'UTF-8') ?>)">
                                         Editar
                                     </button>
-                                    <form action="cards" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir este cartão?');">
+                                    <form action="cards" method="POST" style="margin:0;" data-confirm="Deseja realmente excluir este cartão?" data-confirm-title="Excluir Cartão?">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="acao" value="excluir">
                                         <input type="hidden" name="card_id" value="<?= $card['id'] ?>">

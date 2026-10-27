@@ -300,7 +300,7 @@ require_once "includes/layout_header.php";
                                             Excluir
                                         </button>
                                     <?php else: ?>
-                                        <form action="categories" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir a categoria \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?');">
+                                        <form action="categories" method="POST" style="margin:0;" data-confirm="Deseja realmente excluir a categoria &quot;<?= htmlspecialchars($cat['name'], ENT_QUOTES) ?>&quot;?" data-confirm-title="Excluir Categoria?">
                                             <?= Security::csrfField() ?>
                                             <input type="hidden" name="acao" value="excluir">
                                             <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">
@@ -364,7 +364,7 @@ require_once "includes/layout_header.php";
                                         Excluir
                                     </button>
                                 <?php else: ?>
-                                    <form action="categories" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir a categoria \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?');">
+                                    <form action="categories" method="POST" style="margin:0;" data-confirm="Deseja realmente excluir a categoria &quot;<?= htmlspecialchars($cat['name'], ENT_QUOTES) ?>&quot;?" data-confirm-title="Excluir Categoria?">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="acao" value="excluir">
                                         <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">

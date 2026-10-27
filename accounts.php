@@ -281,7 +281,7 @@ require_once "includes/layout_header.php";
                                 Editar
                             </button>
 
-                            <form action="accounts" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir a conta \'<?= htmlspecialchars(addslashes($c['name'])) ?>\'?');">
+                            <form action="accounts" method="POST" style="margin:0;" data-confirm="Deseja realmente excluir a conta &quot;<?= htmlspecialchars($c['name'], ENT_QUOTES) ?>&quot;?" data-confirm-title="Excluir Conta?">
                                 <?= Security::csrfField() ?>
                                 <input type="hidden" name="acao" value="excluir">
                                 <input type="hidden" name="account_id" value="<?= $c['id'] ?>">

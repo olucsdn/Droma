@@ -315,7 +315,7 @@ require_once "includes/layout_header.php";
                                         </button>
                                     </form>
 
-                                    <form action="recurring" method="POST" style="margin:0;" onsubmit="return confirm('Deseja realmente excluir esta recorrência?');">
+                                    <form action="recurring" method="POST" style="margin:0;" data-confirm="Deseja realmente excluir esta recorrência?" data-confirm-title="Excluir Recorrência?">
                                         <?= Security::csrfField() ?>
                                         <input type="hidden" name="acao" value="excluir">
                                         <input type="hidden" name="id" value="<?= $r['id'] ?>">
