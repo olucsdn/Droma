@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheetAdicionar = document.getElementById('sheetAdicionar');
 
     // 1. Sidebar Collapse (Desktop)
-    const btnToggleSidebarTopbar = document.getElementById('btnToggleSidebarTopbar');
     const sidebarBrand = document.querySelector('.sidebar-brand');
 
     function toggleSidebar(forceState) {
@@ -41,10 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btnToggleSidebar.setAttribute('title', label);
             btnToggleSidebar.setAttribute('aria-label', label);
         }
-        if (btnToggleSidebarTopbar) {
-            btnToggleSidebarTopbar.setAttribute('title', label);
-            btnToggleSidebarTopbar.setAttribute('aria-label', label);
-        }
     }
 
     if (btnToggleSidebar) {
@@ -55,15 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (btnToggleSidebarTopbar) {
-        btnToggleSidebarTopbar.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleSidebar();
-        });
-    }
-
-    // Se a barra estiver recolhida e o usuário clicar no ícone "W", expande a barra suavemente
+    // Se a barra estiver recolhida e o usuário clicar na marca, expande a barra suavemente
     if (sidebarBrand) {
         sidebarBrand.addEventListener('click', (e) => {
             if (layout && layout.classList.contains('sidebar-collapsed')) {
@@ -80,10 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnToggleSidebar) {
         btnToggleSidebar.setAttribute('title', initialLabel);
         btnToggleSidebar.setAttribute('aria-label', initialLabel);
-    }
-    if (btnToggleSidebarTopbar) {
-        btnToggleSidebarTopbar.setAttribute('title', initialLabel);
-        btnToggleSidebarTopbar.setAttribute('aria-label', initialLabel);
     }
 
     // 2. User Avatar Dropdown

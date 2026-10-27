@@ -41,7 +41,7 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
                 <div class="brand-icon">D</div>
                 <div class="brand-text">Droma<span>.</span></div>
             </a>
-            <button type="button" class="sidebar-collapse-btn" id="btnToggleSidebar" title="Recolher / Expandir barra lateral" aria-label="Recolher barra lateral">
+            <button type="button" class="sidebar-collapse-btn" id="btnToggleSidebar" title="Recolher barra lateral" aria-label="Recolher barra lateral">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
             </button>
         </div>
@@ -193,11 +193,6 @@ $isSidebarCollapsed = (!empty($_COOKIE['droma_sidebar_collapsed']) ? $_COOKIE['d
                     <div class="brand-icon">D</div>
                     <div class="brand-text">Droma<span>.</span></div>
                 </a>
-
-                <!-- Botão de alternar barra lateral (Desktop) -->
-                <button type="button" class="topbar-sidebar-toggle-btn" id="btnToggleSidebarTopbar" title="Recolher / Expandir barra lateral" aria-label="Alternar barra lateral">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-                </button>
 
                 <!-- Desktop Greeting & Date -->
                 <div class="topbar-greeting-desktop">
