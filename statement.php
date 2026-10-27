@@ -173,13 +173,13 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
             $l['id'],
             date('d/m/Y', strtotime($l['date'])),
             $l['type'] === 'income' ? 'Entrada' : 'Saída',
-            $l['description'] ?: 'Sem descrição',
-            $l['categoria'] ?: 'Sem categoria',
-            $l['conta'] ?: 'Sem conta',
+            Security::sanitizeCsvCell($l['description'] ?: 'Sem descrição'),
+            Security::sanitizeCsvCell($l['categoria'] ?: 'Sem categoria'),
+            Security::sanitizeCsvCell($l['conta'] ?: 'Sem conta'),
             number_format($l['amount'], 2, ',', ''),
             $l['status'] === 'completed' ? 'Concluído' : ($l['status'] === 'pending' ? 'Pendente' : 'Cancelado'),
             !empty($l['due_date']) ? date('d/m/Y', strtotime($l['due_date'])) : '',
-            $l['urgency']
+            ['baixa' => 'Baixa', 'media' => 'Média', 'alta' => 'Alta'][$l['urgency']] ?? $l['urgency']
         ], ';', '"', "\\");
     }
     fclose($saida);

@@ -18,6 +18,8 @@ final class Security {
      * Garante que a sessão PHP esteja inicializada com configurações seguras e persistentes.
      */
     public static function initSession(): void {
+        self::applySecurityHeaders();
+
         if (session_status() === PHP_SESSION_NONE) {
             if (!headers_sent()) {
                 ini_set('session.use_only_cookies', '1');
@@ -46,6 +48,53 @@ final class Security {
     }
 
     /**
+     * Aplica cabeçalhos HTTP de segurança de defesa em profundidade (CSP, HSTS, X-Frame-Options, etc.)
+     */
+    public static function applySecurityHeaders(): void {
+        if (headers_sent()) {
+            return;
+        }
+
+        // HSTS (HTTP Strict Transport Security) - 1 ano se HTTPS
+        if (self::isHttps()) {
+            header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+        }
+
+        header('X-Frame-Options: SAMEORIGIN');
+        header('X-Content-Type-Options: nosniff');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+
+        // Content Security Policy defensivo e compatível com o ecossistema do Droma
+        $csp = "default-src 'self'; "
+             . "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+             . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+             . "font-src 'self' https://fonts.gstatic.com data:; "
+             . "img-src 'self' data: https: blob:; "
+             . "connect-src 'self'; "
+             . "frame-ancestors 'self'; "
+             . "form-action 'self'; "
+             . "base-uri 'self';";
+        header("Content-Security-Policy: {$csp}");
+    }
+
+    /**
+     * Auto-migração: garante que a coluna remember_token exista na tabela users
+     */
+    public static function ensureRememberColumn(PDO $pdo): void {
+        static $checked = false;
+        if ($checked) {
+            return;
+        }
+        try {
+            $pdo->exec("ALTER TABLE `users` ADD COLUMN `remember_token` varchar(64) DEFAULT NULL");
+        } catch (Throwable $e) {
+            // Coluna já existe ou sem permissão de alteração
+        }
+        $checked = true;
+    }
+
+    /**
      * Restaura a autenticação do usuário a partir do token persistente do dispositivo
      */
     private static function attemptRememberLogin(): void {
@@ -66,11 +115,31 @@ final class Security {
         }
 
         try {
-            $stmt = $pdo->prepare("SELECT id, name, role, email_verified_at, api_token FROM users WHERE id = ?");
+            self::ensureRememberColumn($pdo);
+            $tokenHash = hash('sha256', $token);
+
+            $stmt = $pdo->prepare("SELECT id, name, role, email_verified_at, remember_token, api_token FROM users WHERE id = ?");
             $stmt->execute([(int)$userId]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($user && !empty($user['api_token']) && hash_equals($user['api_token'], $token)) {
+            if (!$user) {
+                self::clearRememberCookie();
+                return;
+            }
+
+            $isValid = false;
+
+            // 1. Validação padrão: compara com o hash SHA-256 do remember_token isolado
+            if (!empty($user['remember_token']) && hash_equals($user['remember_token'], $tokenHash)) {
+                $isValid = true;
+            } 
+            // 2. Migração suave legada: se ainda usava api_token, migra automaticamente para remember_token hashed
+            elseif (!empty($user['api_token']) && hash_equals($user['api_token'], $token)) {
+                $isValid = true;
+                self::setRememberCookie((int)$user['id'], null, $pdo);
+            }
+
+            if ($isValid) {
                 if (!empty($user['email_verified_at'])) {
                     session_regenerate_id(true);
                     $_SESSION['user_id']           = (int)$user['id'];
@@ -88,11 +157,29 @@ final class Security {
     }
 
     /**
-     * Define o cookie de persistência seguro de longo prazo (60 dias)
+     * Define o cookie de persistência seguro de longo prazo (60 dias) com token hashed isolado
      */
-    public static function setRememberCookie(int $userId, string $apiToken): void {
-        $value = "{$userId}:{$apiToken}";
+    public static function setRememberCookie(int $userId, ?string $legacyToken = null, ?PDO $pdo = null): void {
+        if (!$pdo) {
+            require_once __DIR__ . '/../config/database.php';
+            global $pdo;
+        }
+
+        $rawToken = bin2hex(random_bytes(32));
         $isHttps = self::isHttps();
+
+        if ($pdo) {
+            try {
+                self::ensureRememberColumn($pdo);
+                $tokenHash = hash('sha256', $rawToken);
+                $upd = $pdo->prepare("UPDATE users SET remember_token = ? WHERE id = ?");
+                $upd->execute([$tokenHash, $userId]);
+            } catch (Throwable $e) {
+                error_log("[Remember Cookie Error] " . $e->getMessage());
+            }
+        }
+
+        $value = "{$userId}:{$rawToken}";
         setcookie('droma_remember', $value, [
             'expires'  => time() + (86400 * 60),
             'path'     => '/',
@@ -300,6 +387,24 @@ final class Security {
      */
     public static function escape(?string $value): string {
         return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Sanitiza células para exportação CSV, prevenindo Formula / CSV Injection (DDE)
+     */
+    public static function sanitizeCsvCell(mixed $value): string {
+        $str = (string) $value;
+        if ($str === '') {
+            return '';
+        }
+
+        // Se o primeiro caractere for interpretável como fórmula por planilhas (Excel, Calc, Sheets)
+        $firstChar = $str[0];
+        if (in_array($firstChar, ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "'" . $str;
+        }
+
+        return $str;
     }
 }
 

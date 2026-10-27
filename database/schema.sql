@@ -22,9 +22,11 @@ CREATE TABLE `users` (
   `reset_expires_at` timestamp NULL DEFAULT NULL,
   `verification_token` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
+  `remember_token` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `api_token` (`api_token`)
+  UNIQUE KEY `api_token` (`api_token`),
+  KEY `idx_remember_token` (`remember_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2. Tabela: accounts

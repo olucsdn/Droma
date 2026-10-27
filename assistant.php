@@ -102,7 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Recarrega contagem atualizada
             $usage = $ai->getDailyUsage($pdo, $userId);
         } catch (Throwable $e) {
-            $mensagemAlerta = "Nota: Não foi possível obter resposta em tempo real do serviço externo (" . $e->getMessage() . "). O Droma gerou um diagnóstico analítico local com base nos seus registros.";
+            error_log("[Assistant AI Error] Falha na chamada da IA: " . $e->getMessage());
+            $mensagemAlerta = "Nota: O assistente inteligente externo está temporariamente indisponível ou sobrecarregado. O Droma gerou automaticamente um diagnóstico analítico com base nos seus registros locais.";
             $analiseGerada = $ai->gerarAnaliseLocal($dadosAgregados);
             $tipoAnalise = 'local';
         }

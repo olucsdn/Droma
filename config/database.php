@@ -66,15 +66,17 @@ if ($enableSsl) {
         '/etc/pki/tls/certs/ca-bundle.crt',   // RedHat / CentOS
         '/etc/ssl/cert.pem',                  // Alpine / macOS
     ];
+    $foundCa = false;
     foreach ($caPaths as $path) {
         if (file_exists($path)) {
             $options[PDO::MYSQL_ATTR_SSL_CA] = $path;
+            $foundCa = true;
             break;
         }
     }
 
     if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
-        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = $foundCa;
     }
 }
 

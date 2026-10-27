@@ -14,6 +14,18 @@ final class ApiAuth {
     public static function authenticate(PDO $pdo): int {
         ApiResponse::handlePreflight();
 
+        // 1. Rate Limiting de Proteção contra DoS e Flood na API (120 req/min por IP)
+        require_once __DIR__ . '/RateLimiter.php';
+        $clientIp = RateLimiter::getClientIp();
+        $rateCheck = RateLimiter::check($pdo, 'api_request', $clientIp, 120, 60, 60);
+        if (!$rateCheck['allowed']) {
+            if (!headers_sent()) {
+                header('Retry-After: ' . max(1, $rateCheck['retry_after']));
+            }
+            ApiResponse::error('Muitas requisições enviadas para a API. Limite de taxa excedido. Aguarde alguns segundos.', 429);
+        }
+        RateLimiter::hit($pdo, 'api_request', $clientIp, 120, 60, 60);
+
         $token = self::extractToken();
 
         if ($token !== '') {

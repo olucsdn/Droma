@@ -80,19 +80,47 @@ final class ApiResponse {
     }
 
     /**
-     * Aplica cabeçalhos CORS restritivos (apenas mesma origem ou localhost)
+     * Aplica cabeçalhos CORS restritivos com whitelist rigorosa (imune a Host header spoofing)
      */
     private static function applyCorsHeaders(): void {
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-        $host   = $_SERVER['HTTP_HOST'] ?? '';
+        if ($origin === '') {
+            return;
+        }
 
-        if ($origin !== '' && $host !== '') {
-            $parsedHost = parse_url($origin, PHP_URL_HOST);
-            if ($parsedHost === $host || $parsedHost === 'localhost' || $parsedHost === '127.0.0.1') {
-                header("Access-Control-Allow-Origin: {$origin}");
-                header('Access-Control-Allow-Credentials: true');
+        $parsedOriginHost = parse_url($origin, PHP_URL_HOST);
+        if (!$parsedOriginHost) {
+            return;
+        }
+
+        // Whitelist explícita de domínios confiáveis
+        $allowedHosts = [
+            'droma-133b.onrender.com',
+            'localhost',
+            '127.0.0.1'
+        ];
+
+        // Se houver domínio configurado no ambiente (APP_URL), inclui na whitelist
+        $appUrl = getenv('APP_URL') ?: ($_ENV['APP_URL'] ?? '');
+        if ($appUrl !== '') {
+            $appHost = parse_url($appUrl, PHP_URL_HOST);
+            if ($appHost) {
+                $allowedHosts[] = strtolower($appHost);
             }
         }
+
+        // Também permite SERVER_NAME configurado no servidor web (Apache) se não for localhost
+        $serverName = $_SERVER['SERVER_NAME'] ?? '';
+        if ($serverName !== '' && !in_array($serverName, $allowedHosts, true)) {
+            $allowedHosts[] = strtolower($serverName);
+        }
+
+        if (in_array(strtolower($parsedOriginHost), $allowedHosts, true)) {
+            header("Access-Control-Allow-Origin: {$origin}");
+            header('Access-Control-Allow-Credentials: true');
+            header('Vary: Origin');
+        }
+
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
         header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-With, X-API-Key, X-CSRF-Token');
     }
