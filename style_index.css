@@ -1080,38 +1080,20 @@ body {
 /* Cards de Resumo */
 .cartoes {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     width: 100%;
     min-width: 0;
-    gap: 16px;
+    gap: 14px;
     margin-bottom: 24px;
 }
-@media (min-width: 1200px) {
-    .cartoes {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 992px) {
-    .app-layout.sidebar-collapsed .cartoes {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-}
-
-@container (min-width: 860px) {
-    .cartoes {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-}
-
 .cartao {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    padding: 18px;
+    padding: 16px 14px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     box-shadow: var(--shadow-card);
     transition: border-color 200ms ease, transform 200ms ease;
     min-width: 0;
