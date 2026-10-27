@@ -369,11 +369,26 @@ $tituloPeriodo = $mesSelecionado > 0 ? "{$nomesMeses[$mesSelecionado]} de {$anoS
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 16px;
             margin-bottom: 24px;
             width: 100%;
             min-width: 0;
+        }
+        @media (min-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+        @media (min-width: 992px) {
+            .app-layout.sidebar-collapsed .kpi-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+        @container (min-width: 860px) {
+            .kpi-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
         }
         @media (max-width: 768px) {
             .kpi-grid {
