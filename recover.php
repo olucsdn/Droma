@@ -1,5 +1,6 @@
 <?php
 require_once "src/Security.php";
+require_once "src/RateLimiter.php";
 require_once "config/database.php";
 require_once "src/Mailer.php";
 
@@ -12,15 +13,22 @@ if (!empty($_SESSION['user_id'])) {
 
 $mensagem = '';
 $sucesso = false;
+$clientIp = RateLimiter::getClientIp();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+    $recoverRateKey = $clientIp;
+    $rateCheck = RateLimiter::check($pdo, 'recover_password', $recoverRateKey, 3, 600, 900);
+
+    if (!$rateCheck['allowed']) {
+        $mensagem = $rateCheck['message'];
+    } elseif (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
         $mensagem = 'Sessão expirada ou requisição inválida. Tente novamente.';
     } else {
         $email = trim($_POST['email'] ?? '');
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $mensagem = 'Informe um e-mail válido.';
         } else {
+            RateLimiter::hit($pdo, 'recover_password', $recoverRateKey, 3, 600, 900);
             try {
                 $stmt = $pdo->prepare("SELECT id, name, email FROM users WHERE email = ?");
                 $stmt->execute([$email]);

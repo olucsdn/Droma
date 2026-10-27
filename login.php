@@ -1,5 +1,6 @@
 <?php
 require_once "src/Security.php";
+require_once "src/RateLimiter.php";
 require_once "config/database.php";
 
 Security::initSession();
@@ -14,19 +15,25 @@ $erro = $_GET['erro'] ?? '';
 $sucesso = $_GET['sucesso'] ?? '';
 $precisaVerificar = false;
 $emailNaoVerificado = '';
+$clientIp = RateLimiter::getClientIp();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $agora = time();
 
     // 1. Reenvio de e-mail de confirmação
     if (isset($_POST['action']) && $_POST['action'] === 'resend_verification') {
-        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+        $rateCheckResend = RateLimiter::check($pdo, 'resend_email', $clientIp, 3, 600, 900);
+
+        if (!$rateCheckResend['allowed']) {
+            $erro = $rateCheckResend['message'];
+        } elseif (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             $erro = "Sessão expirada ou requisição inválida. Tente novamente.";
         } else {
             $resendEmail = trim($_POST['email'] ?? '');
             if (empty($resendEmail) || !filter_var($resendEmail, FILTER_VALIDATE_EMAIL)) {
                 $erro = "Informe um e-mail válido para reenviar a confirmação.";
             } else {
+                RateLimiter::hit($pdo, 'resend_email', $clientIp, 3, 600, 900);
                 try {
                     $stmt = $pdo->prepare("SELECT id, name, email, email_verified_at FROM users WHERE email = ?");
                     $stmt->execute([$resendEmail]);
@@ -56,15 +63,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         // 2. Fluxo Normal de Login
-        if (!empty($_SESSION['login_lockout']) && $_SESSION['login_lockout'] > $agora) {
-            $restante = $_SESSION['login_lockout'] - $agora;
-            $erro = "Muitas tentativas incorretas. Por segurança, aguarde {$restante} segundos.";
+        $email = trim($_POST['email'] ?? '');
+        $senha = $_POST['senha'] ?? '';
+        $loginRateKey = $clientIp . ':' . strtolower($email);
+
+        $rateCheck = RateLimiter::check($pdo, 'login', $loginRateKey, 5, 300, 900);
+
+        if (!$rateCheck['allowed']) {
+            $erro = $rateCheck['message'];
         } elseif (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             $erro = "Sessão expirada ou requisição inválida. Tente novamente.";
         } else {
-            $email = trim($_POST['email'] ?? '');
-            $senha = $_POST['senha'] ?? '';
-
             if (empty($email) || empty($senha)) {
                 $erro = "Por favor, preencha todos os campos.";
             } else {
@@ -74,21 +83,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
                     if (!$user || !password_verify($senha, $user['password'])) {
-                        $_SESSION['login_failed_attempts'] = ($_SESSION['login_failed_attempts'] ?? 0) + 1;
-
-                        // Delay progressivo após 4 tentativas
-                        if ($_SESSION['login_failed_attempts'] >= 4) {
-                            sleep(2);
-                        }
-
-                        // Bloqueio temporário de 60 segundos após 7 falhas
-                        if ($_SESSION['login_failed_attempts'] >= 7) {
-                            $_SESSION['login_lockout'] = time() + 60;
-                            $erro = "Número máximo de tentativas atingido. Acesso bloqueado por 60 segundos.";
+                        $rateHit = RateLimiter::hit($pdo, 'login', $loginRateKey, 5, 300, 900);
+                        if (!$rateHit['allowed']) {
+                            $erro = $rateHit['message'];
                         } else {
-                            $erro = "E-mail ou senha incorretos.";
+                            $restantes = $rateHit['remaining'];
+                            $avisoTentativas = ($restantes <= 2 && $restantes > 0) ? " (Você tem mais {$restantes} tentativa(s) antes do bloqueio temporário)" : "";
+                            $erro = "E-mail ou senha incorretos." . $avisoTentativas;
                         }
                     } elseif (empty($user['email_verified_at'])) {
+                        // Sucesso na senha: limpa tentativas de login
+                        RateLimiter::clear($pdo, 'login', $loginRateKey);
+
                         // Senha correta, porém e-mail NÃO verificado -> Redireciona para tela de código de 6 dígitos
                         $code = $user['verification_token'] ?? '';
                         if (strlen($code) !== 6 || !ctype_digit($code)) {
@@ -110,7 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             exit;
                         }
                     } else {
-                        // Sucesso: limpa tentativas e autentica
+                        // Sucesso: limpa tentativas no banco e autentica
+                        RateLimiter::clear($pdo, 'login', $loginRateKey);
                         unset($_SESSION['login_failed_attempts'], $_SESSION['login_lockout']);
                         session_regenerate_id(true);
 

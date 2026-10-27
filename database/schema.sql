@@ -202,4 +202,20 @@ CREATE TABLE `ai_daily_usage` (
   CONSTRAINT `fk_ai_usage_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 11. Tabela: rate_limits (Proteção contra Brute Force, Flood e Abuso de Requisições)
+DROP TABLE IF EXISTS `rate_limits`;
+CREATE TABLE `rate_limits` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `rate_key` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `action` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attempts` int unsigned NOT NULL DEFAULT 1,
+  `first_attempt_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_attempt_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `blocked_until` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_rate_key` (`rate_key`),
+  KEY `idx_blocked_until` (`blocked_until`),
+  KEY `idx_action_last` (`action`, `last_attempt_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

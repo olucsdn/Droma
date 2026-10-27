@@ -1,5 +1,6 @@
 <?php
 require_once "src/Security.php";
+require_once "src/RateLimiter.php";
 require_once "config/database.php";
 require_once "src/Mailer.php";
 
@@ -14,9 +15,14 @@ if (!empty($_SESSION['user_id'])) {
 $erro = '';
 $nome = '';
 $email = '';
+$clientIp = RateLimiter::getClientIp();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+    $rateCheck = RateLimiter::check($pdo, 'register', $clientIp, 5, 3600, 1800);
+
+    if (!$rateCheck['allowed']) {
+        $erro = $rateCheck['message'];
+    } elseif (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
         $erro = 'Sessão expirada ou requisição inválida. Por favor, tente novamente.';
     } else {
         $nome           = trim($_POST['nome'] ?? '');
@@ -74,6 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     $pdo->commit();
+
+                    // Contabiliza a criação de conta no rate limiting por IP
+                    RateLimiter::hit($pdo, 'register', $clientIp, 5, 3600, 1800);
 
                     // Dispara o e-mail transacional com o código de 6 dígitos
                     $enviado = false;

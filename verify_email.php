@@ -1,10 +1,12 @@
 <?php
 require_once "src/Security.php";
+require_once "src/RateLimiter.php";
 require_once "config/database.php";
 require_once "src/Mailer.php";
 
 Security::initSession();
 
+$clientIp = RateLimiter::getClientIp();
 $email = trim($_GET['email'] ?? $_POST['email'] ?? '');
 $codigo = trim($_GET['code'] ?? $_GET['token'] ?? $_POST['codigo'] ?? '');
 // Remove espaços e traços do código
@@ -16,11 +18,16 @@ $aviso = $_GET['aviso'] ?? '';
 
 // 1. Processamento de Reenvio de Código
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'resend_code') {
-    if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+    $rateCheckResend = RateLimiter::check($pdo, 'resend_code', $clientIp, 3, 600, 900);
+
+    if (!$rateCheckResend['allowed']) {
+        $erro = $rateCheckResend['message'];
+    } elseif (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
         $erro = "Sessão expirada. Por favor, tente novamente.";
     } elseif (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erro = "Informe um endereço de e-mail válido para reenviar o código.";
     } else {
+        RateLimiter::hit($pdo, 'resend_code', $clientIp, 3, 600, 900);
         try {
             $stmt = $pdo->prepare("SELECT id, name, email, email_verified_at FROM users WHERE email = ?");
             $stmt->execute([$email]);
@@ -57,7 +64,12 @@ $deveValidar = ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action'
             || (!empty($_GET['email']) && !empty($codigo) && strlen($codigo) === 6);
 
 if ($deveValidar) {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+    $verifyRateKey = $clientIp . ':' . strtolower($email);
+    $rateCheck = RateLimiter::check($pdo, 'verify_code', $verifyRateKey, 5, 600, 900);
+
+    if (!$rateCheck['allowed']) {
+        $erro = $rateCheck['message'];
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && !Security::validateCsrf($_POST['csrf_token'] ?? '')) {
         $erro = "Sessão expirada. Por favor, tente novamente.";
     } elseif (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erro = "Por favor, informe o seu e-mail cadastrado.";
@@ -76,9 +88,17 @@ if ($deveValidar) {
                 header("Location: login?sucesso=" . urlencode("Seu e-mail já está verificado. Faça login para acessar."));
                 exit;
             } elseif ($user['verification_token'] !== $codigo) {
-                $erro = "Código incorreto. Por favor, confira os 6 dígitos recebidos no seu e-mail.";
+                $rateHit = RateLimiter::hit($pdo, 'verify_code', $verifyRateKey, 5, 600, 900);
+                if (!$rateHit['allowed']) {
+                    $erro = $rateHit['message'];
+                } else {
+                    $restantes = $rateHit['remaining'];
+                    $avisoTentativas = ($restantes <= 2 && $restantes > 0) ? " (Você tem mais {$restantes} tentativa(s) antes do bloqueio temporário)" : "";
+                    $erro = "Código incorreto. Por favor, confira os 6 dígitos recebidos no seu e-mail." . $avisoTentativas;
+                }
             } else {
-                // Código correto: ativa a conta e limpa o token
+                // Código correto: ativa a conta e limpa o token e as tentativas de rate limit
+                RateLimiter::clear($pdo, 'verify_code', $verifyRateKey);
                 $upd = $pdo->prepare("UPDATE users SET email_verified_at = NOW(), verification_token = NULL WHERE id = ?");
                 $upd->execute([$user['id']]);
 
