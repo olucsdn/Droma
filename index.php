@@ -181,7 +181,6 @@ require_once "includes/layout_header.php";
 
         <div class="bloco grafico">
             <div class="cabecalho-secao cabecalho-grafico">
-                <h2 style="margin:0;">Distribuição por Categoria</h2>
                 <div class="aba-grafico" style="margin-bottom:0;">
                     <button type="button" class="btn-aba ativo" id="btnDespesas">Despesas</button>
                     <button type="button" class="btn-aba" id="btnReceitas">Receitas</button>
