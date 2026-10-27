@@ -1060,7 +1060,8 @@ body {
     max-width: 1180px;
     margin: 0 auto;
     padding: 32px 24px;
-    container-type: inline-size;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Notificação de Sucesso/Alerta */

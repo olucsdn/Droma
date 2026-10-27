@@ -369,8 +369,8 @@ $tituloPeriodo = $mesSelecionado > 0 ? "{$nomesMeses[$mesSelecionado]} de {$anoS
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+            gap: 16px;
             margin-bottom: 24px;
             width: 100%;
             min-width: 0;
