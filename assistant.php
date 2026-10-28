@@ -97,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dadosParaIA = $dadosAgregados;
             $dadosParaIA['foco_do_usuario'] = $foco;
             $analiseGerada = $ai->analisar($dadosParaIA);
+            $provedorNome = $ai->getProvedorUtilizado();
             $ai->recordUsage($pdo, $userId);
             $tipoAnalise = 'ai';
             // Recarrega contagem atualizada
@@ -454,7 +455,7 @@ require_once "includes/layout_header.php";
                     </div>
                 </div>
                 <span class="badge-tipo <?= $tipoAnalise === 'ai' ? 'ai' : 'local' ?>">
-                    <?= $tipoAnalise === 'ai' ? 'Gemini 3.5 IA' : 'Droma Engine Local' ?>
+                    <?= $tipoAnalise === 'ai' ? htmlspecialchars($provedorNome ?: 'Hugging Face IA') : 'Droma Engine Local' ?>
                 </span>
             </div>
 

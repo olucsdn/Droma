@@ -7,29 +7,37 @@ final class ClienteIA {
     public const QUOTA_PER_CYCLE = 1;
     public const DAILY_LIMIT = 1; // Mantido para compatibilidade retroativa
 
+    private string $provedorUtilizado = '';
+
+    public function getProvedorUtilizado(): string {
+        return $this->provedorUtilizado;
+    }
+
     public function analisar(array $dados): string {
         $lastError = 'Nenhum provedor de IA configurado.';
 
-        // 1. Provedor Principal: Google Gemini (com fallback entre modelos)
+        // 1. Provedor Principal: Hugging Face Router
+        $hfToken = $this->tokenHF();
+        if ($hfToken !== '') {
+            try {
+                $hfRes = $this->analisarHuggingFace($dados, $hfToken);
+                if ($hfRes !== null && trim($hfRes) !== '') {
+                    return $hfRes;
+                }
+            } catch (Throwable $e) {
+                $lastError = $e->getMessage();
+                error_log("[Assistant AI] Falha no Hugging Face (acionando fallback Gemini): " . $e->getMessage());
+            }
+        }
+
+        // 2. Provedor Secundário (Fallback): Google Gemini (com fallback entre modelos)
         $geminiKey = $this->chave();
         if ($geminiKey !== '') {
             try {
                 return $this->analisarGemini($dados, $geminiKey);
             } catch (Throwable $e) {
                 $lastError = $e->getMessage();
-            }
-        }
-
-        // 2. Provedor Secundário: Hugging Face Router
-        $hfToken = $this->tokenHF();
-        if ($hfToken !== '') {
-            try {
-                $hfRes = $this->analisarHuggingFace($dados, $hfToken);
-                if ($hfRes !== null) {
-                    return $hfRes;
-                }
-            } catch (Throwable $e) {
-                $lastError = $e->getMessage();
+                error_log("[Assistant AI] Falha no Gemini: " . $e->getMessage());
             }
         }
 
@@ -100,6 +108,7 @@ final class ClienteIA {
                 }
                 $text = implode("\n", $textParts);
                 if (trim($text) !== '') {
+                    $this->provedorUtilizado = 'Gemini (' . $model . ')';
                     return mb_substr(trim($text), 0, 5000);
                 }
             }
@@ -113,48 +122,70 @@ final class ClienteIA {
      * Executa análise via Hugging Face Router (OpenAI-compatible)
      */
     private function analisarHuggingFace(array $dados, string $token): ?string {
-        $url = 'https://router.huggingface.co/v1/chat/completions';
-        $payload = [
-            'model' => 'meta-llama/Llama-3.1-8B-Instruct',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'Você é o assistente financeiro do Droma. Responda em português do Brasil de forma acolhedora, objetiva e sem qualquer julgamento moral. '
-                        . 'Analise os números fornecidos e dê exatamente 3 sugestões práticas e realistas para ajudar o usuário a economizar ou planejar melhor. '
-                        . 'Use somente os números enviados; não invente dados e não recomende investimentos específicos ou arriscados.'
+        $preferredModel = $this->obterModeloHF();
+        $modelCandidates = array_unique(array_filter([
+            $preferredModel,
+            'meta-llama/Llama-3.1-8B-Instruct',
+            'Qwen/Qwen2.5-72B-Instruct',
+            'meta-llama/Llama-3.2-3B-Instruct',
+            'deepseek-ai/DeepSeek-V4.1-Flash'
+        ]));
+
+        $lastError = 'Hugging Face indisponível no momento.';
+        foreach ($modelCandidates as $model) {
+            $url = 'https://router.huggingface.co/v1/chat/completions';
+            $payload = [
+                'model' => $model,
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'Você é o assistente financeiro do Droma. Responda em português do Brasil de forma acolhedora, objetiva e sem qualquer julgamento moral. '
+                            . 'Analise os números fornecidos e dê exatamente 3 sugestões práticas e realistas para ajudar o usuário a economizar ou planejar melhor. '
+                            . 'Use somente os números enviados; não invente dados e não recomende investimentos específicos ou arriscados.'
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => 'Dados financeiros consolidados: ' . json_encode($dados, JSON_UNESCAPED_UNICODE)
+                    ]
                 ],
-                [
-                    'role' => 'user',
-                    'content' => 'Dados financeiros consolidados: ' . json_encode($dados, JSON_UNESCAPED_UNICODE)
-                ]
-            ],
-            'max_tokens' => 1200,
-            'temperature' => 0.4
-        ];
+                'max_tokens' => 1500,
+                'temperature' => 0.4
+            ];
 
-        $c = curl_init($url);
-        curl_setopt_array($c, [
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => json_encode($payload),
-            CURLOPT_HTTPHEADER     => [
-                "Authorization: Bearer $token",
-                'Content-Type: application/json'
-            ],
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_TIMEOUT        => 20,
-        ]);
-        $raw  = curl_exec($c);
-        $code = (int) curl_getinfo($c, CURLINFO_HTTP_CODE);
+            $c = curl_init($url);
+            curl_setopt_array($c, [
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                CURLOPT_HTTPHEADER     => [
+                    "Authorization: Bearer $token",
+                    'Content-Type: application/json'
+                ],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CONNECTTIMEOUT => 5,
+                CURLOPT_TIMEOUT        => 25,
+            ]);
+            $raw  = curl_exec($c);
+            $code = (int) curl_getinfo($c, CURLINFO_HTTP_CODE);
 
-        if ($code === 200 && is_string($raw)) {
-            $data = json_decode($raw, true);
-            $content = $data['choices'][0]['message']['content'] ?? '';
-            if (is_string($content) && trim($content) !== '') {
-                return mb_substr(trim($content), 0, 5000);
+            if ($raw === false) {
+                continue;
             }
+
+            if ($code === 200 && is_string($raw)) {
+                $data = json_decode($raw, true);
+                $content = $data['choices'][0]['message']['content'] ?? '';
+                if (is_string($content) && trim($content) !== '') {
+                    $this->provedorUtilizado = 'Hugging Face (' . basename($model) . ')';
+                    return mb_substr(trim($content), 0, 5000);
+                }
+            }
+
+            $decoded = is_string($raw) ? json_decode($raw, true) : null;
+            $errDetail = $decoded['error']['message'] ?? ($decoded['error'] ?? "Status HTTP $code");
+            $lastError = "Hugging Face ($model): $errDetail";
         }
-        return null;
+
+        throw new RuntimeException($lastError);
     }
 
     /**
@@ -345,5 +376,35 @@ final class ClienteIA {
         }
 
         return '';
+    }
+
+    private function obterModeloHF(): string {
+        $envModel = getenv('HF_MODEL') ?: ($_ENV['HF_MODEL'] ?? '');
+        if ($envModel !== '') {
+            return trim($envModel);
+        }
+
+        $candidatos = [
+            'C:/laragon/segredos/droma.env',
+            'C:/laragon/segredos/wert.env',
+            'C:/xampp/segredos/droma.env',
+            'C:/xampp/segredos/wert.env',
+            dirname(__DIR__, 2) . '/segredos/droma.env',
+            dirname(__DIR__, 2) . '/segredos/wert.env',
+            dirname(__DIR__) . '/.env'
+        ];
+
+        foreach ($candidatos as $f) {
+            if (is_readable($f)) {
+                foreach (file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) {
+                    $l = trim($l);
+                    if (str_starts_with($l, 'HF_MODEL=')) {
+                        return trim(substr($l, 9), " \t\"'");
+                    }
+                }
+            }
+        }
+
+        return 'meta-llama/Llama-3.1-8B-Instruct';
     }
 }
