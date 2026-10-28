@@ -16,7 +16,18 @@ final class ClienteIA {
     public function analisar(array $dados): string {
         $lastError = 'Nenhum provedor de IA configurado.';
 
-        // 1. Provedor Principal: Hugging Face Router
+        // 1. Provedor Principal (Gratuito e Ultra-rápido): Google Gemini
+        $geminiKey = $this->chave();
+        if ($geminiKey !== '') {
+            try {
+                return $this->analisarGemini($dados, $geminiKey);
+            } catch (Throwable $e) {
+                $lastError = $e->getMessage();
+                error_log("[Assistant AI] Falha no Gemini (acionando contingência): " . $e->getMessage());
+            }
+        }
+
+        // 2. Provedor Secundário: Hugging Face Router
         $hfToken = $this->tokenHF();
         if ($hfToken !== '') {
             try {
@@ -26,18 +37,7 @@ final class ClienteIA {
                 }
             } catch (Throwable $e) {
                 $lastError = $e->getMessage();
-                error_log("[Assistant AI] Falha no Hugging Face (acionando fallback Gemini): " . $e->getMessage());
-            }
-        }
-
-        // 2. Provedor Secundário (Fallback): Google Gemini (com fallback entre modelos)
-        $geminiKey = $this->chave();
-        if ($geminiKey !== '') {
-            try {
-                return $this->analisarGemini($dados, $geminiKey);
-            } catch (Throwable $e) {
-                $lastError = $e->getMessage();
-                error_log("[Assistant AI] Falha no Gemini: " . $e->getMessage());
+                error_log("[Assistant AI] Falha no Hugging Face: " . $e->getMessage());
             }
         }
 
@@ -69,7 +69,7 @@ final class ClienteIA {
             ]],
             'generationConfig' => [
                 'maxOutputTokens' => 3000,
-                'temperature' => 0.4,
+                'temperature' => 0.1,
                 'thinkingConfig' => ['thinkingBudget' => 512]
             ],
         ];
@@ -183,6 +183,11 @@ final class ClienteIA {
             $decoded = is_string($raw) ? json_decode($raw, true) : null;
             $errDetail = $decoded['error']['message'] ?? ($decoded['error'] ?? "Status HTTP $code");
             $lastError = "Hugging Face ($model): $errDetail";
+
+            // Se for 402 (falta de créditos), a conta inteira está sem saldo, não adianta tentar outros modelos
+            if ($code === 402) {
+                break;
+            }
         }
 
         throw new RuntimeException($lastError);

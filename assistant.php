@@ -455,7 +455,7 @@ require_once "includes/layout_header.php";
                     </div>
                 </div>
                 <span class="badge-tipo <?= $tipoAnalise === 'ai' ? 'ai' : 'local' ?>">
-                    <?= $tipoAnalise === 'ai' ? htmlspecialchars($provedorNome ?: 'Hugging Face IA') : 'Droma Engine Local' ?>
+                    <?= $tipoAnalise === 'ai' ? htmlspecialchars($provedorNome ?: 'Inteligência Artificial') : 'Droma Engine Local' ?>
                 </span>
             </div>
 
