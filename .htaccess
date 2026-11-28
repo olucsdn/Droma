@@ -1,0 +1,79 @@
+# ==============================================================================
+# Configurações de Segurança e Rotas Limpas — Droma Financy
+# ==============================================================================
+
+# Desativa a listagem pública de diretórios
+Options -Indexes +FollowSymLinks
+
+# Protege arquivos de configuração, banco de dados, documentações e logs
+<FilesMatch "^\.|\.(env|sql|log|md|ini|yml|yaml|lock|sh)$|Dockerfile|docker-compose">
+    Require all denied
+</FilesMatch>
+
+# Permite acesso ao manifest.json para suporte ao PWA
+<Files "manifest.json">
+    Require all granted
+</Files>
+
+# Define a página 404 personalizada do servidor
+ErrorDocument 404 /router.php?route=404
+
+# Gerenciamento de Rotas Amigáveis (Oculta .php das URLs)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # 1. Bloqueia acesso direto a diretórios internos de infraestrutura, lógica de negócio e testes
+    RewriteRule ^(database|docker|docs|scratch|tests|config|src|includes|pages|actions|legacy|\.agents)/ - [F,L,NC]
+
+    # 2. Redireciona /index.php para a raiz /
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+index\.php[?\s] [NC]
+    RewriteRule ^index\.php$ / [R=301,L]
+
+    # 3. Redireciona qualquer requisição com .php para a versão limpa sem .php (exceto /api/, /cron/ e /router.php)
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+((?!api/|cron/|router\.php).+?)\.php[?\s] [NC]
+    RewriteRule ^ /%1 [R=301,L,NE]
+
+    # 4. Serve CSS legados movidos para assets/css/ mesmo se requisitados na raiz
+    RewriteRule ^(style_.+\.css)$ assets/css/$1 [L,NC]
+
+    # 5. Executa internamente o arquivo .php correspondente se existir
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.+?)/?$ $1.php [L,QSA]
+
+    # 6. Despacha rotas amigáveis e 404 via router.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+?)/?$ router.php?route=$1 [L,QSA]
+</IfModule>
+
+# Cabeçalhos HTTP de Segurança
+<IfModule mod_headers.c>
+    # Oculta versões e assinaturas do servidor (Banner Disclosure)
+    Header unset X-Powered-By
+    Header always unset X-Powered-By
+    Header unset X-Render-Origin-Server
+    Header always unset X-Render-Origin-Server
+
+    # Força navegação estritamente segura via HTTPS (HSTS - 1 ano)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" "expr=%{HTTP:X-Forwarded-Proto} == 'https' || %{HTTPS} == 'on'"
+
+    # Impede que o sistema seja embutido em iframes de outros sites (Clickjacking)
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Previne que navegadores façam detecção automática de MIME (MIME sniffing)
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Proteção adicional contra XSS refletido
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Não vaza caminhos internos completos em requisições de saída
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Restringe APIs desnecessárias do navegador
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # Content Security Policy (CSP) defensivo
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self'; frame-ancestors 'self'; form-action 'self'; base-uri 'self';"
+</IfModule>

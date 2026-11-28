@@ -1,0 +1,16 @@
+.git
+.gitignore
+.gemini
+.system_generated
+scratch/
+docker/mysql-data/
+*.log
+*.tmp
+*.env
+tests/
+docs/
+database/
+.agents/
+*.md
+*.pdf
+docker-compose.yml

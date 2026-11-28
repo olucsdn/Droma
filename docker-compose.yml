@@ -1,0 +1,58 @@
+services:
+  # Servidor Web Apache + PHP 8.4
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wert_app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-wert}
+      DB_USER: ${DB_USER:-wert_user}
+      DB_PASS: ${DB_PASS:-wert_secret}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/var/www/html
+    networks:
+      - wert_network
+
+  # Banco de Dados MySQL 8.4
+  db:
+    image: mysql:8.4
+    container_name: wert_db
+    restart: unless-stopped
+    ports:
+      # Porta externa 3307 evita conflito se o Laragon já estiver rodando na 3306
+      - "${DB_PORT_EXTERNAL:-3307}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-wert}
+      MYSQL_USER: ${DB_USER:-wert_user}
+      MYSQL_PASSWORD: ${DB_PASS:-wert_secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-wert_root_secret}
+    volumes:
+      - wert_mysql_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - wert_network
+
+networks:
+  wert_network:
+    driver: bridge
+
+volumes:
+  wert_mysql_data:
+    driver: local

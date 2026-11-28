@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: droma
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, mbstring, curl, json, fileinfo
+
+      - name: PHP Syntax Lint
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+
+      - name: Load Schema & Run Migrations
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: droma
+          DB_USER: root
+          DB_PASS: root
+          DB_SSL: 'false'
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot droma < database/schema.sql
+          php database/migrate.php
+
+      - name: Run Test Suites
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: droma
+          DB_USER: root
+          DB_PASS: root
+          DB_SSL: 'false'
+        run: |
+          for f in tests/test_suite_phase*.php tests/test_suite_backup_security.php tests/test_suite_security_oom.php; do
+            echo "=== Running $f ==="
+            php "$f"
+          done

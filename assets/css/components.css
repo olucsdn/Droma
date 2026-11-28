@@ -1,0 +1,271 @@
+/* ==========================================================================
+   DROMA COMPONENTES ISOLADOS (.droma-*)
+   Prefixados para substituir estilos inline sem colidir com CSS de páginas.
+   ========================================================================== */
+.droma-card {
+    background: var(--color-surface, var(--droma-bg-surface));
+    border: 1px solid var(--color-border, var(--droma-border-hairline));
+    border-radius: var(--droma-radius-outer);
+    padding: 20px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 20px rgba(0, 0, 0, 0.18);
+}
+
+.droma-alert {
+    padding: 12px 16px;
+    border-radius: var(--droma-radius-inner);
+    margin-bottom: 18px;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--droma-border-hairline);
+}
+
+.droma-alert--error {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: var(--droma-danger-text);
+}
+
+.droma-alert--success {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.35);
+    color: var(--droma-emerald-text);
+}
+
+.droma-alert--warning {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: var(--droma-warning-text);
+}
+
+.droma-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.droma-badge--gold {
+    background: rgba(212, 175, 108, 0.15);
+    color: var(--droma-gold-text);
+}
+
+.droma-badge--success {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--droma-emerald-text);
+}
+
+.droma-badge--danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--droma-danger-text);
+}
+
+.droma-badge--warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--droma-warning-text);
+}
+
+.droma-progress {
+    width: 100%;
+    height: 7px;
+    background: var(--droma-bg-subtle);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.droma-progress-fill {
+    height: 100%;
+    border-radius: 9999px;
+    background: var(--droma-gold);
+    transition: width 0.25s var(--droma-ease-mechanical);
+}
+
+.droma-progress-fill--emerald { background: var(--droma-emerald); }
+.droma-progress-fill--warning { background: var(--droma-warning); }
+.droma-progress-fill--danger  { background: var(--droma-danger); }
+
+.droma-empty {
+    text-align: center;
+    padding: 28px 16px;
+    border: 1px dashed var(--droma-border-strong);
+    border-radius: var(--droma-radius-inner);
+    color: var(--droma-text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.droma-empty p {
+    margin: 0;
+    font-size: 13.5px;
+}
+
+.droma-kbd {
+    display: none;
+    padding: 1px 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    border-radius: 5px;
+    border: 1px solid var(--droma-border-strong);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--droma-text-muted);
+}
+
+@media (pointer: fine) {
+    .droma-kbd {
+        display: inline-block;
+    }
+}
+
+.droma-segmented {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 4px;
+    background: var(--droma-bg-elevated);
+    border: 1px solid var(--droma-border-hairline);
+    border-radius: var(--droma-radius-inner);
+}
+
+.droma-segmented-btn {
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--droma-text-muted);
+    padding: 10px 12px;
+    border-radius: var(--droma-radius-control);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s var(--droma-ease-mechanical), color 0.15s ease, transform 0.12s ease;
+}
+
+.droma-segmented-btn:active {
+    transform: scale(0.98);
+}
+
+.droma-segmented-btn.is-active[data-type="expense"] {
+    background: rgba(239, 68, 68, 0.16);
+    border-color: rgba(239, 68, 68, 0.45);
+    color: var(--droma-danger-text);
+}
+
+.droma-segmented-btn.is-active[data-type="income"] {
+    background: rgba(16, 185, 129, 0.16);
+    border-color: rgba(16, 185, 129, 0.45);
+    color: var(--droma-emerald-text);
+}
+
+.droma-dot-urgency {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.droma-dot-urgency--baixa { background: var(--droma-emerald); }
+.droma-dot-urgency--media { background: var(--droma-warning); }
+.droma-dot-urgency--alta  { background: var(--droma-danger); }
+
+.droma-date-group-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--droma-text-muted);
+    padding: 10px 0 4px;
+    border-bottom: 1px solid var(--droma-border-hairline);
+    margin-bottom: 4px;
+}
+
+.droma-sticky-toolbar {
+    position: sticky;
+    top: 10px;
+    z-index: 40;
+    backdrop-filter: blur(10px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .droma-progress-fill,
+    .droma-segmented-btn {
+        transition: none;
+    }
+}
+
+/* Utilitários semânticos para substituição de estilos inline */
+.droma-text-muted     { color: var(--color-text-secondary); }
+.droma-text-primary   { color: var(--color-text); }
+.droma-text-warning   { color: var(--color-warning); }
+.droma-text-emerald   { color: var(--color-emerald); }
+.droma-text-danger    { color: var(--color-danger); }
+.droma-text-gold      { color: var(--color-gold); }
+
+.droma-subtext        { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+.droma-subtext-xs     { font-size: 11px; color: var(--color-text-secondary); word-break: break-word; }
+.droma-note-italic    { font-size: 11px; color: var(--color-text-secondary); margin: 6px 0; font-style: italic; }
+.droma-title-block    { font-size: 16px; color: var(--color-text); display: block; word-break: break-word; }
+.droma-status-tag     { font-size: 10px; margin-top: 3px; font-weight: 700; }
+.droma-fw-700         { font-weight: 700; }
+.droma-fw-800         { font-weight: 800; }
+.droma-fs-11          { font-size: 11px; }
+
+.droma-m-0            { margin: 0; }
+.droma-mt-xs          { margin-top: 2px; }
+.droma-mt-sm          { margin-top: 8px; }
+.droma-mt-md          { margin-top: 12px; }
+.droma-mb-sm          { margin-bottom: 10px; }
+.droma-mb-md          { margin-bottom: 16px; }
+
+.droma-flex-between   { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.droma-flex-center    { display: flex; justify-content: space-between; align-items: center; }
+.droma-flex-wrap      { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.droma-flex-row       { display: flex; gap: 10px; margin-top: 8px; }
+.droma-flex-1         { flex: 1; min-width: 0; }
+.droma-text-right     { text-align: right; }
+.droma-hidden         { display: none; }
+.droma-fit-height     { height: fit-content; }
+.droma-link-plain     { text-decoration: none; }
+
+.droma-box-inset {
+    background: var(--color-surface);
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0;
+    border: 1px solid var(--color-border);
+}
+
+.droma-pill-gold {
+    font-size: 11px;
+    color: var(--color-gold-light);
+    margin-bottom: 10px;
+    background: rgba(212, 175, 108, 0.08);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.droma-divider-top {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--droma-border-hairline, rgba(255, 255, 255, 0.08));
+}
+
+.droma-card-reset {
+    max-width: 100%;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.droma-btn-reset   { border: none; cursor: pointer; }
+.droma-btn-warn    { border-color: var(--color-warning); color: var(--droma-warning-text, #FCD34D); }
+.droma-btn-emerald { border-color: var(--color-emerald); color: var(--droma-emerald-text, #6EE7B7); }
+.droma-btn-gold    { border-color: var(--color-gold); color: var(--color-gold); }
